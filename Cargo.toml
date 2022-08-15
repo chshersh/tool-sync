@@ -1,0 +1,8 @@
+[package]
+name = "tool-sync"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+description = "A CLI tool to manage other installed tools easily."
+
+[dependencies]
