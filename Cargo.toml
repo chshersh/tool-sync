@@ -7,3 +7,4 @@ description = "A CLI tool to manage other installed tools easily."
 
 [dependencies]
 clap = { version = "3.2.17", features = ["derive"] }
+dirs = "4.0.0"
