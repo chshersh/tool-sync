@@ -1,11 +1,13 @@
 mod cli;
+mod file_config;
 
 use std::path::PathBuf;
 use std::process;
 use clap::Parser;
 use dirs;
 
-use cli::Cli;
+use crate::cli::Cli;
+use crate::file_config::parse_config;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
 
@@ -17,6 +19,11 @@ pub fn run() {
     let config_path = resolve_config_path(cli.config);
 
     println!("Config path: {}", config_path.display());
+
+    if let Err(e) = parse_config(config_path) {
+        eprintln!("Application error: {e}");
+        process::exit(1);
+    }
 }
 
 fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {

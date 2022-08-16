@@ -1,0 +1,8 @@
+store.directory = "/home/cshersh/.local/bin"
+
+[bat]
+[exa]
+[difftastic]
+[hlint]
+[ripgrep]
+[tok]
