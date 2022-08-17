@@ -10,11 +10,11 @@ pub struct Cli {
     pub config: Option<PathBuf>,
 
     #[clap(subcommand)]
-    pub command: Option<Commands>,
+    pub command: Command,
 }
 
 #[derive(Subcommand, Debug)]
-pub enum Commands {
+pub enum Command {
     /// Sync all tools specified in configuration file
     Sync,
 }

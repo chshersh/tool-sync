@@ -6,15 +6,14 @@ use toml::{Value, map::Map};
 
 use crate::tool::{Tool, ToolDetails};
 
-pub fn parse_config(config_path: PathBuf) -> Result<(), Box<dyn Error>> {
+pub fn parse_config(config_path: &PathBuf) -> Result<Tool, Box<dyn Error>> {
     let contents = fs::read_to_string(config_path)?;
     let value = contents.parse::<Value>()?;
 
-    println!("{:?}", value);
-
-    println!("{:?}", decode_tool(value));
- 
-    Ok(())
+    match decode_tool(value) {
+        None => Err(format!("Error decoding TOML file: {}", config_path.display()).into()),
+        Some(tool) => Ok(tool),
+    }
 }
 
 fn decode_tool(toml: Value) -> Option<Tool> {

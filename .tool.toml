@@ -1,5 +1,5 @@
 # a directory to store all tools
-store_directory = "/home/cshersh/.local/bin"
+store_directory = "/home/chshersh/.local/bin"
 
 [bat]
 [exa]
