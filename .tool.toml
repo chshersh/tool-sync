@@ -1,4 +1,5 @@
-store.directory = "/home/cshersh/.local/bin"
+# a directory to store all tools
+store_directory = "/home/cshersh/.local/bin"
 
 [bat]
 [exa]
