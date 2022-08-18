@@ -1,8 +1,12 @@
 use std::process;
 use serde::Deserialize;
 use std::error::Error;
+use std::fs;
 use std::fs::File;
 use std::io::Write;
+use flate2::read::GzDecoder;
+use std::path::PathBuf;
+use tar::Archive;
 use ureq;
 
 use crate::tool::{Tool, ToolDetails};
@@ -31,7 +35,7 @@ pub fn sync(tool: Tool) {
     for (tool_name, tool_details) in tool.tools.iter() {
         if tool_name == "ripgrep" {
             println!("Downloading rg!");
-            if let Err(e) = sync_single_tool(tool_name, tool_details) {
+            if let Err(e) = sync_single_tool(&tool.store_directory, tool_name, tool_details) {
                 eprintln!("Error syncing a tool: {e}");
             }
         } else {
@@ -40,7 +44,7 @@ pub fn sync(tool: Tool) {
     }
 }
 
-fn sync_single_tool(tool_name: &str, tool_details: &ToolDetails) -> Result<(), Box<dyn Error>> {
+fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_details: &ToolDetails) -> Result<(), Box<dyn Error>> {
     let request_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/latest",
                               owner = "BurntSushi",
                               repo = "ripgrep");
@@ -69,7 +73,7 @@ fn sync_single_tool(tool_name: &str, tool_details: &ToolDetails) -> Result<(), B
                 .call()?
                 .into_reader();
 
-            let mut destination = File::create(asset.name)?;
+            let mut destination = File::create(&asset.name)?;
             let mut buffer = [0; 4096];
             while let Ok(bytes_read) = stream.read(&mut buffer) {
                 if bytes_read == 0 {
@@ -78,8 +82,42 @@ fn sync_single_tool(tool_name: &str, tool_details: &ToolDetails) -> Result<(), B
 
                 destination.write(&buffer[..bytes_read])?;
             }
+
+            unpack_tar(&asset.name)?;
+            copy_file(&asset.name, store_directory)?;
         }
     }
+
+    Ok(())
+}
+
+fn unpack_tar(asset_name: &str) -> Result<(), std::io::Error> {
+    let tar_gz = File::open(asset_name)?;
+    let tar = GzDecoder::new(tar_gz);
+    let mut archive = Archive::new(tar);
+    archive.unpack(".")?;
+
+    Ok(())
+}
+
+fn copy_file(asset_name: &str, store_directory: &PathBuf) -> std::io::Result<()> {
+    let tool_name = "rg";
+
+    let unpack_dir = asset_name.strip_suffix(".tar.gz").unwrap_or(asset_name);
+
+    let mut downloaded_path = PathBuf::new();
+    downloaded_path.push(unpack_dir);
+    downloaded_path.push(tool_name);
+
+    let mut install_path = PathBuf::new();
+    install_path.push(store_directory);
+    install_path.push(tool_name);
+
+    println!("Copy from: {}", downloaded_path.display());
+    println!("Copy to:   {}", install_path.display());
+    
+    // Copy file from the downloaded unpacked archive to 'store_directory'
+    fs::copy(downloaded_path, install_path)?;  
 
     Ok(())
 }
