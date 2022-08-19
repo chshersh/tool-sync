@@ -1,5 +1,4 @@
 use std::process;
-use serde::Deserialize;
 use std::error::Error;
 use std::fs;
 use std::fs::File;
@@ -9,20 +8,9 @@ use std::path::PathBuf;
 use tar::Archive;
 use ureq;
 
-use crate::tool::{Tool, Config, ToolInfo, resolve_tool};
-
-#[derive(Deserialize, Debug)]
-struct Release {
-    tag_name: String,
-    assets: Vec<Asset>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Asset {
-    id: u32,
-    name: String,
-    size: u32,
-}
+use crate::model::release::Release;
+use crate::config::schema::Config;
+use crate::model::tool::{Tool, ToolInfo, resolve_tool};
 
 pub fn sync(config: Config) {
     let has_store_directory = config.store_directory.as_path().is_dir();

@@ -4,7 +4,8 @@ use std::fs;
 use std::path::PathBuf;
 use toml::{Value, map::Map};
 
-use crate::tool::{Config, ConfigAsset, AssetName};
+use crate::model::asset_name::AssetName;
+use crate::config::schema::{Config, ConfigAsset};
 
 pub fn parse_config(config_path: &PathBuf) -> Result<Config, Box<dyn Error>> {
     let contents = fs::read_to_string(config_path)?;

@@ -1,6 +1,5 @@
-mod cli;
-mod toml;
-mod tool;
+mod config;
+mod model;
 mod sync;
 
 use std::path::PathBuf;
@@ -8,8 +7,8 @@ use std::process;
 use clap::Parser;
 use dirs;
 
-use crate::cli::{Cli, Command};
-use crate::toml::parse_config;
+use crate::config::cli::{Cli, Command};
+use crate::config::toml::parse_config;
 use crate::sync::sync;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
