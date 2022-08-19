@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use tar::Archive;
 use ureq;
 
-use crate::tool::{Tool, ToolDetails};
+use crate::tool::{Tool, Config, ToolInfo, resolve_tool};
 
 #[derive(Deserialize, Debug)]
 struct Release {
@@ -24,30 +24,33 @@ struct Asset {
     size: u32,
 }
 
-pub fn sync(tool: Tool) {
-    let has_store_directory = tool.store_directory.as_path().is_dir();
+pub fn sync(config: Config) {
+    let has_store_directory = config.store_directory.as_path().is_dir();
 
     if !has_store_directory {
-        eprintln!("Specified directory for storing tools doesn't exist: {}", tool.store_directory.display());
+        eprintln!("Specified directory for storing tools doesn't exist: {}", config.store_directory.display());
         process::exit(1);
     }
 
-    for (tool_name, tool_details) in tool.tools.iter() {
-        if tool_name == "ripgrep" {
-            println!("Downloading rg!");
-            if let Err(e) = sync_single_tool(&tool.store_directory, tool_name, tool_details) {
-                eprintln!("Error syncing a tool: {e}");
-            }
-        } else {
-            println!("Skipping: {}", tool_name);
+    for (tool_name, config_asset) in config.tools.iter() {
+        match resolve_tool(tool_name, config_asset) {
+            Tool::Known(tool_info) => {
+                eprintln!("Installing: {}", tool_name);
+                if let Err(e) = sync_single_tool(&config.store_directory, tool_name, &tool_info) {
+                   eprintln!("Error syncing a tool: {e}");
+                }
+            },
+            Tool::Error(e) => {
+                eprintln!("Unknown tool: {}", tool_name);
+            },
         }
     }
 }
 
-fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_details: &ToolDetails) -> Result<(), Box<dyn Error>> {
+fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_info: &ToolInfo) -> Result<(), Box<dyn Error>> {
     let request_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/latest",
-                              owner = "BurntSushi",
-                              repo = "ripgrep");
+                              owner = tool_info.owner,
+                              repo = tool_info.repo);
     println!("{}", request_url);
     let release: Release =
         ureq::get(&request_url)
@@ -58,33 +61,44 @@ fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_details: &T
 
     println!("{:#?}", release);
 
-    for asset in release.assets {
-        if asset.name == "ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz" {
-            let request_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/assets/{asset_id}",
-                                      owner = "BurntSushi",
-                                      repo = "ripgrep",
-                                      asset_id = asset.id);
-
-            println!("{}", request_url);
-
-            let mut stream = ureq::get(&request_url)
-                .set("Accept", "application/octet-stream")
-                .set("User-Agent", "chshersh/tool-sync-1.0")
-                .call()?
-                .into_reader();
-
-            let mut destination = File::create(&asset.name)?;
-            let mut buffer = [0; 4096];
-            while let Ok(bytes_read) = stream.read(&mut buffer) {
-                if bytes_read == 0 {
-                    break;
+    match tool_info.asset_name.get_name_by_os() {
+        None => eprintln!("Unknown asset name for the current OS"),
+        Some(asset_name) => {
+            let asset = release
+                    .assets
+                    .iter()
+                    .find(|&asset| asset.name.contains(asset_name));
+            
+            match asset {
+                None => eprintln!("No asset matching name: {}", asset_name),
+                Some(asset) => {
+                    let request_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/assets/{asset_id}",
+                                              owner = tool_info.owner,
+                                              repo = tool_info.repo,
+                                              asset_id = asset.id);
+        
+                    println!("{}", request_url);
+        
+                    let mut stream = ureq::get(&request_url)
+                        .set("Accept", "application/octet-stream")
+                        .set("User-Agent", "chshersh/tool-sync-1.0")
+                        .call()?
+                        .into_reader();
+        
+                    let mut destination = File::create(&asset.name)?;
+                    let mut buffer = [0; 4096];
+                    while let Ok(bytes_read) = stream.read(&mut buffer) {
+                        if bytes_read == 0 {
+                            break;
+                        }
+        
+                        destination.write(&buffer[..bytes_read])?;
+                    }
+        
+                    unpack_tar(&asset.name)?;
+                    copy_file(&asset.name, store_directory, &tool_info.exe_name)?;
                 }
-
-                destination.write(&buffer[..bytes_read])?;
             }
-
-            unpack_tar(&asset.name)?;
-            copy_file(&asset.name, store_directory)?;
         }
     }
 
@@ -100,21 +114,19 @@ fn unpack_tar(asset_name: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-fn copy_file(asset_name: &str, store_directory: &PathBuf) -> std::io::Result<()> {
-    let tool_name = "rg";
-
+fn copy_file(asset_name: &str, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
     let unpack_dir = asset_name.strip_suffix(".tar.gz").unwrap_or(asset_name);
 
     let mut downloaded_path = PathBuf::new();
     downloaded_path.push(unpack_dir);
-    downloaded_path.push(tool_name);
+    downloaded_path.push(exe_name);
 
     let mut install_path = PathBuf::new();
     install_path.push(store_directory);
-    install_path.push(tool_name);
+    install_path.push(exe_name);
 
-    println!("Copy from: {}", downloaded_path.display());
-    println!("Copy to:   {}", install_path.display());
+    eprintln!("Copy from: {}", downloaded_path.display());
+    eprintln!("Copy to:   {}", install_path.display());
     
     // Copy file from the downloaded unpacked archive to 'store_directory'
     fs::copy(downloaded_path, install_path)?;  
