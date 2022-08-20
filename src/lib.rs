@@ -19,7 +19,7 @@ pub fn run() {
 
     match parse_config(&config_path) {
         Err(e) => {
-            eprintln!("Application error: {e}");
+            eprintln!("Config parsing error: {e}");
             process::exit(1);
         },
         Ok(tool) => match cli.command {

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::process;
 
 use crate::model::asset_name::AssetName;
 
@@ -31,4 +32,16 @@ pub struct ConfigAsset {
 
     /// Name of the specific asset to download
     pub asset_name: AssetName,
+}
+
+impl Config {
+    /// Exits with error if 'store_directory' doesn't exist
+    pub fn ensure_store_directory(&self) {
+        let has_store_directory = self.store_directory.as_path().is_dir();
+   
+        if !has_store_directory {
+            eprintln!("Specified directory for storing tools doesn't exist: {}", self.store_directory.display());
+            process::exit(1);
+        }
+    }
 }
