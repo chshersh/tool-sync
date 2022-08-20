@@ -2,8 +2,8 @@
 store_directory = "/home/chshersh/.local/bin"
 
 [bat]
-[exa]
 [difftastic]
-[hlint]
+[exa]
+[fd]
 [ripgrep]
-[tok]
+[tokei]

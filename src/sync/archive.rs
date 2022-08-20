@@ -75,13 +75,32 @@ fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &s
     let mut archive = tar::Archive::new(tar_decoder);
     archive.unpack(tmp_dir)?;
 
-    // create path to the final executable
-    let mut tool_path = PathBuf::new();
-    tool_path.push(tmp_dir);
-    tool_path.push(asset_name);
-    tool_path.push(exe_name);
+    // potential places where an executable can be
+    // let asset_name_comp = PathBuf::from(asset_name);
+    // let exe_name_comp = PathBuf::from(exe_name);
+    let path_candidates: Vec<PathBuf> = vec![
+        [asset_name, exe_name].iter().collect(),
+        [exe_name].iter().collect(),
+        ["bin", exe_name].iter().collect(),
+    ];
 
-    Ok(tool_path)
+    // find a path
+    for path in path_candidates {
+        // create path to the final executable
+        let mut tool_path = PathBuf::new();
+        tool_path.push(tmp_dir);
+        tool_path.push(path);
+
+        // check if this path actually exists
+        if tool_path.is_file() {
+            return Ok(tool_path)
+        }
+    }
+
+    Err(io::Error::new(
+        io::ErrorKind::NotFound, 
+        format!("Can't find executable in the archive: {}", tar_path.display())
+    ))
 }
 
 fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &str) -> Result<PathBuf, std::io::Error> {
