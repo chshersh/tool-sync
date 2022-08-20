@@ -1,6 +1,7 @@
 mod archive;
 mod configure;
 mod db;
+mod download;
 mod install;
 
 use crate::config::schema::Config;
