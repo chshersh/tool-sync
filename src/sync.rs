@@ -6,6 +6,7 @@ use std::io::Write;
 use flate2::read::GzDecoder;
 use std::path::PathBuf;
 use tar::Archive;
+use tempdir::TempDir;
 use ureq;
 
 use crate::model::release::Release;
@@ -20,22 +21,31 @@ pub fn sync(config: Config) {
         process::exit(1);
     }
 
-    for (tool_name, config_asset) in config.tools.iter() {
-        match resolve_tool(tool_name, config_asset) {
-            Tool::Known(tool_info) => {
-                eprintln!("Installing: {}", tool_name);
-                if let Err(e) = sync_single_tool(&config.store_directory, tool_name, &tool_info) {
-                   eprintln!("Error syncing a tool: {e}");
+    let tmp_dir = TempDir::new("tool-sync");
+    match tmp_dir {
+        Err(e) => {
+            eprintln!("Error creating temporary directory: {}", e);
+            process::exit(1);
+        },
+        Ok(tmp_dir) => {
+            for (tool_name, config_asset) in config.tools.iter() {
+                match resolve_tool(tool_name, config_asset) {
+                    Tool::Known(tool_info) => {
+                        eprintln!("Installing: {}", tool_name);
+                        if let Err(e) = sync_single_tool(&config.store_directory, &tmp_dir, tool_name, &tool_info) {
+                           eprintln!("Error syncing a tool: {e}");
+                        }
+                    },
+                    Tool::Error(e) => {
+                        eprintln!("Unknown tool: {}", tool_name);
+                    },
                 }
-            },
-            Tool::Error(e) => {
-                eprintln!("Unknown tool: {}", tool_name);
-            },
+            }
         }
     }
 }
 
-fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_info: &ToolInfo) -> Result<(), Box<dyn Error>> {
+fn sync_single_tool(store_directory: &PathBuf, tmp_dir: &TempDir, tool_name: &str, tool_info: &ToolInfo) -> Result<(), Box<dyn Error>> {
     let request_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/latest",
                               owner = tool_info.owner,
                               repo = tool_info.repo);
@@ -73,7 +83,8 @@ fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_info: &Tool
                         .call()?
                         .into_reader();
         
-                    let mut destination = File::create(&asset.name)?;
+                    let download_path = tmp_dir.path().join(&asset.name);
+                    let mut destination = File::create(&download_path)?;
                     let mut buffer = [0; 4096];
                     while let Ok(bytes_read) = stream.read(&mut buffer) {
                         if bytes_read == 0 {
@@ -83,8 +94,8 @@ fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_info: &Tool
                         destination.write(&buffer[..bytes_read])?;
                     }
         
-                    unpack_tar(&asset.name)?;
-                    copy_file(&asset.name, store_directory, &tool_info.exe_name)?;
+                    unpack_tar(&download_path, &tmp_dir)?;
+                    copy_file(&tmp_dir, &asset.name, store_directory, &tool_info.exe_name)?;
                 }
             }
         }
@@ -93,19 +104,20 @@ fn sync_single_tool(store_directory: &PathBuf, tool_name: &str, tool_info: &Tool
     Ok(())
 }
 
-fn unpack_tar(asset_name: &str) -> Result<(), std::io::Error> {
-    let tar_gz = File::open(asset_name)?;
+fn unpack_tar(download_path: &PathBuf, tmp_dir: &TempDir) -> Result<(), std::io::Error> {
+    let tar_gz = File::open(download_path)?;
     let tar = GzDecoder::new(tar_gz);
     let mut archive = Archive::new(tar);
-    archive.unpack(".")?;
+    archive.unpack(tmp_dir.path())?;
 
     Ok(())
 }
 
-fn copy_file(asset_name: &str, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
+fn copy_file(tmp_dir: &TempDir, asset_name: &str, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
     let unpack_dir = asset_name.strip_suffix(".tar.gz").unwrap_or(asset_name);
 
     let mut downloaded_path = PathBuf::new();
+    downloaded_path.push(tmp_dir.path());
     downloaded_path.push(unpack_dir);
     downloaded_path.push(exe_name);
 

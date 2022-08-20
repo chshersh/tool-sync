@@ -13,4 +13,5 @@ ureq = { version = "2.5.0", features = ["json"] }
 dirs = "4.0.0"
 flate2 = "1.0"
 tar = "0.4.38"
+tempdir = "0.3.7"
 toml = "0.5.9"
