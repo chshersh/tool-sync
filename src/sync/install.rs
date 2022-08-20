@@ -1,17 +1,15 @@
-use flate2::read::GzDecoder;
 use std::error::Error;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process;
-use tar::Archive;
 use tempdir::TempDir;
 
 use crate::model::release::Release;
 use crate::config::schema::ConfigAsset;
 use crate::model::tool::{Tool, ToolInfo};
-
+use crate::sync::archive::Archive;
 use crate::sync::configure::configure_tool;
 
 pub struct Installer {
@@ -99,9 +97,25 @@ fn sync_single_tool(store_directory: &PathBuf, tmp_dir: &TempDir, tool_name: &st
         
                         destination.write(&buffer[..bytes_read])?;
                     }
-        
-                    unpack_tar(&download_path, &tmp_dir)?;
-                    copy_file(&tmp_dir, &asset.name, store_directory, &tool_info.exe_name)?;
+
+                    let archive = Archive::from(
+                        &download_path,
+                        tmp_dir.path(),
+                        &tool_info.exe_name,
+                        &asset.name,
+                    );
+
+                    match archive {
+                        None => {
+                            eprintln!("Unsupported archive type: {}", asset.name);
+                            process::exit(1);
+                        },
+                        Some(archive) => {
+                            println!("Starting to unpack...");
+                            let tool_path = archive.unpack()?;
+                            copy_file(tool_path, store_directory, &tool_info.exe_name)?;
+                        }
+                    }
                 }
             }
         }
@@ -110,32 +124,16 @@ fn sync_single_tool(store_directory: &PathBuf, tmp_dir: &TempDir, tool_name: &st
     Ok(())
 }
 
-fn unpack_tar(download_path: &PathBuf, tmp_dir: &TempDir) -> Result<(), std::io::Error> {
-    let tar_gz = File::open(download_path)?;
-    let tar = GzDecoder::new(tar_gz);
-    let mut archive = Archive::new(tar);
-    archive.unpack(tmp_dir.path())?;
-
-    Ok(())
-}
-
-fn copy_file(tmp_dir: &TempDir, asset_name: &str, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
-    let unpack_dir = asset_name.strip_suffix(".tar.gz").unwrap_or(asset_name);
-
-    let mut downloaded_path = PathBuf::new();
-    downloaded_path.push(tmp_dir.path());
-    downloaded_path.push(unpack_dir);
-    downloaded_path.push(exe_name);
-
+fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
     let mut install_path = PathBuf::new();
     install_path.push(store_directory);
     install_path.push(exe_name);
 
-    eprintln!("Copy from: {}", downloaded_path.display());
+    eprintln!("Copy from: {}", tool_path.display());
     eprintln!("Copy to:   {}", install_path.display());
     
     // Copy file from the downloaded unpacked archive to 'store_directory'
-    fs::copy(downloaded_path, install_path)?;  
+    fs::copy(tool_path, install_path)?;  
 
     Ok(())
 }

@@ -1,3 +1,4 @@
+mod archive;
 mod configure;
 mod db;
 mod install;
