@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::process;
 
@@ -14,7 +14,7 @@ pub struct Config {
   pub store_directory: PathBuf,
 
   /// Info about each individual tool
-  pub tools: HashMap<String, ConfigAsset>,
+  pub tools: BTreeMap<String, ConfigAsset>,
 }
 
 /// Additional details, telling how to download a tool

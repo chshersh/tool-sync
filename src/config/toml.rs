@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
@@ -21,7 +21,7 @@ fn decode_config(toml: Value) -> Option<Config> {
     let t_store_directory = toml["store_directory"].as_str()?;
     let store_directory = PathBuf::from(t_store_directory);
 
-    let mut tools = HashMap::new();
+    let mut tools = BTreeMap::new();
 
     for (key, val) in toml.as_table()?.iter() {
         if let Value::Table(table) = val {
