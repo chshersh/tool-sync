@@ -66,9 +66,6 @@ impl<'a> Archive<'a> {
 }
 
 fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &str) -> Result<PathBuf, std::io::Error> {
-    println!("Tar path: {}", tar_path.display());
-    println!("Tar path exists: {}", tar_path.is_file());
-
     // unpack tar_path to tmp_dir
     let tar_file = File::open(tar_path)?;
     let tar_decoder = GzDecoder::new(tar_file);

@@ -1,3 +1,4 @@
+use indicatif::ProgressBar;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
@@ -33,7 +34,6 @@ impl Installer {
     pub fn install(&self, tool_name: &str, config_asset: &ConfigAsset) {
         match configure_tool(tool_name, config_asset) {
             Tool::Known(tool_info) => {
-                eprintln!("Installing: {}", tool_name);
                 if let Err(e) = sync_single_tool(&self.store_directory, &self.tmp_dir, tool_name, &tool_info) {
                    eprintln!("Error syncing a tool: {e}");
                 }
@@ -72,7 +72,6 @@ fn sync_single_tool(store_directory: &PathBuf, tmp_dir: &TempDir, tool_name: &st
                     process::exit(1);
                 },
                 Some(archive) => {
-                    println!("Starting to unpack...");
                     let tool_path = archive.unpack()?;
                     copy_file(tool_path, store_directory, &tool_info.exe_name)?;
                 }
@@ -88,9 +87,6 @@ fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> s
     install_path.push(store_directory);
     install_path.push(exe_name);
 
-    eprintln!("Copy from: {}", tool_path.display());
-    eprintln!("Copy to:   {}", install_path.display());
-    
     // Copy file from the downloaded unpacked archive to 'store_directory'
     fs::copy(tool_path, install_path)?;  
 

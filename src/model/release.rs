@@ -10,5 +10,5 @@ pub struct Release {
 pub struct Asset {
     pub id: u32,
     pub name: String,
-    // size: u32,
+    pub size: u64,
 }

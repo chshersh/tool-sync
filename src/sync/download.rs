@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 use ureq;
 
 use crate::model::release::{Release, Asset};
@@ -38,7 +39,6 @@ impl<'a> Downloader<'a> {
 
     fn download_release(&self) -> Result<Release, Box<dyn Error>> {
         let release_url = self.release_url();
-        println!("Release URL: {}", release_url);
 
         let release: Release =
             ureq::get(&release_url)
@@ -50,9 +50,9 @@ impl<'a> Downloader<'a> {
         Ok(release)
     }
 
-    fn download_asset(&self, tmp_dir: &Path, asset: &Asset) -> Result<PathBuf, Box<dyn Error>> {
+    fn download_asset(&self, tmp_dir: &Path, asset: &Asset, mp: &MultiProgress, pb_msg: &ProgressBar) -> Result<PathBuf, Box<dyn Error>> {
+
         let asset_url = self.asset_url(asset.id);
-        println!("Asset URL: {}", asset_url);
         
         let mut stream = ureq::get(&asset_url)
             .set("Accept", "application/octet-stream")
@@ -63,14 +63,22 @@ impl<'a> Downloader<'a> {
         let download_path = tmp_dir.join(&asset.name);
         let mut destination = File::create(&download_path)?;
 
+        pb_msg.set_message("downloading...");
+        let pb_downloading = mp.add(ProgressBar::new(asset.size));
+
         let mut buffer = [0; 4096];
         while let Ok(bytes_read) = stream.read(&mut buffer) {
             if bytes_read == 0 {
                 break;
             }
+            pb_downloading.inc(bytes_read as u64);
         
             destination.write(&buffer[..bytes_read])?;
         }
+
+        pb_msg.set_message("complete!");
+        pb_msg.finish();
+        pb_downloading.finish_and_clear();
 
         Ok(download_path)
 
@@ -78,9 +86,17 @@ impl<'a> Downloader<'a> {
 
     /// Download an asset and return a path of the downloaded artefact
     pub fn download(&self, tmp_dir: &Path) -> Result<DownloadInfo, Box<dyn Error>> {
-        let release = self.download_release()?;
+        let mp = MultiProgress::new();
 
-        println!("{:#?}", release);
+        let simple_style = 
+            ProgressStyle::with_template("{prefix:.bold.dim} {msg}").unwrap();
+
+        let pb_msg = mp.add(ProgressBar::new(10));
+        pb_msg.set_style(simple_style);
+        pb_msg.set_prefix(format!("{}:", self.repo));
+        pb_msg.set_message("fetching info...");
+
+        let release = self.download_release()?;
 
         let asset = release
                 .assets
@@ -90,7 +106,7 @@ impl<'a> Downloader<'a> {
         match asset {
             None => Err(format!("No asset matching name: {}", self.asset_name).into()),
             Some(asset) => {
-                let archive_path = self.download_asset(tmp_dir, asset)?;
+                let archive_path = self.download_asset(tmp_dir, asset, &mp, &pb_msg)?;
 
                 Ok(DownloadInfo{
                     archive_path,
