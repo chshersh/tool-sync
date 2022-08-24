@@ -1,7 +1,7 @@
 use std::env;
 
 /// Part of the name for each OS to identify proper asset
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct AssetName {
     pub linux: Option<String>,
     pub macos: Option<String>,

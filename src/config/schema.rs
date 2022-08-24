@@ -8,7 +8,7 @@ use crate::model::asset_name::AssetName;
 /// info about installing each particular tool.
 /// 
 /// This data type is parsed from the TOML configuration file.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Config {
   /// Directory to store all locally downloaded tools
   pub store_directory: PathBuf,
@@ -18,7 +18,7 @@ pub struct Config {
 }
 
 /// Additional details, telling how to download a tool
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ConfigAsset {
     /// GitHub repository author
     pub owner: Option<String>,
