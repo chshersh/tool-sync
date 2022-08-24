@@ -8,7 +8,7 @@ use clap::Parser;
 use dirs;
 
 use crate::config::cli::{Cli, Command};
-use crate::config::toml::parse_config;
+use crate::config::toml;
 use crate::sync::sync;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
@@ -17,9 +17,14 @@ pub fn run() {
     let cli = Cli::parse();
     let config_path = resolve_config_path(cli.config);
 
-    match parse_config(&config_path) {
+    match toml::parse_file(&config_path) {
         Err(e) => {
-            eprintln!("Config parsing error: {e}");
+            eprintln!( 
+                "Error parsing configuration at path {}: {}",
+                config_path.display(),
+                e.display()
+            );
+
             process::exit(1);
         },
         Ok(tool) => match cli.command {
