@@ -1,3 +1,4 @@
+use std::env;
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
@@ -43,12 +44,13 @@ impl<'a> Downloader<'a> {
     fn download_release(&self) -> Result<Release, Box<dyn Error>> {
         let release_url = self.release_url();
 
-        let release: Release =
-            ureq::get(&release_url)
-            .set("Accept", "application/vnd.github+json")
-            .set("User-Agent", "chshersh/tool-sync-1.0")
-            .call()?
-            .into_json()?;
+        let req = add_auth_header(
+                ureq::get(&release_url)
+                .set("Accept", "application/vnd.github+json")
+                .set("User-Agent", "chshersh/tool-sync-0.1.0")
+        );
+
+        let release: Release = req.call()?.into_json()?;
 
         Ok(release)
     }
@@ -56,11 +58,13 @@ impl<'a> Downloader<'a> {
     fn download_asset(&self, tmp_dir: &Path, asset: &Asset) -> Result<PathBuf, Box<dyn Error>> {
         let asset_url = self.asset_url(asset.id);
         
-        let mut stream = ureq::get(&asset_url)
-            .set("Accept", "application/octet-stream")
-            .set("User-Agent", "chshersh/tool-sync-1.0")
-            .call()?
-            .into_reader();
+        let req = add_auth_header(
+                ureq::get(&asset_url)
+                .set("Accept", "application/octet-stream")
+                .set("User-Agent", "chshersh/tool-sync-0.1.0")
+        );
+
+        let mut stream = req.call()?.into_reader();
         
         let download_path = tmp_dir.join(&asset.name);
         let mut destination = File::create(&download_path)?;
@@ -106,5 +110,12 @@ impl<'a> Downloader<'a> {
                 })
             }
         }
+    }
+}
+
+pub fn add_auth_header(req: ureq::Request) -> ureq::Request {
+    match env::var("GITHUB_TOKEN") {
+        Err(_) => req,
+        Ok(token) => req.set("Authorization", &format!("token {}", token)),
     }
 }
