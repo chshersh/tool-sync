@@ -54,11 +54,10 @@ impl<'a> Archive<'a> {
                 self.exe_name,
                 asset_name,
             ),
-            ArchiveType::Zip(asset_name) => unpack_zip(
+            ArchiveType::Zip(_asset_name) => unpack_zip(
                 self.archive_path,
                 self.tmp_dir,
                 self.exe_name,
-                asset_name,
             ),
         }
     }
@@ -100,12 +99,17 @@ fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &s
     ))
 }
 
-fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path, exe_name: &str, _asset_name: &str) -> Result<PathBuf, std::io::Error> {
+fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path, exe_name: &str) -> Result<PathBuf, std::io::Error> {
     let zipfile = File::open(&zip_path)?;
 
     let mut archive = zip::ZipArchive::new(zipfile)?;
 
-    let exe_path = format!("bin/{exe_name}");
+    let exe_path = if cfg!(windows) {
+        format!("bin/{exe_name}.exe")
+    } else {
+        format!("bin/{exe_name}")
+    };
+
     let mut input_file = archive.by_name(&exe_path)?;
 
     // create path to the final executable
