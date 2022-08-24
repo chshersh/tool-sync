@@ -2,15 +2,18 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
+use indicatif::ProgressBar;
 use ureq;
 
 use crate::model::release::{Release, Asset};
+use crate::sync::progress::SyncProgress;
 
 pub struct Downloader<'a> {
     pub owner: &'a str,
     pub repo: &'a str,
     pub asset_name: &'a str,
+    pub pb_msg: &'a ProgressBar,
+    pub sync_progress: &'a SyncProgress,
 }
 
 /// Info about the downloaded asset
@@ -50,8 +53,7 @@ impl<'a> Downloader<'a> {
         Ok(release)
     }
 
-    fn download_asset(&self, tmp_dir: &Path, asset: &Asset, mp: &MultiProgress, pb_msg: &ProgressBar) -> Result<PathBuf, Box<dyn Error>> {
-
+    fn download_asset(&self, tmp_dir: &Path, asset: &Asset) -> Result<PathBuf, Box<dyn Error>> {
         let asset_url = self.asset_url(asset.id);
         
         let mut stream = ureq::get(&asset_url)
@@ -63,38 +65,28 @@ impl<'a> Downloader<'a> {
         let download_path = tmp_dir.join(&asset.name);
         let mut destination = File::create(&download_path)?;
 
-        pb_msg.set_message("downloading...");
-        let pb_downloading = mp.add(ProgressBar::new(asset.size));
+        self.pb_msg.set_message("Downloading...");
+        let pb_downloading = self.sync_progress.create_progress_bar(asset.size);
 
         let mut buffer = [0; 4096];
         while let Ok(bytes_read) = stream.read(&mut buffer) {
             if bytes_read == 0 {
                 break;
             }
+
             pb_downloading.inc(bytes_read as u64);
-        
             destination.write(&buffer[..bytes_read])?;
         }
-
-        pb_msg.set_message("complete!");
-        pb_msg.finish();
-        pb_downloading.finish_and_clear();
+        
+        self.pb_msg.set_message("Downloaded!");
+        SyncProgress::finish_progress(pb_downloading);
 
         Ok(download_path)
-
     }
 
     /// Download an asset and return a path of the downloaded artefact
     pub fn download(&self, tmp_dir: &Path) -> Result<DownloadInfo, Box<dyn Error>> {
-        let mp = MultiProgress::new();
-
-        let simple_style = 
-            ProgressStyle::with_template("{prefix:.bold.dim} {msg}").unwrap();
-
-        let pb_msg = mp.add(ProgressBar::new(10));
-        pb_msg.set_style(simple_style);
-        pb_msg.set_prefix(format!("{}:", self.repo));
-        pb_msg.set_message("fetching info...");
+        self.pb_msg.set_message("Fetching info...");
 
         let release = self.download_release()?;
 
@@ -106,7 +98,7 @@ impl<'a> Downloader<'a> {
         match asset {
             None => Err(format!("No asset matching name: {}", self.asset_name).into()),
             Some(asset) => {
-                let archive_path = self.download_asset(tmp_dir, asset, &mp, &pb_msg)?;
+                let archive_path = self.download_asset(tmp_dir, asset)?;
 
                 Ok(DownloadInfo{
                     archive_path,

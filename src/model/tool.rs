@@ -16,6 +16,17 @@ pub enum ToolError {
     Invalid(String), 
 }
 
+impl ToolError {
+    pub fn display(&self) -> String {
+        match self {
+            ToolError::Suggestion {provided, perhaps} =>
+                format!("[error] Incorrect tool name '{}'. Perhaps you meant: '{}'?", provided, perhaps),
+            ToolError::Invalid(tool) =>
+                format!("[error] Not enough configuration to sync: '{}'", tool),
+        }
+    }
+}
+
 /// All info about installing a tool from GitHub releases
 #[derive(Debug)]
 pub struct ToolInfo {
