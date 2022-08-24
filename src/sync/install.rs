@@ -1,6 +1,7 @@
 use indicatif::ProgressBar;
 use std::error::Error;
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::process;
 use tempdir::TempDir;
@@ -101,7 +102,16 @@ fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> s
     install_path.push(exe_name);
 
     // Copy file from the downloaded unpacked archive to 'store_directory'
-    fs::copy(tool_path, install_path)?;  
+    fs::copy(tool_path, &install_path)?;  
+
+    if cfg!(unix) {
+        set_executable_permissions(&install_path);
+    }
 
     Ok(())
+}
+
+#[cfg(target_family = "unix")]
+fn set_executable_permissions(exe_path: &PathBuf) {
+    fs::set_permissions(exe_path, fs::Permissions::from_mode(0o755)).unwrap();
 }
