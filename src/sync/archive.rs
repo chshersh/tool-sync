@@ -100,7 +100,7 @@ fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &s
     ))
 }
 
-fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &str) -> Result<PathBuf, std::io::Error> {
+fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path, exe_name: &str, _asset_name: &str) -> Result<PathBuf, std::io::Error> {
     let zipfile = File::open(&zip_path)?;
 
     let mut archive = zip::ZipArchive::new(zipfile)?;

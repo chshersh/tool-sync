@@ -11,6 +11,7 @@ serde = { version = "1.0", features = ["derive"] }
 ureq = { version = "2.5.0", features = ["json"] }
 zip = { version = "0.6.2", default-features = false, features = ["deflate"] }
 
+console = "0.15.1"
 dirs = "4.0.0"
 flate2 = "1.0"
 indicatif = "0.17.0"

@@ -636,6 +636,7 @@ name = "tool-sync"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "console",
  "dirs",
  "flate2",
  "indicatif",
