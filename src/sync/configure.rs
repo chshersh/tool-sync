@@ -155,6 +155,36 @@ mod tests {
     }
 
     #[test]
+    fn full_configuration() {
+        let tool_name = "abcdef";
+
+        let config_asset = ConfigAsset {
+                owner: Some(String::from("chshersh")),
+                repo: Some(String::from("Pluto")),
+                exe_name: Some(String::from("abcdefu")),
+                asset_name: AssetName { 
+                    linux: Some(String::from("my-linux")), 
+                    macos: Some(String::from("my-macos")), 
+                    windows: Some(String::from("yours-windows")) 
+                }
+        };
+
+        assert_eq!(
+            configure_tool(tool_name, &config_asset), 
+            Tool::Known(ToolInfo {
+                owner: "chshersh".to_string(),
+                repo: "Pluto".to_string(),
+                exe_name: "abcdefu".to_string(),
+                asset_name: AssetName {
+                    linux: Some("my-linux".to_string()), 
+                    macos: Some("my-macos".to_string()), 
+                    windows: Some("yours-windows".to_string()),
+                }
+            })
+        );
+    }
+
+    #[test]
     fn partial_override() {
         let tool_name = "ripgrep";
 
