@@ -1,10 +1,12 @@
 use crate::model::asset_name::AssetName;
 
+#[derive(Debug, PartialEq)]
 pub enum Tool {
     Known(ToolInfo),
     Error(ToolError), 
 }
 
+#[derive(Debug, PartialEq)]
 pub enum ToolError {
     /// Probably a known tool but specified differently. E.g. 'rg' instead of 'ripgrep'
     Suggestion {
@@ -28,7 +30,7 @@ impl ToolError {
 }
 
 /// All info about installing a tool from GitHub releases
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ToolInfo {
     /// GitHub repository author
     pub owner: String,
