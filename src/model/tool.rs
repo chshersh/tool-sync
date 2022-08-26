@@ -10,21 +10,20 @@ pub enum Tool {
 pub enum ToolError {
     /// Probably a known tool but specified differently. E.g. 'rg' instead of 'ripgrep'
     Suggestion {
-        provided: String,
         perhaps: String,
     },
 
     /// Not enough configuration to install the tool
-    Invalid(String), 
+    Invalid, 
 }
 
 impl ToolError {
     pub fn display(&self) -> String {
         match self {
-            ToolError::Suggestion {provided, perhaps} =>
-                format!("[error] Incorrect tool name '{}'. Perhaps you meant: '{}'?", provided, perhaps),
-            ToolError::Invalid(tool) =>
-                format!("[error] Not enough configuration to sync: '{}'", tool),
+            ToolError::Suggestion {perhaps} =>
+                format!("[suggestion] Perhaps you meant: '{}'?", perhaps),
+            ToolError::Invalid =>
+                format!("[error] Not detailed enough configuration)"),
         }
     }
 }
