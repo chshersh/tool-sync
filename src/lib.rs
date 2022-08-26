@@ -1,9 +1,9 @@
 mod config;
+mod err;
 mod model;
 mod sync;
 
 use std::path::PathBuf;
-use std::process;
 use clap::Parser;
 use dirs;
 
@@ -19,13 +19,13 @@ pub fn run() {
 
     match toml::parse_file(&config_path) {
         Err(e) => {
-            eprintln!( 
-                "Error parsing configuration at path {}: {}",
-                config_path.display(),
-                e.display()
+            err::abort_with(
+                &format!(
+                    "Error parsing configuration at path {}: {}",
+                    config_path.display(),
+                    e.display()
+                )
             );
-
-            process::exit(1);
         },
         Ok(tool) => match cli.command {
            Command::Sync => sync(tool),
@@ -44,9 +44,8 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
                 path
             }
             None => {
-                eprintln!("Unable to find $HOME directory");
-                process::exit(1);
-            }
+                err::abort_suggest_issue("Unable to find $HOME directory");
+            },
         }
     }
 }

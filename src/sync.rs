@@ -11,7 +11,23 @@ use crate::sync::progress::SyncProgress;
 
 pub fn sync(config: Config) {
     if config.tools.is_empty() {
-        eprintln!("Configuration doesn't list any tools");
+        eprintln!(
+r#"No tools to sync. Have you configured 'tool-sync'?
+
+Put the following into the $HOME/.tool.toml file for the simplest configuration:
+
+    # ensure this directory is listed in $PATH
+    store_directory = "/path/to/install/directory"  
+    
+    [bat]
+    [exa]
+    [fd]
+    [ripgrep]
+
+For more details, refer to the official documentation:
+
+    * https://github.com/chshersh/tool-sync#tool-sync"#
+        );
     } else {
         config.ensure_store_directory();
 

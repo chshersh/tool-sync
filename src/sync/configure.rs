@@ -16,14 +16,12 @@ pub fn configure_tool(tool_name: &str, config_asset: &ConfigAsset) -> Tool {
             // Not enough configuration: suggestion with error messages
             None => match tool_name {
                 "rg" => Tool::Error(ToolError::Suggestion { 
-                    provided: "rg".to_string(),
                     perhaps: "ripgrep".to_string(),
                 }),
                 "difft" => Tool::Error(ToolError::Suggestion { 
-                    provided: "difft".to_string(),
                     perhaps: "difftastic".to_string(),
                 }),
-                other => Tool::Error(ToolError::Invalid(other.to_string())),
+                _other => Tool::Error(ToolError::Invalid),
             }
         },
     }
@@ -105,7 +103,7 @@ mod tests {
 
         assert_eq!(
             configure_tool(tool_name, &config_asset), 
-            Tool::Error(ToolError::Invalid(tool_name.to_owned()))
+            Tool::Error(ToolError::Invalid)
         );
     }
 
@@ -127,7 +125,6 @@ mod tests {
         assert_eq!(
             configure_tool(tool_name, &config_asset), 
             Tool::Error(ToolError::Suggestion {
-                provided: tool_name.to_owned(),
                 perhaps: "ripgrep".to_owned(),
             })
         );
@@ -150,7 +147,7 @@ mod tests {
 
         assert_eq!(
             configure_tool(tool_name, &config_asset), 
-            Tool::Error(ToolError::Invalid(tool_name.to_owned()))
+            Tool::Error(ToolError::Invalid)
         );
     }
 

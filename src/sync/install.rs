@@ -3,10 +3,10 @@ use std::error::Error;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
-use std::process;
 use tempdir::TempDir;
 
 use crate::config::schema::ConfigAsset;
+use crate::err;
 use crate::model::tool::{Tool, ToolInfo};
 
 use super::archive::Archive;
@@ -27,8 +27,9 @@ impl Installer {
         let tmp_dir = TempDir::new("tool-sync");
         match tmp_dir {
             Err(e) => {
-                eprintln!("Error creating temporary directory: {}", e);
-                process::exit(1);
+                err::abort_suggest_issue(
+                    &format!( "Error creating temporary directory: {}", e)
+                );
             },
             Ok(tmp_dir) => Installer
                 { store_directory
@@ -58,7 +59,7 @@ impl Installer {
     fn sync_single_tool(&self, tool_info: &ToolInfo, pb_msg: &ProgressBar) -> Result<(), Box<dyn Error>> {
         match tool_info.asset_name.get_name_by_os() {
             None => {
-                Err("Unknown asset name for the current OS".into())
+                Err("Don't know the asset name for this OS: specify it explicitly in the config".into())
             }
             Some(asset_name) => {
                 let downloader = Downloader {

@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
-use std::process;
 
 use crate::model::asset_name::AssetName;
+use crate::err;
 
 /// Stores global information about the tool installation process and detailed
 /// info about installing each particular tool.
@@ -40,8 +40,12 @@ impl Config {
         let has_store_directory = self.store_directory.as_path().is_dir();
    
         if !has_store_directory {
-            eprintln!("Specified directory for storing tools doesn't exist: {}", self.store_directory.display());
-            process::exit(1);
+            err::abort_with(
+                &format!(
+                    "Specified directory for storing tools doesn't exist: {}",
+                    self.store_directory.display()
+                )
+            );
         }
     }
 }
