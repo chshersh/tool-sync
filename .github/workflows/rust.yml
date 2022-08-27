@@ -16,7 +16,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
+
+    - name: Unit tests
       run: cargo test --verbose
+    
+    - name: "Integration test: [only-ripgrep]"
+      env:
+          SYNC_DIR: "only-ripgrep"
+      run: |
+          mkdir $SYNC_DIR
+          cargo run -- --config=tests/only-ripgrep.toml sync
+          test -f $SYNC_DIR/rg
