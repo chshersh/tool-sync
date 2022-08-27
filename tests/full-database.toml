@@ -1,0 +1,10 @@
+# a directory to store all tools
+store_directory = "full-database"
+
+# the following tools will be installed in 'store_directory'
+[bat]
+[difftastic]
+[exa]
+[fd]
+[ripgrep]
+[tokei]
