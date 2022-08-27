@@ -5,17 +5,29 @@ on:
     types: [synchronize, opened, reopened]
   push:
     branches: [main]
+  schedule:
+    # additionally run once per week (At 00:00 on Sunday) to maintain cache
+    - cron: '0 0 * * 0'
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v3
+
+    - uses: actions/cache@v3
+      name: Cache ./target
+      with:
+        path: target
+        key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
 
     - name: Build
       run: cargo build --verbose
