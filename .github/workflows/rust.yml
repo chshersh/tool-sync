@@ -26,7 +26,23 @@ jobs:
     - name: "Integration test: [only-ripgrep]"
       env:
           SYNC_DIR: "only-ripgrep"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           mkdir $SYNC_DIR
-          cargo run -- --config=tests/only-ripgrep.toml sync
+          cargo run -- --config=tests/$SYNC_DIR.toml sync
           test -f $SYNC_DIR/rg
+
+    - name: "Integration test: [full-database]"
+      env:
+          SYNC_DIR: "full-database"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $SYNC_DIR
+          cargo run -- --config=tests/$SYNC_DIR.toml sync
+
+          test -f $SYNC_DIR/bat
+          test -f $SYNC_DIR/difft
+          test -f $SYNC_DIR/exa
+          test -f $SYNC_DIR/fd
+          test -f $SYNC_DIR/rg
+          test -f $SYNC_DIR/tokei
