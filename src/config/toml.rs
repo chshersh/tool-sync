@@ -46,8 +46,8 @@ fn parse_string(contents: &str) -> Result<Config, TomlError> {
 }
 
 fn decode_config(toml: Value) -> Option<Config> {
-    let t_store_directory = toml.get("store_directory")?.as_str()?;
-    let store_directory = PathBuf::from(t_store_directory);
+    let str_store_directory = toml.get("store_directory")?.as_str()?;
+    let store_directory = String::from(str_store_directory);
 
     let mut tools = BTreeMap::new();
 
@@ -59,7 +59,7 @@ fn decode_config(toml: Value) -> Option<Config> {
 
     Some(Config {
         store_directory,
-        tools: tools,
+        tools,
     })
 }
 
@@ -140,7 +140,7 @@ mod tests {
         let res = parse_string(toml);
 
         let cfg = Config {
-            store_directory: PathBuf::from("pancake"),
+            store_directory: String::from("pancake"),
             tools: BTreeMap::new(),
         };
 
@@ -158,7 +158,7 @@ mod tests {
         let res = parse_string(toml);
 
         let cfg = Config {
-            store_directory: PathBuf::from("pancake"),
+            store_directory: String::from("pancake"),
             tools: BTreeMap::from([
                 ("ripgrep".to_owned(), ConfigAsset {
                     owner: None,
@@ -188,7 +188,7 @@ mod tests {
         let res = parse_string(toml);
 
         let cfg = Config {
-            store_directory: PathBuf::from("pancake"),
+            store_directory: String::from("pancake"),
             tools: BTreeMap::from([
                 ("ripgrep".to_owned(), ConfigAsset {
                     owner: None,
@@ -229,7 +229,7 @@ mod tests {
         let res = parse_string(toml);
 
         let cfg = Config {
-            store_directory: PathBuf::from("pancake"),
+            store_directory: String::from("pancake"),
             tools: BTreeMap::from([
                 ("ripgrep".to_owned(), ConfigAsset {
                     owner: Some("me".to_owned()),
@@ -264,7 +264,7 @@ mod tests {
         let res = parse_string(toml);
 
         let cfg = Config {
-            store_directory: PathBuf::from("pancake"),
+            store_directory: String::from("pancake"),
             tools: BTreeMap::from([
                 ("ripgrep".to_owned(), ConfigAsset {
                     owner: Some("me".to_owned()),

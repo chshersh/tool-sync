@@ -1,5 +1,7 @@
+use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
+use shellexpand;
 
 use crate::model::asset_name::AssetName;
 use crate::err;
@@ -11,7 +13,7 @@ use crate::err;
 #[derive(Debug, PartialEq)]
 pub struct Config {
   /// Directory to store all locally downloaded tools
-  pub store_directory: PathBuf,
+  pub store_directory: String,
 
   /// Info about each individual tool
   pub tools: BTreeMap<String, ConfigAsset>,
@@ -35,17 +37,30 @@ pub struct ConfigAsset {
 }
 
 impl Config {
-    /// Exits with error if 'store_directory' doesn't exist
-    pub fn ensure_store_directory(&self) {
-        let has_store_directory = self.store_directory.as_path().is_dir();
+    /// Shellexpands store directory, check whether it exists and exits with
+    /// error if 'store_directory' doesn't exist
+    pub fn ensure_store_directory(&self) -> PathBuf {
+        let expanded_store_directory = shellexpand::full(&self.store_directory);
+
+        let store_directory = match expanded_store_directory {
+            Err(e) => err::abort_with(&e.to_string()),
+            Ok(cow_path) => match cow_path {
+                Cow::Borrowed(path) => PathBuf::from(path),
+                Cow::Owned(path) => PathBuf::from(path),
+            } ,
+        };
+
+        let has_store_directory = store_directory.as_path().is_dir();
    
         if !has_store_directory {
             err::abort_with(
                 &format!(
                     "Specified directory for storing tools doesn't exist: {}",
-                    self.store_directory.display()
+                    store_directory.display()
                 )
             );
         }
+
+        store_directory
     }
 }

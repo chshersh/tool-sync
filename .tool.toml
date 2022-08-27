@@ -1,5 +1,5 @@
 # a directory to store all tools
-store_directory = "/home/chshersh/.local/bin"
+store_directory = "~/.local/bin"
 
 [bat]
 [difftastic]

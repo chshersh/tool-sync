@@ -29,11 +29,11 @@ For more details, refer to the official documentation:
     * https://github.com/chshersh/tool-sync#tool-sync"#
         );
     } else {
-        config.ensure_store_directory();
+        let store_directory = config.ensure_store_directory();
 
         let tools: Vec<String> = config.tools.keys().cloned().collect();
         let sync_progress = SyncProgress::new(tools);
-        let installer = Installer::mk(config.store_directory, sync_progress);
+        let installer = Installer::mk(store_directory, sync_progress);
 
         for (tool_name, config_asset) in config.tools.iter() {
             installer.install(tool_name, config_asset);
