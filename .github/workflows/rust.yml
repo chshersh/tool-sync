@@ -62,4 +62,6 @@ jobs:
           if [[ ! -x $SYNC_DIR/exa   ]]; then echo "error on: exa";   false; fi
           if [[ ! -x $SYNC_DIR/fd    ]]; then echo "error on: fd";    false; fi
           if [[ ! -x $SYNC_DIR/rg    ]]; then echo "error on: rg";    false; fi
-          if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
+          
+          # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
+          # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi

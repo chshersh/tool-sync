@@ -54,16 +54,16 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
               }
         }),
-        "tokei" => Some(ToolInfo {
-            owner: "XAMPPRocky".to_string(),
-            repo: "tokei".to_string(),
-            exe_name: "tokei".to_string(),
-            asset_name: AssetName {
-                linux: Some("x86_64-unknown-linux-musl".to_string()), 
-                macos: Some("apple-darwin".to_string()), 
-                windows: Some("x86_64-pc-windows-msvc".to_string()),
-              }
-        }),
+        // "tokei" => Some(ToolInfo {
+        //     owner: "XAMPPRocky".to_string(),
+        //     repo: "tokei".to_string(),
+        //     exe_name: "tokei".to_string(),
+        //     asset_name: AssetName {
+        //         linux: Some("x86_64-unknown-linux-musl".to_string()), 
+        //         macos: Some("apple-darwin".to_string()), 
+        //         windows: Some("x86_64-pc-windows-msvc".to_string()),
+        //       }
+        // }),
         _ => None,
     }
 }
