@@ -1,9 +1,11 @@
 use indicatif::ProgressBar;
 use std::error::Error;
 use std::fs;
-use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use tempdir::TempDir;
+
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
 
 use crate::config::schema::ConfigAsset;
 use crate::err;
