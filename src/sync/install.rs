@@ -108,12 +108,13 @@ fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> s
     // Copy file from the downloaded unpacked archive to 'store_directory'
     fs::copy(tool_path, &install_path)?;  
 
-    if cfg!(unix) {
-        set_executable_permissions(&install_path);
-    }
+    set_executable_permissions(&install_path);
 
     Ok(())
 }
+
+#[cfg(target_family = "windows")]
+fn set_executable_permissions(exe_path: &PathBuf) {}
 
 #[cfg(target_family = "unix")]
 fn set_executable_permissions(exe_path: &PathBuf) {
