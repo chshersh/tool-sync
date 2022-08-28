@@ -59,8 +59,6 @@ jobs:
 
           echo "Before directory..."
           ls -l $env:SYNC_DIR
-          echo "Middle directory..."
-          ls -l
           echo "After directory..."
 
           if (!(Test-Path $env:SYNC_DIR\rg.exe)) {

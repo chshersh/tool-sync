@@ -4,6 +4,8 @@ use std::path::{Path, PathBuf};
 use tar;
 use zip;
 
+use crate::model::asset_name::mk_exe_name;
+
 pub struct Archive<'a> {
     archive_path: &'a PathBuf,
     tmp_dir: &'a Path,
@@ -140,17 +142,11 @@ fn find_path_to_exe(archive_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asse
 
 // List of potential paths where an executable can be inside the archive
 fn exe_paths(exe_name: &str, asset_name: &str) -> Vec<PathBuf> {
-    let windows_exe_name = format!("{exe_name}.exe");
-
-    let exe_name = if cfg!(windows) {
-        &windows_exe_name
-    } else {
-        exe_name
-    };
+    let exe_name = mk_exe_name(exe_name);
 
     vec![
-        [asset_name, exe_name].iter().collect(),
-        [exe_name].iter().collect(),
-        ["bin", exe_name].iter().collect(),
+        [asset_name, &exe_name].iter().collect(),
+        [&exe_name].iter().collect(),
+        ["bin", &exe_name].iter().collect(),
     ]
 }

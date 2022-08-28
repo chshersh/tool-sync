@@ -9,6 +9,7 @@ use std::os::unix::fs::PermissionsExt;
 
 use crate::config::schema::ConfigAsset;
 use crate::err;
+use crate::model::asset_name::mk_exe_name;
 use crate::model::tool::{Tool, ToolInfo};
 
 use super::archive::Archive;
@@ -103,6 +104,8 @@ impl Installer {
 
 
 fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
+    let exe_name = mk_exe_name(exe_name);
+
     let mut install_path = PathBuf::new();
     install_path.push(store_directory);
     install_path.push(exe_name);
