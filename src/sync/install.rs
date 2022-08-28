@@ -81,13 +81,16 @@ impl Installer {
     
                 match archive {
                     None => {
-                        Err(format!("Unsupported archive type: {}", download_info.asset_name).into())
+                        Err(format!("Unsupported asset type: {}", download_info.asset_name).into())
                     },
                     Some(archive) => {
-                        let tool_path = archive.unpack()?;
-                        copy_file(tool_path, &self.store_directory, &tool_info.exe_name)?;
-
-                        Ok(())
+                        match archive.unpack() {
+                            Err(unpack_err) => Err(unpack_err.display().into()),
+                            Ok(tool_path) => {
+                                copy_file(tool_path, &self.store_directory, &tool_info.exe_name)?;
+                                Ok(())
+                            }
+                        }
                     }
                 }
             }

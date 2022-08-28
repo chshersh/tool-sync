@@ -43,6 +43,8 @@ jobs:
           mkdir $SYNC_DIR
           cargo run -- --config=tests/$SYNC_DIR.toml sync
 
+          ls -l $SYNC_DIR
+
           if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
 
     - name: "Integration test: [full-database]"
@@ -52,6 +54,8 @@ jobs:
       run: |
           mkdir $SYNC_DIR
           cargo run -- --config=tests/$SYNC_DIR.toml sync
+
+          ls -l $SYNC_DIR
 
           if [[ ! -x $SYNC_DIR/bat   ]]; then echo "error on: bat";   false; fi
           if [[ ! -x $SYNC_DIR/difft ]]; then echo "error on: difft"; false; fi
