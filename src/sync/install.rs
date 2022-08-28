@@ -1,12 +1,15 @@
 use indicatif::ProgressBar;
 use std::error::Error;
 use std::fs;
-use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use tempdir::TempDir;
 
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
+
 use crate::config::schema::ConfigAsset;
 use crate::err;
+use crate::model::asset_name::mk_exe_name;
 use crate::model::tool::{Tool, ToolInfo};
 
 use super::archive::Archive;
@@ -81,13 +84,16 @@ impl Installer {
     
                 match archive {
                     None => {
-                        Err(format!("Unsupported archive type: {}", download_info.asset_name).into())
+                        Err(format!("Unsupported asset type: {}", download_info.asset_name).into())
                     },
                     Some(archive) => {
-                        let tool_path = archive.unpack()?;
-                        copy_file(tool_path, &self.store_directory, &tool_info.exe_name)?;
-
-                        Ok(())
+                        match archive.unpack() {
+                            Err(unpack_err) => Err(unpack_err.display().into()),
+                            Ok(tool_path) => {
+                                copy_file(tool_path, &self.store_directory, &tool_info.exe_name)?;
+                                Ok(())
+                            }
+                        }
                     }
                 }
             }
@@ -98,6 +104,8 @@ impl Installer {
 
 
 fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
+    let exe_name = mk_exe_name(exe_name);
+
     let mut install_path = PathBuf::new();
     install_path.push(store_directory);
     install_path.push(exe_name);
@@ -105,12 +113,13 @@ fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> s
     // Copy file from the downloaded unpacked archive to 'store_directory'
     fs::copy(tool_path, &install_path)?;  
 
-    if cfg!(unix) {
-        set_executable_permissions(&install_path);
-    }
+    set_executable_permissions(&install_path);
 
     Ok(())
 }
+
+#[cfg(target_family = "windows")]
+fn set_executable_permissions(_exe_path: &PathBuf) {}
 
 #[cfg(target_family = "unix")]
 fn set_executable_permissions(exe_path: &PathBuf) {

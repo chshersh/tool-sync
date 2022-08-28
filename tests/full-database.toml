@@ -7,4 +7,6 @@ store_directory = "full-database"
 [exa]
 [fd]
 [ripgrep]
-[tokei]
+
+# disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
+# [tokei]

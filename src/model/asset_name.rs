@@ -23,3 +23,14 @@ impl AssetName {
     }
   }
 }
+
+/// Add .exe extension to executables on Windows
+pub fn mk_exe_name(exe_name: &str) -> String {
+    let windows_exe_name: String = format!("{exe_name}.exe");
+
+    if cfg!(windows) {
+        windows_exe_name
+    } else {
+        exe_name.to_owned()
+    }
+}

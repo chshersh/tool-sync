@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v3
@@ -35,16 +35,36 @@ jobs:
     - name: Unit tests
       run: cargo test --verbose
     
-    - name: "Integration test: [only-ripgrep]"
+    - if: matrix.os != 'windows-latest'
+      name: "Integration test: [unix] [only-ripgrep]"
       env:
           SYNC_DIR: "only-ripgrep"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           mkdir $SYNC_DIR
           cargo run -- --config=tests/$SYNC_DIR.toml sync
-          test -f $SYNC_DIR/rg
 
-    - name: "Integration test: [full-database]"
+          ls -l $SYNC_DIR
+
+          if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
+
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [only-ripgrep]"
+      env:
+          SYNC_DIR: "only-ripgrep"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $env:SYNC_DIR
+          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
+
+          ls -l $env:SYNC_DIR
+
+          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
+              throw 'error on rg.exe'
+          }
+
+    - if: matrix.os != 'windows-latest'
+      name: "Integration test: [full-database]"
       env:
           SYNC_DIR: "full-database"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,9 +72,37 @@ jobs:
           mkdir $SYNC_DIR
           cargo run -- --config=tests/$SYNC_DIR.toml sync
 
-          test -f $SYNC_DIR/bat
-          test -f $SYNC_DIR/difft
-          test -f $SYNC_DIR/exa
-          test -f $SYNC_DIR/fd
-          test -f $SYNC_DIR/rg
-          test -f $SYNC_DIR/tokei
+          ls -l $SYNC_DIR
+
+          if [[ ! -x $SYNC_DIR/bat   ]]; then echo "error on: bat";   false; fi
+          if [[ ! -x $SYNC_DIR/difft ]]; then echo "error on: difft"; false; fi
+          if [[ ! -x $SYNC_DIR/exa   ]]; then echo "error on: exa";   false; fi
+          if [[ ! -x $SYNC_DIR/fd    ]]; then echo "error on: fd";    false; fi
+          if [[ ! -x $SYNC_DIR/rg    ]]; then echo "error on: rg";    false; fi
+          
+          # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
+          # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
+
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [full-database]"
+      env:
+          SYNC_DIR: "full-database"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $env:SYNC_DIR
+          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
+
+          ls -l $env:SYNC_DIR
+
+          if (!(Test-Path $env:SYNC_DIR\bat.exe)) {
+              throw 'error on bat.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\difft.exe)) {
+              throw 'error on difft.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\fd.exe)) {
+              throw 'error on fd.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
+              throw 'error on rg.exe'
+          }

@@ -7,4 +7,3 @@ store_directory = "~/.local/bin"
 [exa]
 [fd]
 [ripgrep]
-[tokei]
