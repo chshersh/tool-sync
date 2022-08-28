@@ -35,7 +35,8 @@ jobs:
     - name: Unit tests
       run: cargo test --verbose
     
-    - name: "Integration test: [only-ripgrep]"
+    - if: matrix.os != 'windows-latest'
+      name: "Integration test: [unix] [only-ripgrep]"
       env:
           SYNC_DIR: "only-ripgrep"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,7 +48,23 @@ jobs:
 
           if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
 
-    - name: "Integration test: [full-database]"
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [only-ripgrep]"
+      env:
+          SYNC_DIR: "only-ripgrep"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $SYNC_DIR
+          cargo run -- --config=tests/$SYNC_DIR.toml sync
+
+          ls -l $SYNC_DIR
+
+          if (!(Test-Path $SYNC_DIR/rg.exe)) {
+              throw 'error on rg.exe'
+          }
+
+    - if: matrix.os != 'windows-latest'
+      name: "Integration test: [full-database]"
       env:
           SYNC_DIR: "full-database"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
