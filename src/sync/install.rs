@@ -116,7 +116,7 @@ fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> s
 }
 
 #[cfg(target_family = "windows")]
-fn set_executable_permissions(exe_path: &PathBuf) {}
+fn set_executable_permissions(_exe_path: &PathBuf) {}
 
 #[cfg(target_family = "unix")]
 fn set_executable_permissions(exe_path: &PathBuf) {

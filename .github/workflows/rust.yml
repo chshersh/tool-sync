@@ -57,9 +57,13 @@ jobs:
           mkdir $env:SYNC_DIR
           cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
 
+          echo "Before directory..."
           ls -l $env:SYNC_DIR
+          echo "Middle directory..."
+          ls -l
+          echo "After directory..."
 
-          if (!(Test-Path $env:SYNC_DIR/rg.exe)) {
+          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
               throw 'error on rg.exe'
           }
 
