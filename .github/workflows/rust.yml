@@ -54,12 +54,12 @@ jobs:
           SYNC_DIR: "only-ripgrep"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          mkdir $SYNC_DIR
-          cargo run -- --config=tests/$SYNC_DIR.toml sync
+          mkdir $env:SYNC_DIR
+          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
 
-          ls -l $SYNC_DIR
+          ls -l $env:SYNC_DIR
 
-          if (!(Test-Path $SYNC_DIR/rg.exe)) {
+          if (!(Test-Path $env:SYNC_DIR/rg.exe)) {
               throw 'error on rg.exe'
           }
 
