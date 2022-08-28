@@ -34,3 +34,39 @@ pub fn mk_exe_name(exe_name: &str) -> String {
         exe_name.to_owned()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exe_name() {
+        let exe_name = mk_exe_name("my-name");
+
+        if cfg!(windows) {
+          assert_eq!(exe_name, "my-name.exe");
+        } else {
+          assert_eq!(exe_name, "my-name");
+        }
+    }
+
+    #[test]
+    fn asset_name() {
+        let asset_name = AssetName {
+          linux: Some(String::from("oh-my-zsh")),
+          macos: Some(String::from("fish")),
+          windows: Some(String::from("powershell")),
+        };
+
+        let name = asset_name.get_name_by_os();
+
+        if cfg!(target_os = "windows") {
+          assert_eq!(name, Some(&String::from("powershell")));
+        } else if cfg!(target_os = "macos") {
+          assert_eq!(name, Some(&String::from("fish")));
+        } else {
+          assert_eq!(name, Some(&String::from("oh-my-zsh")));
+        }
+    }
+
+}
