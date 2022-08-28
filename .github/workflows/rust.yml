@@ -57,9 +57,7 @@ jobs:
           mkdir $env:SYNC_DIR
           cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
 
-          echo "Before directory..."
           ls -l $env:SYNC_DIR
-          echo "After directory..."
 
           if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
               throw 'error on rg.exe'
@@ -84,3 +82,27 @@ jobs:
           
           # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
           # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
+
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [full-database]"
+      env:
+          SYNC_DIR: "full-database"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $env:SYNC_DIR
+          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
+
+          ls -l $env:SYNC_DIR
+
+          if (!(Test-Path $env:SYNC_DIR\bat.exe)) {
+              throw 'error on bat.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\difft.exe)) {
+              throw 'error on difft.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\fd.exe)) {
+              throw 'error on fd.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
+              throw 'error on rg.exe'
+          }
