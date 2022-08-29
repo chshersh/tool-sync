@@ -49,28 +49,34 @@ impl ToolInfo {
     /// Update hardcoded tool info with configuration from TOML
     pub fn configure(&self, config_asset: &ConfigAsset) -> ToolInfo {
         ToolInfo {
-            owner: config_asset.owner.clone().unwrap_or(self.owner.clone()),
-            repo: config_asset.repo.clone().unwrap_or(self.repo.clone()),
+            owner: config_asset
+                .owner
+                .clone()
+                .unwrap_or_else(|| self.owner.clone()),
+            repo: config_asset
+                .repo
+                .clone()
+                .unwrap_or_else(|| self.repo.clone()),
             exe_name: config_asset
                 .exe_name
                 .clone()
-                .unwrap_or(self.exe_name.clone()),
+                .unwrap_or_else(|| self.exe_name.clone()),
             asset_name: AssetName {
                 linux: config_asset
                     .asset_name
                     .linux
                     .clone()
-                    .or(self.asset_name.linux.clone()),
+                    .or_else(|| self.asset_name.linux.clone()),
                 macos: config_asset
                     .asset_name
                     .macos
                     .clone()
-                    .or(self.asset_name.macos.clone()),
+                    .or_else(|| self.asset_name.macos.clone()),
                 windows: config_asset
                     .asset_name
                     .windows
                     .clone()
-                    .or(self.asset_name.windows.clone()),
+                    .or_else(|| self.asset_name.windows.clone()),
             },
         }
     }
