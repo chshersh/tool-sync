@@ -106,3 +106,21 @@ jobs:
           if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
               throw 'error on rg.exe'
           }
+
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: stable
+          components: rustfmt
+          override: true
+
+    - name: Check formatting
+      run: |
+        cargo fmt --all -- --check

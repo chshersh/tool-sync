@@ -1,22 +1,22 @@
+use shellexpand;
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
-use shellexpand;
 
-use crate::model::asset_name::AssetName;
 use crate::err;
+use crate::model::asset_name::AssetName;
 
 /// Stores global information about the tool installation process and detailed
 /// info about installing each particular tool.
-/// 
+///
 /// This data type is parsed from the TOML configuration file.
 #[derive(Debug, PartialEq)]
 pub struct Config {
-  /// Directory to store all locally downloaded tools
-  pub store_directory: String,
+    /// Directory to store all locally downloaded tools
+    pub store_directory: String,
 
-  /// Info about each individual tool
-  pub tools: BTreeMap<String, ConfigAsset>,
+    /// Info about each individual tool
+    pub tools: BTreeMap<String, ConfigAsset>,
 }
 
 /// Additional details, telling how to download a tool
@@ -47,18 +47,16 @@ impl Config {
             Ok(cow_path) => match cow_path {
                 Cow::Borrowed(path) => PathBuf::from(path),
                 Cow::Owned(path) => PathBuf::from(path),
-            } ,
+            },
         };
 
         let has_store_directory = store_directory.as_path().is_dir();
-   
+
         if !has_store_directory {
-            err::abort_with(
-                &format!(
-                    "Specified directory for storing tools doesn't exist: {}",
-                    store_directory.display()
-                )
-            );
+            err::abort_with(&format!(
+                "Specified directory for storing tools doesn't exist: {}",
+                store_directory.display()
+            ));
         }
 
         store_directory

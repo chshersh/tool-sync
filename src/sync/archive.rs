@@ -31,14 +31,20 @@ impl UnpackError {
         match self {
             UnpackError::IOError(e) => format!("{}", e),
             UnpackError::ZipError(e) => format!("{}", e),
-            UnpackError::ExeNotFound(archive_name) => 
-                format!("Can't find executable in archive: {}", archive_name),
+            UnpackError::ExeNotFound(archive_name) => {
+                format!("Can't find executable in archive: {}", archive_name)
+            }
         }
     }
 }
 
 impl<'a> Archive<'a> {
-    pub fn from(archive_path: &'a PathBuf, tmp_dir: &'a Path, exe_name: &'a str, asset_name: &'a str) -> Option<Archive<'a>> {
+    pub fn from(
+        archive_path: &'a PathBuf,
+        tmp_dir: &'a Path,
+        exe_name: &'a str,
+        asset_name: &'a str,
+    ) -> Option<Archive<'a>> {
         let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
 
         match tar_gz_dir {
@@ -70,7 +76,7 @@ impl<'a> Archive<'a> {
                             }),
                             None => None,
                         }
-                    },
+                    }
                 }
             }
         }
@@ -81,7 +87,7 @@ impl<'a> Archive<'a> {
         match self.archive_type {
             // already .exe file without archive (on Windows): no need to unpack
             ArchiveType::Exe(exe_file) => Ok(PathBuf::from(exe_file)),
-            
+
             // unpack .tar.gz archive
             ArchiveType::TarGz(asset_name) => {
                 unpack_tar(self.archive_path, self.tmp_dir).map_err(UnpackError::IOError)?;
@@ -92,9 +98,8 @@ impl<'a> Archive<'a> {
             ArchiveType::Zip(asset_name) => {
                 unpack_zip(self.archive_path, self.tmp_dir)?;
                 find_path_to_exe(self.archive_path, self.tmp_dir, self.exe_name, asset_name)
-            },
+            }
         }
-
     }
 }
 
@@ -106,22 +111,20 @@ fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path) -> Result<(), std::io::Error> 
     archive.unpack(tmp_dir)
 }
 
-    
 fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path) -> Result<(), UnpackError> {
-    let zip_archive_file = 
-        File::open(&zip_path)
-        .map_err(UnpackError::IOError)?;
+    let zip_archive_file = File::open(&zip_path).map_err(UnpackError::IOError)?;
 
-    let mut archive = 
-        zip::ZipArchive::new(zip_archive_file)
-        .map_err(UnpackError::ZipError)?;
+    let mut archive = zip::ZipArchive::new(zip_archive_file).map_err(UnpackError::ZipError)?;
 
-    archive
-    .extract(tmp_dir)
-    .map_err(UnpackError::ZipError)
-}    
+    archive.extract(tmp_dir).map_err(UnpackError::ZipError)
+}
 
-fn find_path_to_exe(archive_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asset_name: &str) -> Result<PathBuf, UnpackError> {
+fn find_path_to_exe(
+    archive_path: &PathBuf,
+    tmp_dir: &Path,
+    exe_name: &str,
+    asset_name: &str,
+) -> Result<PathBuf, UnpackError> {
     let path_candidates = exe_paths(exe_name, asset_name);
 
     // find a path
@@ -133,11 +136,14 @@ fn find_path_to_exe(archive_path: &PathBuf, tmp_dir: &Path, exe_name: &str, asse
 
         // check if this path actually exists
         if tool_path.is_file() {
-            return Ok(tool_path)
+            return Ok(tool_path);
         }
     }
 
-    Err(UnpackError::ExeNotFound(format!("{}", archive_path.display())))
+    Err(UnpackError::ExeNotFound(format!(
+        "{}",
+        archive_path.display()
+    )))
 }
 
 // List of potential paths where an executable can be inside the archive

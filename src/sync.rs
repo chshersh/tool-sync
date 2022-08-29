@@ -12,7 +12,7 @@ use crate::sync::progress::SyncProgress;
 pub fn sync(config: Config) {
     if config.tools.is_empty() {
         eprintln!(
-r#"No tools to sync. Have you configured 'tool-sync'?
+            r#"No tools to sync. Have you configured 'tool-sync'?
 
 Put the following into the $HOME/.tool.toml file for the simplest configuration:
 

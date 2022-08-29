@@ -1,5 +1,5 @@
 use console::{style, Emoji};
-use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
 pub struct SyncProgress {
     max_tool_size: usize,
@@ -15,15 +15,11 @@ impl SyncProgress {
     /// !!! The given `Vec` must be non-empty !!!
     pub fn new(tools: Vec<String>) -> SyncProgress {
         // unwrap is safe here because 'new' is called with a non-empty vector
-        let max_tool_size = tools
-                .iter()
-                .map(|tool| tool.len())
-                .max()
-                .unwrap();
+        let max_tool_size = tools.iter().map(|tool| tool.len()).max().unwrap();
 
         let multi_progress = MultiProgress::new();
 
-        SyncProgress { 
+        SyncProgress {
             max_tool_size,
             multi_progress,
         }
@@ -36,24 +32,21 @@ impl SyncProgress {
     }
 
     pub fn create_message_bar(&self, tool_name: &str) -> ProgressBar {
-        let message_style = 
-            ProgressStyle::with_template("{prefix:.bold.dim} {msg}").unwrap();
-        
+        let message_style = ProgressStyle::with_template("{prefix:.bold.dim} {msg}").unwrap();
+
         self.multi_progress.add(
             ProgressBar::new(100)
-            .with_style(message_style)
-            .with_prefix(self.fmt_prefix(PROCESS, tool_name))
+                .with_style(message_style)
+                .with_prefix(self.fmt_prefix(PROCESS, tool_name)),
         )
     }
 
     pub fn create_progress_bar(&self, size: u64) -> ProgressBar {
-        let bar_style = 
+        let bar_style =
             ProgressStyle::with_template("{bytes}/{total_bytes} {wide_bar:.cyan/blue}").unwrap();
 
-        self.multi_progress.add(
-            ProgressBar::new(size)
-            .with_style(bar_style)
-        )
+        self.multi_progress
+            .add(ProgressBar::new(size).with_style(bar_style))
     }
 
     pub fn finish_progress(pb: ProgressBar) {
