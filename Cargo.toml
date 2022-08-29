@@ -1,9 +1,18 @@
 [package]
 name = "tool-sync"
 version = "0.1.0"
-edition = "2021"
+authors = ["Dmitrii Kovanikov <kovanikov@gmail.com>"]
 license = "MPL-2.0"
-description = "A CLI tool to manage other installed tools easily."
+description = """
+tool-sync is a CLI tool that manages installation of other CLI tools from GitHub
+Releases by downloading binaries and storing them in a local directory.
+"""
+readme = "README.md"
+homepage = "https://github.com/chshersh/tool-sync"
+repository = "https://github.com/chshersh/tool-sync"
+keywords = ["cli", "sync", "download", "tools"]
+categories = ["command-line-utilities"]
+edition = "2021"
 
 [dependencies]
 clap = { version = "3.2.17", features = ["derive"] }
