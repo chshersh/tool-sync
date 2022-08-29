@@ -1,4 +1,4 @@
-name: Rust
+name: CI
 
 on:
   pull_request:
@@ -64,7 +64,7 @@ jobs:
           }
 
     - if: matrix.os != 'windows-latest'
-      name: "Integration test: [full-database]"
+      name: "Integration test: [unix] [full-database]"
       env:
           SYNC_DIR: "full-database"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
