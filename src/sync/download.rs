@@ -1,12 +1,12 @@
+use indicatif::ProgressBar;
 use std::env;
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use indicatif::ProgressBar;
 use ureq;
 
-use crate::model::release::{Release, Asset};
+use crate::model::release::{Asset, Release};
 use crate::sync::progress::SyncProgress;
 
 pub struct Downloader<'a> {
@@ -38,16 +38,16 @@ impl<'a> Downloader<'a> {
             owner = self.owner,
             repo = self.repo,
             asset_id = asset_id
-        ) 
+        )
     }
 
     fn download_release(&self) -> Result<Release, Box<dyn Error>> {
         let release_url = self.release_url();
 
         let req = add_auth_header(
-                ureq::get(&release_url)
+            ureq::get(&release_url)
                 .set("Accept", "application/vnd.github+json")
-                .set("User-Agent", "chshersh/tool-sync-0.1.0")
+                .set("User-Agent", "chshersh/tool-sync-0.1.0"),
         );
 
         let release: Release = req.call()?.into_json()?;
@@ -57,15 +57,15 @@ impl<'a> Downloader<'a> {
 
     fn download_asset(&self, tmp_dir: &Path, asset: &Asset) -> Result<PathBuf, Box<dyn Error>> {
         let asset_url = self.asset_url(asset.id);
-        
+
         let req = add_auth_header(
-                ureq::get(&asset_url)
+            ureq::get(&asset_url)
                 .set("Accept", "application/octet-stream")
-                .set("User-Agent", "chshersh/tool-sync-0.1.0")
+                .set("User-Agent", "chshersh/tool-sync-0.1.0"),
         );
 
         let mut stream = req.call()?.into_reader();
-        
+
         let download_path = tmp_dir.join(&asset.name);
         let mut destination = File::create(&download_path)?;
 
@@ -81,7 +81,7 @@ impl<'a> Downloader<'a> {
             pb_downloading.inc(bytes_read as u64);
             destination.write(&buffer[..bytes_read])?;
         }
-        
+
         self.pb_msg.set_message("Downloaded!");
         SyncProgress::finish_progress(pb_downloading);
 
@@ -95,16 +95,16 @@ impl<'a> Downloader<'a> {
         let release = self.download_release()?;
 
         let asset = release
-                .assets
-                .iter()
-                .find(|&asset| asset.name.contains(self.asset_name));
+            .assets
+            .iter()
+            .find(|&asset| asset.name.contains(self.asset_name));
 
         match asset {
             None => Err(format!("No asset matching name: {}", self.asset_name).into()),
             Some(asset) => {
                 let archive_path = self.download_asset(tmp_dir, asset)?;
 
-                Ok(DownloadInfo{
+                Ok(DownloadInfo {
                     archive_path,
                     asset_name: asset.name.clone(),
                 })

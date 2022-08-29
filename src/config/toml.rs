@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
-use toml::{Value, map::Map};
+use toml::{map::Map, Value};
 
-use crate::model::asset_name::AssetName;
 use crate::config::schema::{Config, ConfigAsset};
+use crate::model::asset_name::AssetName;
 
 #[derive(Debug, PartialEq)]
 pub enum TomlError {
@@ -16,33 +16,28 @@ pub enum TomlError {
 impl TomlError {
     pub fn display(&self) -> String {
         match self {
-            TomlError::IOError(e) =>
-                format!("[IO Error] {}", e),
-            TomlError::ParseError(e) =>
-                format!("[Parsing Error] {}", e),
-            TomlError::DecodeError =>
-                format!("[Decode Error]"),
+            TomlError::IOError(e) => format!("[IO Error] {}", e),
+            TomlError::ParseError(e) => format!("[Parsing Error] {}", e),
+            TomlError::DecodeError => format!("[Decode Error]"),
         }
     }
 }
 
 pub fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
-    let contents = 
-        fs::read_to_string(config_path)
-        .map_err(|e| TomlError::IOError(format!("{}", e)))?;
+    let contents =
+        fs::read_to_string(config_path).map_err(|e| TomlError::IOError(format!("{}", e)))?;
 
     parse_string(&contents)
 }
 
 fn parse_string(contents: &str) -> Result<Config, TomlError> {
-    contents.parse::<Value>()
-    .map_err(TomlError::ParseError)
-    .and_then(|toml| 
-        match decode_config(toml) {
+    contents
+        .parse::<Value>()
+        .map_err(TomlError::ParseError)
+        .and_then(|toml| match decode_config(toml) {
             None => Err(TomlError::DecodeError),
             Some(config) => Ok(config),
-        }
-    )
+        })
 }
 
 fn decode_config(toml: Value) -> Option<Config> {
@@ -73,7 +68,7 @@ fn decode_config_asset(table: &Map<String, Value>) -> ConfigAsset {
         owner,
         repo,
         exe_name,
-        asset_name
+        asset_name,
     }
 }
 
@@ -86,24 +81,21 @@ fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
         },
 
         Some(table) => {
-           let linux = str_by_key(table, "linux");
-           let macos = str_by_key(table, "macos");
-           let windows = str_by_key(table, "windows");
+            let linux = str_by_key(table, "linux");
+            let macos = str_by_key(table, "macos");
+            let windows = str_by_key(table, "windows");
 
-           AssetName {
-              linux,
-              macos,
-              windows
-           }
+            AssetName {
+                linux,
+                macos,
+                windows,
+            }
         }
     }
 }
 
 fn str_by_key(table: &Map<String, Value>, key: &str) -> Option<String> {
-    table
-    .get(key)
-    .and_then(|v| v.as_str())
-    .map(String::from)
+    table.get(key).and_then(|v| v.as_str()).map(String::from)
 }
 
 #[cfg(test)]
@@ -159,18 +151,19 @@ mod tests {
 
         let cfg = Config {
             store_directory: String::from("pancake"),
-            tools: BTreeMap::from([
-                ("ripgrep".to_owned(), ConfigAsset {
+            tools: BTreeMap::from([(
+                "ripgrep".to_owned(),
+                ConfigAsset {
                     owner: None,
                     repo: None,
                     exe_name: None,
-                    asset_name: AssetName { 
-                        linux: None, 
-                        macos: None, 
-                        windows: None 
-                    }
-                })
-            ]),
+                    asset_name: AssetName {
+                        linux: None,
+                        macos: None,
+                        windows: None,
+                    },
+                },
+            )]),
         };
 
         assert_eq!(res, Ok(cfg));
@@ -190,26 +183,32 @@ mod tests {
         let cfg = Config {
             store_directory: String::from("pancake"),
             tools: BTreeMap::from([
-                ("ripgrep".to_owned(), ConfigAsset {
-                    owner: None,
-                    repo: None,
-                    exe_name: None,
-                    asset_name: AssetName { 
-                        linux: None, 
-                        macos: None, 
-                        windows: None 
-                    }
-                }),
-                ("bat".to_owned(), ConfigAsset {
-                    owner: None,
-                    repo: None,
-                    exe_name: None,
-                    asset_name: AssetName { 
-                        linux: None, 
-                        macos: None, 
-                        windows: None 
-                    }
-                }),
+                (
+                    "ripgrep".to_owned(),
+                    ConfigAsset {
+                        owner: None,
+                        repo: None,
+                        exe_name: None,
+                        asset_name: AssetName {
+                            linux: None,
+                            macos: None,
+                            windows: None,
+                        },
+                    },
+                ),
+                (
+                    "bat".to_owned(),
+                    ConfigAsset {
+                        owner: None,
+                        repo: None,
+                        exe_name: None,
+                        asset_name: AssetName {
+                            linux: None,
+                            macos: None,
+                            windows: None,
+                        },
+                    },
+                ),
             ]),
         };
 
@@ -230,18 +229,19 @@ mod tests {
 
         let cfg = Config {
             store_directory: String::from("pancake"),
-            tools: BTreeMap::from([
-                ("ripgrep".to_owned(), ConfigAsset {
+            tools: BTreeMap::from([(
+                "ripgrep".to_owned(),
+                ConfigAsset {
                     owner: Some("me".to_owned()),
                     repo: None,
                     exe_name: None,
-                    asset_name: AssetName { 
-                        linux: Some("R2D2".to_owned()), 
-                        macos: None, 
-                        windows: None 
-                    }
-                })
-            ]),
+                    asset_name: AssetName {
+                        linux: Some("R2D2".to_owned()),
+                        macos: None,
+                        windows: None,
+                    },
+                },
+            )]),
         };
 
         assert_eq!(res, Ok(cfg));
@@ -265,21 +265,21 @@ mod tests {
 
         let cfg = Config {
             store_directory: String::from("pancake"),
-            tools: BTreeMap::from([
-                ("ripgrep".to_owned(), ConfigAsset {
+            tools: BTreeMap::from([(
+                "ripgrep".to_owned(),
+                ConfigAsset {
                     owner: Some("me".to_owned()),
                     repo: Some("some_repo".to_owned()),
                     exe_name: Some("rg".to_owned()),
-                    asset_name: AssetName { 
-                        linux: Some("R2D2".to_owned()), 
+                    asset_name: AssetName {
+                        linux: Some("R2D2".to_owned()),
                         macos: Some("C3-PO".to_owned()),
-                        windows: Some("IG-88".to_owned()), 
-                    }
-                })
-            ]),
+                        windows: Some("IG-88".to_owned()),
+                    },
+                },
+            )]),
         };
 
         assert_eq!(res, Ok(cfg));
     }
-
 }

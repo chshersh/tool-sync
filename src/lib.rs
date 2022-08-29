@@ -3,9 +3,9 @@ mod err;
 mod model;
 mod sync;
 
-use std::path::PathBuf;
 use clap::Parser;
 use dirs;
+use std::path::PathBuf;
 
 use crate::config::cli::{Cli, Command};
 use crate::config::toml;
@@ -19,16 +19,14 @@ pub fn run() {
 
     match toml::parse_file(&config_path) {
         Err(e) => {
-            err::abort_with(
-                &format!(
-                    "Error parsing configuration at path {}: {}",
-                    config_path.display(),
-                    e.display()
-                )
-            );
-        },
+            err::abort_with(&format!(
+                "Error parsing configuration at path {}: {}",
+                config_path.display(),
+                e.display()
+            ));
+        }
         Ok(tool) => match cli.command {
-           Command::Sync => sync(tool),
+            Command::Sync => sync(tool),
         },
     }
 }
@@ -45,7 +43,7 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
             }
             None => {
                 err::abort_suggest_issue("Unable to find $HOME directory");
-            },
-        }
+            }
+        },
     }
 }

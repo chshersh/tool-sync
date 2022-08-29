@@ -3,7 +3,7 @@ use std::process;
 /// Print an error message and exit with code 1
 pub fn abort_with(err_msg: &str) -> ! {
     eprintln!(
-r#"Aborting 'tool-sync' with error:
+        r#"Aborting 'tool-sync' with error:
 
     * {}"#,
         err_msg
@@ -15,7 +15,7 @@ r#"Aborting 'tool-sync' with error:
 /// Print an error message, suggesting opening an issue and exit with code 1
 pub fn abort_suggest_issue(err_msg: &str) -> ! {
     eprintln!(
-r#"Aborting 'tool-sync' with error:
+        r#"Aborting 'tool-sync' with error:
 
     * {}
 

@@ -3,27 +3,25 @@ use crate::model::asset_name::AssetName;
 #[derive(Debug, PartialEq)]
 pub enum Tool {
     Known(ToolInfo),
-    Error(ToolError), 
+    Error(ToolError),
 }
 
 #[derive(Debug, PartialEq)]
 pub enum ToolError {
     /// Probably a known tool but specified differently. E.g. 'rg' instead of 'ripgrep'
-    Suggestion {
-        perhaps: String,
-    },
+    Suggestion { perhaps: String },
 
     /// Not enough configuration to install the tool
-    Invalid, 
+    Invalid,
 }
 
 impl ToolError {
     pub fn display(&self) -> String {
         match self {
-            ToolError::Suggestion {perhaps} =>
-                format!("[suggestion] Perhaps you meant: '{}'?", perhaps),
-            ToolError::Invalid =>
-                format!("[error] Not detailed enough configuration)"),
+            ToolError::Suggestion { perhaps } => {
+                format!("[suggestion] Perhaps you meant: '{}'?", perhaps)
+            }
+            ToolError::Invalid => format!("[error] Not detailed enough configuration)"),
         }
     }
 }

@@ -44,6 +44,8 @@ implementation beforehand. However, there're still a few requirements:
 
 1. Be polite and respectful in communications. Follow our
    [Code of Conduct](https://github.com/chshersh/tool-sync/blob/main/CODE_OF_CONDUCT.md).
+2. The code should be formatted with `rustfmt` using formatting settings from
+   this project.
 
 That's all so far!
 
