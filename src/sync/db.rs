@@ -54,6 +54,16 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
         }),
+        "tool-sync" => Some(ToolInfo {
+            owner: "chshersh".to_string(),
+            repo: "tool-sync".to_string(),
+            exe_name: "tool".to_string(),
+            asset_name: AssetName {
+                linux: Some("x86_64-unknown-linux-gnu".to_string()),
+                macos: Some("x86_64-apple-darwin".to_string()),
+                windows: Some("x86_64-pc-windows-msvc".to_string()),
+            },
+        }),
         // "tokei" => Some(ToolInfo {
         //     owner: "XAMPPRocky".to_string(),
         //     repo: "tokei".to_string(),
