@@ -6,26 +6,25 @@ use toml::{map::Map, Value};
 use crate::config::schema::{Config, ConfigAsset};
 use crate::model::asset_name::AssetName;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum TomlError {
-    IOError(String),
-    ParseError(toml::de::Error),
-    DecodeError,
+    IO(String),
+    Parse(toml::de::Error),
+    Decode,
 }
 
 impl TomlError {
     pub fn display(&self) -> String {
         match self {
-            TomlError::IOError(e) => format!("[IO Error] {}", e),
-            TomlError::ParseError(e) => format!("[Parsing Error] {}", e),
-            TomlError::DecodeError => format!("[Decode Error]"),
+            TomlError::IO(e) => format!("[IO Error] {}", e),
+            TomlError::Parse(e) => format!("[Parsing Error] {}", e),
+            TomlError::Decode => "[Decode Error]".to_string(),
         }
     }
 }
 
 pub fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
-    let contents =
-        fs::read_to_string(config_path).map_err(|e| TomlError::IOError(format!("{}", e)))?;
+    let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{}", e)))?;
 
     parse_string(&contents)
 }
@@ -33,9 +32,9 @@ pub fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
 fn parse_string(contents: &str) -> Result<Config, TomlError> {
     contents
         .parse::<Value>()
-        .map_err(TomlError::ParseError)
+        .map_err(TomlError::Parse)
         .and_then(|toml| match decode_config(toml) {
-            None => Err(TomlError::DecodeError),
+            None => Err(TomlError::Decode),
             Some(config) => Ok(config),
         })
 }
@@ -107,7 +106,7 @@ mod tests {
         let toml = "";
         let res = parse_string(toml);
 
-        assert_eq!(res, Err(TomlError::DecodeError));
+        assert_eq!(res, Err(TomlError::Decode));
     }
 
     #[test]
@@ -115,7 +114,7 @@ mod tests {
         let toml = "store.directory = \"pancake\"";
         let res = parse_string(toml);
 
-        assert_eq!(res, Err(TomlError::DecodeError));
+        assert_eq!(res, Err(TomlError::Decode));
     }
 
     #[test]
@@ -123,7 +122,7 @@ mod tests {
         let toml = "store_directory = 42";
         let res = parse_string(toml);
 
-        assert_eq!(res, Err(TomlError::DecodeError));
+        assert_eq!(res, Err(TomlError::Decode));
     }
 
     #[test]

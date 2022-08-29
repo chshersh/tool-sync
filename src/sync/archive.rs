@@ -1,8 +1,6 @@
 use flate2::read::GzDecoder;
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use tar;
-use zip;
 
 use crate::model::asset_name::mk_exe_name;
 
@@ -67,15 +65,12 @@ impl<'a> Archive<'a> {
                     None => {
                         let exe_file = asset_name.strip_suffix(".exe");
 
-                        match exe_file {
-                            Some(_) => Some(Archive {
-                                archive_path,
-                                tmp_dir,
-                                exe_name,
-                                archive_type: ArchiveType::Exe(asset_name),
-                            }),
-                            None => None,
-                        }
+                        exe_file.map(|_| Archive {
+                            archive_path,
+                            tmp_dir,
+                            exe_name,
+                            archive_type: ArchiveType::Exe(asset_name),
+                        })
                     }
                 }
             }
@@ -120,7 +115,7 @@ fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path) -> Result<(), UnpackError> {
 }
 
 fn find_path_to_exe(
-    archive_path: &PathBuf,
+    archive_path: &Path,
     tmp_dir: &Path,
     exe_name: &str,
     asset_name: &str,

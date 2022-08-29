@@ -4,7 +4,6 @@ mod model;
 mod sync;
 
 use clap::Parser;
-use dirs;
 use std::path::PathBuf;
 
 use crate::config::cli::{Cli, Command};

@@ -1,12 +1,12 @@
 use crate::model::asset_name::AssetName;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Tool {
     Known(ToolInfo),
     Error(ToolError),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ToolError {
     /// Probably a known tool but specified differently. E.g. 'rg' instead of 'ripgrep'
     Suggestion { perhaps: String },
@@ -21,13 +21,13 @@ impl ToolError {
             ToolError::Suggestion { perhaps } => {
                 format!("[suggestion] Perhaps you meant: '{}'?", perhaps)
             }
-            ToolError::Invalid => format!("[error] Not detailed enough configuration)"),
+            ToolError::Invalid => "[error] Not detailed enough configuration)".to_string(),
         }
     }
 }
 
 /// All info about installing a tool from GitHub releases
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ToolInfo {
     /// GitHub repository author
     pub owner: String,

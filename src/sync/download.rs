@@ -4,7 +4,6 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use ureq;
 
 use crate::model::release::{Asset, Release};
 use crate::sync::progress::SyncProgress;
@@ -79,7 +78,7 @@ impl<'a> Downloader<'a> {
             }
 
             pb_downloading.inc(bytes_read as u64);
-            destination.write(&buffer[..bytes_read])?;
+            destination.write_all(&buffer[..bytes_read])?;
         }
 
         self.pb_msg.set_message("Downloaded!");
