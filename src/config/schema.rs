@@ -1,5 +1,4 @@
 use shellexpand;
-use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -44,10 +43,7 @@ impl Config {
 
         let store_directory = match expanded_store_directory {
             Err(e) => err::abort_with(&e.to_string()),
-            Ok(cow_path) => match cow_path {
-                Cow::Borrowed(path) => PathBuf::from(path),
-                Cow::Owned(path) => PathBuf::from(path),
-            },
+            Ok(cow_path) => PathBuf::from(cow_path.into_owned()),
         };
 
         let has_store_directory = store_directory.as_path().is_dir();
