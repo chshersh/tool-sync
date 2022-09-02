@@ -20,6 +20,7 @@ pub struct Downloader<'a> {
 pub struct DownloadInfo {
     pub archive_path: PathBuf,
     pub asset_name: String,
+    pub tag_name: String,
 }
 
 impl<'a> Downloader<'a> {
@@ -106,6 +107,7 @@ impl<'a> Downloader<'a> {
                 Ok(DownloadInfo {
                     archive_path,
                     asset_name: asset.name.clone(),
+                    tag_name: release.tag_name,
                 })
             }
         }

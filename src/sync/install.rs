@@ -44,14 +44,15 @@ impl Installer {
         let pb_msg = self.sync_progress.create_message_bar(tool_name);
 
         match configure_tool(tool_name, config_asset) {
-            Tool::Known(tool_info) => {
-                if let Err(e) = self.sync_single_tool(&tool_info, &pb_msg) {
+            Tool::Known(tool_info) => match self.sync_single_tool(&tool_info, &pb_msg) {
+                Ok(tag_name) => {
+                    self.sync_progress.success(pb_msg, tool_name, &tag_name);
+                }
+                Err(e) => {
                     self.sync_progress
                         .failure(pb_msg, tool_name, format!("[error] {}", e));
-                } else {
-                    self.sync_progress.success(pb_msg, tool_name);
                 }
-            }
+            },
             Tool::Error(e) => {
                 self.sync_progress.failure(pb_msg, tool_name, e.display());
             }
@@ -62,7 +63,7 @@ impl Installer {
         &self,
         tool_info: &ToolInfo,
         pb_msg: &ProgressBar,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<String, Box<dyn Error>> {
         match tool_info.asset_name.get_name_by_os() {
             None => Err(
                 "Don't know the asset name for this OS: specify it explicitly in the config".into(),
@@ -93,7 +94,7 @@ impl Installer {
                         Err(unpack_err) => Err(unpack_err.display().into()),
                         Ok(tool_path) => {
                             copy_file(tool_path, &self.store_directory, &tool_info.exe_name)?;
-                            Ok(())
+                            Ok(download_info.tag_name)
                         }
                     },
                 }
