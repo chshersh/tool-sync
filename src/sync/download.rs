@@ -137,7 +137,7 @@ mod tests {
             asset_name: "ASSET_NAME",
             version: &ToolInfoTag::Latest.to_str_version(),
             pb_msg: &ProgressBar::hidden(),
-            sync_progress: &SyncProgress::new(vec!["tool".to_string()]),
+            sync_progress: &SyncProgress::new(vec!["tool".to_string()], vec!["latest".to_string()]),
         };
 
         assert_eq!(
@@ -154,7 +154,7 @@ mod tests {
             asset_name: "ASSET_NAME",
             version: &ToolInfoTag::Specific("SPECIFIC_TAG".to_string()).to_str_version(),
             pb_msg: &ProgressBar::hidden(),
-            sync_progress: &SyncProgress::new(vec!["tool".to_string()]),
+            sync_progress: &SyncProgress::new(vec!["tool".to_string()], vec!["latest".to_string()]),
         };
 
         assert_eq!(
