@@ -62,12 +62,14 @@ fn decode_config_asset(table: &Map<String, Value>) -> ConfigAsset {
     let repo = str_by_key(table, "repo");
     let exe_name = str_by_key(table, "exe_name");
     let asset_name = decode_asset_name(table);
+    let tag = str_by_key(table, "tag");
 
     ConfigAsset {
         owner,
         repo,
         exe_name,
         asset_name,
+        tag,
     }
 }
 
@@ -161,6 +163,7 @@ mod tests {
                         macos: None,
                         windows: None,
                     },
+                    tag: None,
                 },
             )]),
         };
@@ -193,6 +196,7 @@ mod tests {
                             macos: None,
                             windows: None,
                         },
+                        tag: None,
                     },
                 ),
                 (
@@ -206,6 +210,7 @@ mod tests {
                             macos: None,
                             windows: None,
                         },
+                        tag: None,
                     },
                 ),
             ]),
@@ -239,6 +244,7 @@ mod tests {
                         macos: None,
                         windows: None,
                     },
+                    tag: None,
                 },
             )]),
         };
@@ -258,6 +264,7 @@ mod tests {
             asset_name.linux = "R2D2"
             asset_name.macos = "C3-PO"
             asset_name.windows = "IG-88"
+            tag = "4.2.0"
         "#;
 
         let res = parse_string(toml);
@@ -275,6 +282,7 @@ mod tests {
                         macos: Some("C3-PO".to_owned()),
                         windows: Some("IG-88".to_owned()),
                     },
+                    tag: Some("4.2.0".to_owned()),
                 },
             )]),
         };

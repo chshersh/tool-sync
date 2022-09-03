@@ -12,6 +12,7 @@ pub struct Downloader<'a> {
     pub owner: &'a str,
     pub repo: &'a str,
     pub asset_name: &'a str,
+    pub version: &'a str,
     pub pb_msg: &'a ProgressBar,
     pub sync_progress: &'a SyncProgress,
 }
@@ -26,9 +27,10 @@ pub struct DownloadInfo {
 impl<'a> Downloader<'a> {
     fn release_url(&self) -> String {
         format!(
-            "https://api.github.com/repos/{owner}/{repo}/releases/latest",
+            "https://api.github.com/repos/{owner}/{repo}/releases/{version}",
             owner = self.owner,
-            repo = self.repo
+            repo = self.repo,
+            version = self.version,
         )
     }
 
@@ -118,5 +120,46 @@ pub fn add_auth_header(req: ureq::Request) -> ureq::Request {
     match env::var("GITHUB_TOKEN") {
         Err(_) => req,
         Ok(token) => req.set("Authorization", &format!("token {}", token)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::model::tool::ToolInfoTag;
+
+    #[test]
+    fn release_url_with_latest_tag_is_correct() {
+        let downloader = Downloader {
+            owner: "OWNER",
+            repo: "REPO",
+            asset_name: "ASSET_NAME",
+            version: &ToolInfoTag::Latest.to_str_version(),
+            pb_msg: &ProgressBar::hidden(),
+            sync_progress: &SyncProgress::new(vec!["tool".to_string()]),
+        };
+
+        assert_eq!(
+            downloader.release_url(),
+            "https://api.github.com/repos/OWNER/REPO/releases/latest"
+        );
+    }
+
+    #[test]
+    fn release_url_with_specific_tag_is_correct() {
+        let downloader = Downloader {
+            owner: "OWNER",
+            repo: "REPO",
+            asset_name: "ASSET_NAME",
+            version: &ToolInfoTag::Specific("SPECIFIC_TAG".to_string()).to_str_version(),
+            pb_msg: &ProgressBar::hidden(),
+            sync_progress: &SyncProgress::new(vec!["tool".to_string()]),
+        };
+
+        assert_eq!(
+            downloader.release_url(),
+            "https://api.github.com/repos/OWNER/REPO/releases/tags/SPECIFIC_TAG"
+        );
     }
 }
