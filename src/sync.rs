@@ -32,7 +32,12 @@ For more details, refer to the official documentation:
         let store_directory = config.ensure_store_directory();
 
         let tools: Vec<String> = config.tools.keys().cloned().collect();
-        let sync_progress = SyncProgress::new(tools);
+        let tags: Vec<String> = config
+            .tools
+            .values()
+            .map(|config_asset| { config_asset.tag.clone().unwrap_or_else(|| "latest".into()) })
+            .collect();
+        let sync_progress = SyncProgress::new(tools, tags);
         let installer = Installer::mk(store_directory, sync_progress);
 
         for (tool_name, config_asset) in config.tools.iter() {
