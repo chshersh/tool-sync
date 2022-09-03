@@ -35,7 +35,7 @@ For more details, refer to the official documentation:
         let tags: Vec<String> = config
             .tools
             .values()
-            .map(|config_asset| { config_asset.tag.clone().unwrap_or_else(|| "latest".into()) })
+            .map(|config_asset| config_asset.tag.clone().unwrap_or_else(|| "latest".into()))
             .collect();
         let sync_progress = SyncProgress::new(tools, tags);
         let installer = Installer::mk(store_directory, sync_progress);
