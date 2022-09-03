@@ -122,6 +122,9 @@ owner    = "XAMPPRocky"  # GitHub username
 repo     = "tokei"       # GitHub repository
 exe_name = "tokei"       # Executable name inside the asset
 
+# uncomment to download a specific version or tag
+# tag = "12.1.1"
+
 # Asset name to download on linux OSes
 asset_name.linux = "x86_64-unknown-linux-musl"
 

@@ -1,5 +1,5 @@
 use crate::model::asset_name::AssetName;
-use crate::model::tool::ToolInfo;
+use crate::model::tool::{ToolInfo, ToolInfoTag};
 
 /// Get info about known tools from a hardcoded database
 pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
@@ -13,6 +13,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 macos: Some("x86_64-apple-darwin".to_string()),
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
+            tag: ToolInfoTag::Latest,
         }),
         "difftastic" => Some(ToolInfo {
             owner: "Wilfred".to_string(),
@@ -23,6 +24,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 macos: Some("x86_64-apple-darwin".to_string()),
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
+            tag: ToolInfoTag::Latest,
         }),
         "exa" => Some(ToolInfo {
             owner: "ogham".to_string(),
@@ -33,6 +35,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 macos: Some("macos-x86_64".to_string()),
                 windows: None,
             },
+            tag: ToolInfoTag::Latest,
         }),
         "fd" => Some(ToolInfo {
             owner: "sharkdp".to_string(),
@@ -43,6 +46,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 macos: Some("x86_64-apple-darwin".to_string()),
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
+            tag: ToolInfoTag::Latest,
         }),
         "ripgrep" => Some(ToolInfo {
             owner: "BurntSushi".to_string(),
@@ -53,6 +57,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 macos: Some("apple-darwin".to_string()),
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
+            tag: ToolInfoTag::Latest,
         }),
         "tool-sync" => Some(ToolInfo {
             owner: "chshersh".to_string(),
@@ -63,6 +68,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
                 macos: Some("x86_64-apple-darwin".to_string()),
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
+            tag: ToolInfoTag::Latest,
         }),
         // "tokei" => Some(ToolInfo {
         //     owner: "XAMPPRocky".to_string(),
@@ -73,6 +79,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
         //         macos: Some("apple-darwin".to_string()),
         //         windows: Some("x86_64-pc-windows-msvc".to_string()),
         //       }
+        //     tag: ToolInfoTag::Latest,
         // }),
         _ => None,
     }

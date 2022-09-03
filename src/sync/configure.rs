@@ -1,6 +1,6 @@
 use crate::config::schema::ConfigAsset;
 use crate::model::asset_name::AssetName;
-use crate::model::tool::{Tool, ToolError, ToolInfo};
+use crate::model::tool::{Tool, ToolError, ToolInfo, ToolInfoTag};
 use crate::sync::db::lookup_tool;
 
 pub fn configure_tool(tool_name: &str, config_asset: &ConfigAsset) -> Tool {
@@ -32,6 +32,11 @@ fn full_configure(config_asset: &ConfigAsset) -> Option<ToolInfo> {
     let owner = config_asset.owner.clone()?;
     let repo = config_asset.repo.clone()?;
     let exe_name = config_asset.exe_name.clone()?;
+    let tag = config_asset
+        .tag
+        .clone()
+        .map(|version| ToolInfoTag::Specific(version))
+        .unwrap_or(ToolInfoTag::Latest);
 
     Some(ToolInfo {
         owner,
@@ -42,6 +47,7 @@ fn full_configure(config_asset: &ConfigAsset) -> Option<ToolInfo> {
             macos: config_asset.asset_name.macos.clone(),
             windows: config_asset.asset_name.windows.clone(),
         },
+        tag,
     })
 }
 
@@ -78,6 +84,11 @@ impl ToolInfo {
                     .clone()
                     .or_else(|| self.asset_name.windows.clone()),
             },
+            tag: config_asset
+                .tag
+                .clone()
+                .map(|version| ToolInfoTag::Specific(version))
+                .unwrap_or(ToolInfoTag::Latest),
         }
     }
 }
@@ -99,6 +110,7 @@ mod tests {
                 macos: None,
                 windows: None,
             },
+            tag: None,
         };
 
         assert_eq!(
@@ -120,6 +132,7 @@ mod tests {
                 macos: None,
                 windows: None,
             },
+            tag: None,
         };
 
         assert_eq!(
@@ -141,6 +154,7 @@ mod tests {
                 macos: None,
                 windows: None,
             },
+            tag: None,
         };
 
         assert_eq!(
@@ -164,6 +178,7 @@ mod tests {
                 macos: None,
                 windows: None,
             },
+            tag: Some(String::from("1.2.3")),
         };
 
         assert_eq!(
@@ -185,6 +200,7 @@ mod tests {
                 macos: Some(String::from("my-macos")),
                 windows: Some(String::from("yours-windows")),
             },
+            tag: Some(String::from("1.2.3")),
         };
 
         assert_eq!(
@@ -197,7 +213,8 @@ mod tests {
                     linux: Some("my-linux".to_string()),
                     macos: Some("my-macos".to_string()),
                     windows: Some("yours-windows".to_string()),
-                }
+                },
+                tag: ToolInfoTag::Specific("1.2.3".to_string()),
             })
         );
     }
@@ -215,6 +232,7 @@ mod tests {
                 macos: None,
                 windows: None,
             },
+            tag: None,
         };
 
         assert_eq!(
@@ -227,7 +245,8 @@ mod tests {
                     linux: Some("unknown-linux-musl".to_string()),
                     macos: Some("apple-darwin".to_string()),
                     windows: Some("x86_64-pc-windows-msvc".to_string()),
-                }
+                },
+                tag: ToolInfoTag::Latest,
             })
         );
     }
@@ -245,6 +264,7 @@ mod tests {
                 macos: Some(String::from("my-macos")),
                 windows: Some(String::from("yours-windows")),
             },
+            tag: Some(String::from("3.2.1")),
         };
 
         assert_eq!(
@@ -257,7 +277,8 @@ mod tests {
                     linux: Some("my-linux".to_string()),
                     macos: Some("my-macos".to_string()),
                     windows: Some("yours-windows".to_string()),
-                }
+                },
+                tag: ToolInfoTag::Specific("3.2.1".to_string()),
             })
         );
     }

@@ -26,6 +26,25 @@ impl ToolError {
     }
 }
 
+/// Determines whether to download the latest version of a tool or a
+/// specific version of it.
+#[derive(Debug, PartialEq, Eq)]
+pub enum ToolInfoTag {
+    /// Download latest
+    Latest,
+    /// Download a specific version
+    Specific(String),
+}
+
+impl ToolInfoTag {
+    pub fn as_specific_tag(&self) -> Option<&str> {
+        match self {
+            Self::Latest => None,
+            Self::Specific(version) => Some(&version),
+        }
+    }
+}
+
 /// All info about installing a tool from GitHub releases
 #[derive(Debug, PartialEq, Eq)]
 pub struct ToolInfo {
@@ -40,4 +59,7 @@ pub struct ToolInfo {
 
     /// Asset name depending on the OS
     pub asset_name: AssetName,
+
+    /// Version tag
+    pub tag: ToolInfoTag,
 }

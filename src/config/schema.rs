@@ -33,6 +33,10 @@ pub struct ConfigAsset {
 
     /// Name of the specific asset to download
     pub asset_name: AssetName,
+
+    /// Release tag to download
+    /// Defaults to the latest release
+    pub tag: Option<String>,
 }
 
 impl Config {
