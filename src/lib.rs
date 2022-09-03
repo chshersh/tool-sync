@@ -1,4 +1,5 @@
 mod config;
+mod config_template;
 mod err;
 mod model;
 mod sync;
@@ -14,19 +15,26 @@ const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
 
 pub fn run() {
     let cli = Cli::parse();
-    let config_path = resolve_config_path(cli.config);
+    let config_path = resolve_config_path(cli.config.clone());
 
-    match toml::parse_file(&config_path) {
-        Err(e) => {
-            err::abort_with(&format!(
-                "Error parsing configuration at path {}: {}",
-                config_path.display(),
-                e.display()
-            ));
-        }
-        Ok(tool) => match cli.command {
-            Command::Sync => sync(tool),
+    match cli.command {
+        Command::Sync => match toml::parse_file(&config_path) {
+            Err(e) => {
+                err::abort_with(&format!(
+                    "Error parsing configuration at path {}: {}",
+                    config_path.display(),
+                    e.display()
+                ));
+            }
+            Ok(tool) => {
+                sync(tool);
+            }
         },
+        Command::Generate => {
+            if let Err(e) = generate_config(cli.config.clone()) {
+                eprint!("{}", e);
+            }
+        }
     }
 }
 
@@ -45,4 +53,10 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
             }
         },
     }
+}
+
+fn generate_config(config_path: Option<PathBuf>) -> Result<(), std::io::Error> {
+    let path = resolve_config_path(config_path);
+    std::fs::write(path, config_template::CONFIG_TEMPLATE)?;
+    Ok(())
 }
