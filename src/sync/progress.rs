@@ -25,8 +25,13 @@ impl SyncProgress {
         }
     }
 
-    fn fmt_prefix(&self, emoji: Emoji, tool_name: &str) -> String {
-        let aligned_tool = format!("{:width$}", tool_name, width = self.max_tool_size);
+    fn fmt_prefix(&self, emoji: Emoji, tool_name: &str, tag_name: &str) -> String {
+        let aligned_tool = format!(
+            "{:width$} {:<8}",
+            tool_name,
+            tag_name,
+            width = self.max_tool_size
+        );
 
         format!("{}{}", emoji, aligned_tool)
     }
@@ -37,7 +42,7 @@ impl SyncProgress {
         self.multi_progress.add(
             ProgressBar::new(100)
                 .with_style(message_style)
-                .with_prefix(self.fmt_prefix(PROCESS, tool_name)),
+                .with_prefix(self.fmt_prefix(PROCESS, tool_name, "")),
         )
     }
 
@@ -53,8 +58,8 @@ impl SyncProgress {
         pb.finish_and_clear()
     }
 
-    pub fn success(&self, pb: ProgressBar, tool_name: &str) {
-        pb.set_prefix(self.fmt_prefix(SUCCESS, tool_name));
+    pub fn success(&self, pb: ProgressBar, tool_name: &str, tag_name: &str) {
+        pb.set_prefix(self.fmt_prefix(SUCCESS, tool_name, tag_name));
 
         let success_msg = format!("{}", style("Completed!").bold().green());
         pb.set_message(success_msg);
@@ -62,7 +67,7 @@ impl SyncProgress {
     }
 
     pub fn failure(&self, pb: ProgressBar, tool_name: &str, err_msg: String) {
-        pb.set_prefix(self.fmt_prefix(FAILURE, tool_name));
+        pb.set_prefix(self.fmt_prefix(FAILURE, tool_name, ""));
 
         let failure_msg = format!("{}", style(err_msg).red());
         pb.set_message(failure_msg);
