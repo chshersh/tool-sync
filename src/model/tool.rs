@@ -36,11 +36,13 @@ pub enum ToolInfoTag {
     Specific(String),
 }
 
+const LATEST_VERSION: &str = "latest";
+
 impl ToolInfoTag {
-    pub fn as_specific_tag(&self) -> Option<&str> {
+    pub fn to_str_version(&self) -> String {
         match self {
-            Self::Latest => None,
-            Self::Specific(version) => Some(&version),
+            Self::Latest => LATEST_VERSION.to_owned(),
+            Self::Specific(version) => format!("tags/{}", version),
         }
     }
 }

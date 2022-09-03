@@ -12,7 +12,7 @@ pub struct Downloader<'a> {
     pub owner: &'a str,
     pub repo: &'a str,
     pub asset_name: &'a str,
-    pub specific_tag: &'a Option<&'a str>,
+    pub version: &'a str,
     pub pb_msg: &'a ProgressBar,
     pub sync_progress: &'a SyncProgress,
 }
@@ -25,20 +25,12 @@ pub struct DownloadInfo {
 
 impl<'a> Downloader<'a> {
     fn release_url(&self) -> String {
-        if let Some(tag) = self.specific_tag {
-            format!(
-                "https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}",
-                owner = self.owner,
-                repo = self.repo,
-                tag = tag,
-            )
-        } else {
-            format!(
-                "https://api.github.com/repos/{owner}/{repo}/releases/latest",
-                owner = self.owner,
-                repo = self.repo,
-            )
-        }
+        format!(
+            "https://api.github.com/repos/{owner}/{repo}/releases/{version}",
+            owner = self.owner,
+            repo = self.repo,
+            version = self.version,
+        )
     }
 
     fn asset_url(&self, asset_id: u32) -> String {
@@ -133,13 +125,15 @@ pub fn add_auth_header(req: ureq::Request) -> ureq::Request {
 mod tests {
     use super::*;
 
+    use crate::model::tool::ToolInfoTag;
+
     #[test]
-    fn release_url_with_no_specific_tag_is_correct() {
+    fn release_url_with_latest_tag_is_correct() {
         let downloader = Downloader {
             owner: "OWNER",
             repo: "REPO",
             asset_name: "ASSET_NAME",
-            specific_tag: &None,
+            version: &ToolInfoTag::Latest.to_str_version(),
             pb_msg: &ProgressBar::hidden(),
             sync_progress: &SyncProgress::new(vec!["tool".to_string()]),
         };
@@ -156,7 +150,7 @@ mod tests {
             owner: "OWNER",
             repo: "REPO",
             asset_name: "ASSET_NAME",
-            specific_tag: &Some("SPECIFIC_TAG"),
+            version: &ToolInfoTag::Specific("SPECIFIC_TAG".to_string()).to_str_version(),
             pb_msg: &ProgressBar::hidden(),
             sync_progress: &SyncProgress::new(vec!["tool".to_string()]),
         };

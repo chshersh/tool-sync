@@ -71,7 +71,7 @@ impl Installer {
                 let downloader = Downloader {
                     owner: &tool_info.owner,
                     repo: &tool_info.repo,
-                    specific_tag: &tool_info.tag.as_specific_tag(),
+                    version: &tool_info.tag.to_str_version(),
                     sync_progress: &self.sync_progress,
                     pb_msg,
                     asset_name,

@@ -35,7 +35,7 @@ fn full_configure(config_asset: &ConfigAsset) -> Option<ToolInfo> {
     let tag = config_asset
         .tag
         .clone()
-        .map(|version| ToolInfoTag::Specific(version))
+        .map(ToolInfoTag::Specific)
         .unwrap_or(ToolInfoTag::Latest);
 
     Some(ToolInfo {
