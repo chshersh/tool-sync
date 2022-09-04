@@ -31,8 +31,14 @@ pub fn run() {
             }
         },
         Command::Generate => {
-            if let Err(e) = generate_config(cli.config.clone()) {
-                eprint!("{}", e);
+            match generate_config(&config_path) {
+                Ok(path) => {
+                    println!("default config file generated at {:?}", path);
+                },
+                Err(e) => {
+                    eprint!("{}", e);
+                }
+
             }
         }
     }
@@ -55,8 +61,9 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
     }
 }
 
-fn generate_config(config_path: Option<PathBuf>) -> Result<(), std::io::Error> {
-    let path = resolve_config_path(config_path);
+fn generate_config(config_path: &PathBuf) -> Result<&PathBuf, std::io::Error> {
+    let prepare_path = Some(config_path.to_owned());
+    let path = resolve_config_path(prepare_path);
     std::fs::write(path, config_template::CONFIG_TEMPLATE)?;
-    Ok(())
+    Ok(config_path)
 }
