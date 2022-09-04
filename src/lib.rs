@@ -30,17 +30,14 @@ pub fn run() {
                 sync(tool);
             }
         },
-        Command::Generate => {
-            match generate_config(&config_path) {
-                Ok(path) => {
-                    println!("default config file generated at {:?}", path);
-                },
-                Err(e) => {
-                    eprint!("{}", e);
-                }
-
+        Command::Generate => match generate_config(&config_path) {
+            Ok(path) => {
+                println!("default config file generated at {:?}", path);
             }
-        }
+            Err(e) => {
+                eprint!("{}", e);
+            }
+        },
     }
 }
 
