@@ -87,3 +87,50 @@ impl SyncProgress {
         pb.finish();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::SyncProgress;
+
+    #[test]
+    fn test_max_tag_size_specific() {
+        let tags: Vec<String> = vec![
+            String::from("v10.10.100"),
+            String::from("latest"),
+            String::from("latest"),
+        ];
+        let tools: Vec<String> = vec![
+            String::from("ripgrep"),
+            String::from("bat"),
+            String::from("exa"),
+        ];
+
+        let progres = SyncProgress::new(tools, tags);
+
+        // v10.10.100 is 10 characters
+        assert_eq!(progres.max_tag_size, 10);
+        // ripgrep is 7 characters
+        assert_eq!(progres.max_tool_size, 7);
+    }
+
+    #[test]
+    fn test_max_tag_size_latest() {
+        let tags: Vec<String> = vec![
+            String::from("latest"),
+            String::from("latest"),
+            String::from("latest"),
+        ];
+        let tools: Vec<String> = vec![
+            String::from("ripgrep"),
+            String::from("bat"),
+            String::from("exa"),
+        ];
+
+        let progres = SyncProgress::new(tools, tags);
+
+        // latest is 6 characters so it should default to 8
+        assert_eq!(progres.max_tag_size, 8);
+        // ripgrep is 7 characters
+        assert_eq!(progres.max_tool_size, 7);
+    }
+}
