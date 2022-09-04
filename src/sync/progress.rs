@@ -19,7 +19,14 @@ impl SyncProgress {
         let max_tool_size = tools.iter().map(|tool| tool.len()).max().unwrap();
 
         // putting a default of 8 here since tags like v0.10.10 is already 8
-        let max_tag_size = tags.iter().map(|tag| tag.len()).max().unwrap_or(8);
+        let max_tag_size = tags
+            .iter()
+            .map(|tag| match tag.len() {
+                0..=8 => 8,
+                _ => tag.len(),
+            })
+            .max()
+            .unwrap_or(8);
 
         let multi_progress = MultiProgress::new();
 
