@@ -10,6 +10,7 @@ pub struct SyncProgress {
 const SUCCESS: Emoji<'_, '_> = Emoji("✅  ", "OK ");
 const FAILURE: Emoji<'_, '_> = Emoji("⛔  ", "NO ");
 const PROCESS: Emoji<'_, '_> = Emoji("📥  ", ".. ");
+const MIN_TAG_SIZE: usize = 8;
 
 impl SyncProgress {
     /// Creates new `SyncProgress` from a list of tools.
@@ -21,12 +22,9 @@ impl SyncProgress {
         // putting a default of 8 here since tags like v0.10.10 is already 8
         let max_tag_size = tags
             .iter()
-            .map(|tag| match tag.len() {
-                0..=8 => 8,
-                _ => tag.len(),
-            })
+            .map(|tag| std::cmp::max(tag.len(), MIN_TAG_SIZE))
             .max()
-            .unwrap_or(8);
+            .unwrap_or(MIN_TAG_SIZE);
 
         let multi_progress = MultiProgress::new();
 
