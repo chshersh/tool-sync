@@ -41,7 +41,8 @@ impl Installer {
     }
 
     pub fn install(&self, tool_name: &str, config_asset: &ConfigAsset) {
-        let pb_msg = self.sync_progress.create_message_bar(tool_name);
+        let tag: String = config_asset.tag.clone().unwrap_or_else(|| "latest".into());
+        let pb_msg = self.sync_progress.create_message_bar(tool_name, &tag);
 
         match configure_tool(tool_name, config_asset) {
             Tool::Known(tool_info) => match self.sync_single_tool(&tool_info, &pb_msg) {
@@ -50,11 +51,12 @@ impl Installer {
                 }
                 Err(e) => {
                     self.sync_progress
-                        .failure(pb_msg, tool_name, format!("[error] {}", e));
+                        .failure(pb_msg, tool_name, &tag, format!("[error] {}", e));
                 }
             },
             Tool::Error(e) => {
-                self.sync_progress.failure(pb_msg, tool_name, e.display());
+                self.sync_progress
+                    .failure(pb_msg, tool_name, &tag, e.display());
             }
         }
     }
