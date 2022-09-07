@@ -1,5 +1,4 @@
 mod config;
-mod config_template;
 mod err;
 mod model;
 mod sync;
@@ -8,6 +7,7 @@ use clap::Parser;
 use std::path::PathBuf;
 
 use crate::config::cli::{Cli, Command};
+use crate::config::template;
 use crate::config::toml;
 use crate::sync::sync;
 
@@ -30,14 +30,7 @@ pub fn run() {
                 sync(tool);
             }
         },
-        Command::Generate => match generate_config(&config_path) {
-            Ok(path) => {
-                println!("default config file generated at {:?}", path);
-            }
-            Err(e) => {
-                eprint!("{}", e);
-            }
-        },
+        Command::GenerateDefaultConfig => generate_config(),
     }
 }
 
@@ -58,9 +51,6 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
     }
 }
 
-fn generate_config(config_path: &PathBuf) -> Result<&PathBuf, std::io::Error> {
-    let prepare_path = Some(config_path.to_owned());
-    let path = resolve_config_path(prepare_path);
-    std::fs::write(path, config_template::CONFIG_TEMPLATE)?;
-    Ok(config_path)
+fn generate_config() {
+    println!("{}", template::CONFIG_TEMPLATE);
 }

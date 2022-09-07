@@ -19,5 +19,5 @@ pub enum Command {
     Sync,
 
     /// Generate a default .tools.toml file
-    Generate,
+    GenerateDefaultConfig,
 }
