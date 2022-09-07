@@ -30,7 +30,7 @@ pub fn run() {
                 sync(tool);
             }
         },
-        Command::GenerateDefaultConfig => generate_config(),
+        Command::DefaultConfig => generate_config(),
     }
 }
 
