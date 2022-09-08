@@ -100,8 +100,10 @@ store_directory = "~/.local/bin"
 [ripgrep]
 ```
 
-By default `tool-sync` reads configuration from `~/.tool.toml` but you can put
-the content in any place and specify the path via the `--config` flag.
+By default `tool-sync` reads configuration from `$HOME/.tool.toml` you can run `tool
+default-config` to print a default configuration example to std out. You can
+redirect this out put to a file like so `tool default-config >
+$HOME/.tools.toml`.
 
 You can also quickly copy the above configuration to the default path by running
 the following command (Unix-only):
