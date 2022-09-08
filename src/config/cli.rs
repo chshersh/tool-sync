@@ -17,4 +17,7 @@ pub struct Cli {
 pub enum Command {
     /// Sync all tools specified in configuration file
     Sync,
+
+    /// Generate a default .tools.toml file and prints it to std out
+    DefaultConfig,
 }
