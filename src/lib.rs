@@ -52,5 +52,5 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
 }
 
 fn generate_config() {
-    println!("{}", template::CONFIG_TEMPLATE);
+    println!("{}", template::config_template());
 }
