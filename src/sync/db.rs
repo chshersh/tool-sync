@@ -6,7 +6,10 @@ use crate::model::tool::{ToolInfo, ToolInfoTag};
 /// Get info about known tools from a hardcoded database
 pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     let mut known_db = build_db();
-    known_db.get_mut(tool_name).unwrap().take()
+    match known_db.get_mut(tool_name) {
+        Some(tool_info) => tool_info.take(),
+        None => None,
+    }
 }
 
 fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
