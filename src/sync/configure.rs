@@ -2,7 +2,6 @@ use crate::config::schema::ConfigAsset;
 use crate::model::asset_name::AssetName;
 use crate::model::tool::{Tool, ToolError, ToolInfo, ToolInfoTag};
 use crate::sync::db::lookup_tool;
-use serde::Deserialize;
 
 pub fn configure_tool(tool_name: &str, config_asset: &ConfigAsset) -> Tool {
     match lookup_tool(tool_name) {
@@ -28,31 +27,14 @@ pub fn configure_tool(tool_name: &str, config_asset: &ConfigAsset) -> Tool {
     }
 }
 
-#[derive(Deserialize)]
-pub struct RepoInformation {
-    pub name: String,
-    // There are other fields too, but we don't need them now
-    // They may be added later if needed at all
-}
-
-fn get_exe_name(owner: String, repo: String) -> Result<String, ureq::Error> {
-    let url = format!(
-        "https://api.github.com/repos/{owner}/{repo}",
-        owner = owner,
-        repo = repo
-    );
-    let repo: RepoInformation = ureq::get(&url).call()?.into_json()?;
-    Ok(repo.name)
-}
-
 /// Configure 'ToolInfo' completely from 'ConfigAsset'
 fn full_configure(config_asset: &ConfigAsset) -> Option<ToolInfo> {
     let owner = config_asset.owner.clone()?;
     let repo = config_asset.repo.clone()?;
-    let exe_name = match config_asset.exe_name.clone() {
-        Some(exe_name) => exe_name,
-        None => get_exe_name(owner.clone(), repo.clone()).unwrap(),
-    };
+    let exe_name = config_asset
+        .exe_name
+        .clone()
+        .unwrap_or(config_asset.repo.clone()?);
     let tag = config_asset
         .tag
         .clone()
@@ -87,7 +69,7 @@ impl ToolInfo {
             exe_name: config_asset
                 .exe_name
                 .clone()
-                .unwrap_or_else(|| self.exe_name.clone()),
+                .unwrap_or(config_asset.repo.clone().unwrap()),
             asset_name: AssetName {
                 linux: config_asset
                     .asset_name
@@ -241,7 +223,7 @@ mod tests {
     }
 
     #[test]
-    fn get_exe_name() {
+    fn empty_exe_name() {
         let tool_name = "abcdef";
 
         let config_asset = ConfigAsset {
