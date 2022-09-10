@@ -17,8 +17,8 @@ pub fn sync(config: Config) {
 Put the following into the $HOME/.tool.toml file for the simplest configuration:
 
     # ensure this directory is listed in $PATH
-    store_directory = "/path/to/install/directory"  
-    
+    store_directory = "/path/to/install/directory"
+
     [bat]
     [exa]
     [fd]

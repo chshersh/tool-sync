@@ -87,7 +87,7 @@ impl ToolInfo {
             tag: config_asset
                 .tag
                 .clone()
-                .map(|version| ToolInfoTag::Specific(version))
+                .map(ToolInfoTag::Specific)
                 .unwrap_or(ToolInfoTag::Latest),
         }
     }
