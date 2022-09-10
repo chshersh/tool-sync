@@ -179,7 +179,7 @@ tool --config=path/to/my/config.toml sync
 Run `tool --help` for more details.
 
 > :octocat: If you hit the limit for downloading assets or want to download
-> assets from private repositories, 
+> assets from private repositories,
 > [create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 > and export it as the `GITHUB_TOKEN` environment variable.
 
@@ -189,13 +189,13 @@ This section contains `tool-sync` comparison to existing alternatives:
 
 1. **Manual download**. You can download GitHub releases manually without using
    any extra tools.
-   
+
    + **Pros**
      + No extra tools required, only your browser and unpack utility
    + **Cons**
      + Tedious manual process
 
-2. **GitHub CLI**. You can download assets from releases using 
+2. **GitHub CLI**. You can download assets from releases using
    [the GitHub CLI tool `gh`][gh].
 
    ```shell
@@ -248,6 +248,10 @@ Use `cargo` to build the project and run all tests:
 cargo build
 cargo test
 ```
+
+There is a predefined `.pre-commit-config.yaml` that you can install using
+[pre-commit](https://pre-commit.com/). This will make sure the tests are run
+locally before committing changes.
 
 ### Adding a new tool
 
