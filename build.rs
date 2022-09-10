@@ -40,8 +40,8 @@ const TEMPLATE_TEMPLATE: &str = r##"
 "##;
 
 fn main() -> Result<()> {
-    let s = format_template();
-    fs::write("src/config/template.rs", s)?;
+    let template_content = format_template();
+    fs::write("src/config/template.rs", template_content)?;
 
     Ok(())
 }
