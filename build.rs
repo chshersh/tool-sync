@@ -55,7 +55,7 @@ fn format_template() -> String {
 // there.
 
 pub const CONFIG_TEMPLATE: &str = r##"# This config file was generated for version {}
-{}"##;
+#{}"##;
 "####,
         current_version, TEMPLATE_TEMPLATE
     )
