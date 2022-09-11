@@ -1,32 +1,30 @@
 use indicatif::ProgressBar;
 use std::error::Error;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tempdir::TempDir;
 
 #[cfg(target_family = "unix")]
 use std::os::unix::fs::PermissionsExt;
 
-use crate::config::schema::ConfigAsset;
 use crate::err;
 use crate::model::asset_name::mk_exe_name;
-use crate::model::tool::{Tool, ToolInfo};
+use crate::model::tool::ToolAsset;
 
 use super::archive::Archive;
-use super::configure::configure_tool;
 use super::download::Downloader;
 use super::progress::SyncProgress;
 
-pub struct Installer {
-    store_directory: PathBuf,
+pub struct Installer<'a> {
+    store_directory: &'a Path,
     tmp_dir: TempDir,
     sync_progress: SyncProgress,
 }
 
-impl Installer {
+impl<'a> Installer<'a> {
     /// This functions panics when it can't create a temporary directory
     /// (e.g. not enough disk space?)
-    pub fn mk(store_directory: PathBuf, sync_progress: SyncProgress) -> Installer {
+    pub fn mk(store_directory: &Path, sync_progress: SyncProgress) -> Installer {
         let tmp_dir = TempDir::new("tool-sync");
         match tmp_dir {
             Err(e) => {
@@ -40,73 +38,61 @@ impl Installer {
         }
     }
 
-    pub fn install(&self, tool_name: &str, config_asset: &ConfigAsset) {
-        let tag: String = config_asset.tag.clone().unwrap_or_else(|| "latest".into());
-        let pb_msg = self.sync_progress.create_message_bar(tool_name, &tag);
+    /// Returns `true` if the installation was successful
+    pub fn install(&self, tool_asset: ToolAsset) -> bool {
+        let tool_name = &tool_asset.tool_name;
+        let tag = &tool_asset.tag;
 
-        match configure_tool(tool_name, config_asset) {
-            Tool::Known(tool_info) => match self.sync_single_tool(&tool_info, &pb_msg) {
-                Ok(tag_name) => {
-                    self.sync_progress.success(pb_msg, tool_name, &tag_name);
-                }
-                Err(e) => {
-                    self.sync_progress
-                        .failure(pb_msg, tool_name, &tag, format!("[error] {}", e));
-                }
-            },
-            Tool::Error(e) => {
+        let pb_msg = self.sync_progress.create_message_bar(tool_name, tag);
+
+        match self.sync_single_tool(&tool_asset, &pb_msg) {
+            Ok(_) => {
+                self.sync_progress.success(pb_msg, tool_name, tag);
+                true
+            }
+            Err(e) => {
                 self.sync_progress
-                    .failure(pb_msg, tool_name, &tag, e.display());
+                    .failure(pb_msg, tool_name, tag, format!("[error] {}", e));
+                false
             }
         }
     }
 
     fn sync_single_tool(
         &self,
-        tool_info: &ToolInfo,
+        tool_asset: &ToolAsset,
         pb_msg: &ProgressBar,
-    ) -> Result<String, Box<dyn Error>> {
-        match tool_info.asset_name.get_name_by_os() {
-            None => Err(
-                "Don't know the asset name for this OS: specify it explicitly in the config".into(),
-            ),
-            Some(asset_name) => {
-                let downloader = Downloader {
-                    owner: &tool_info.owner,
-                    repo: &tool_info.repo,
-                    version: &tool_info.tag.to_str_version(),
-                    sync_progress: &self.sync_progress,
-                    pb_msg,
-                    asset_name,
-                };
+    ) -> Result<(), Box<dyn Error>> {
+        let downloader = Downloader {
+            asset: &tool_asset.asset,
+            client: &tool_asset.client,
+            sync_progress: &self.sync_progress,
+            pb_msg,
+        };
 
-                let download_info = downloader.download(self.tmp_dir.path())?;
+        let download_info = downloader.download(self.tmp_dir.path())?;
 
-                let archive = Archive::from(
-                    &download_info.archive_path,
-                    self.tmp_dir.path(),
-                    &tool_info.exe_name,
-                    &download_info.asset_name,
-                );
+        let archive = Archive::from(
+            &download_info.archive_path,
+            self.tmp_dir.path(),
+            &tool_asset.exe_name,
+            &tool_asset.asset.name,
+        );
 
-                match archive {
-                    None => {
-                        Err(format!("Unsupported asset type: {}", download_info.asset_name).into())
-                    }
-                    Some(archive) => match archive.unpack() {
-                        Err(unpack_err) => Err(unpack_err.display().into()),
-                        Ok(tool_path) => {
-                            copy_file(tool_path, &self.store_directory, &tool_info.exe_name)?;
-                            Ok(download_info.tag_name)
-                        }
-                    },
+        match archive {
+            None => Err(format!("Unsupported asset type: {}", tool_asset.asset.name).into()),
+            Some(archive) => match archive.unpack() {
+                Err(unpack_err) => Err(unpack_err.display().into()),
+                Ok(tool_path) => {
+                    copy_file(tool_path, self.store_directory, &tool_asset.exe_name)?;
+                    Ok(())
                 }
-            }
+            },
         }
     }
 }
 
-fn copy_file(tool_path: PathBuf, store_directory: &PathBuf, exe_name: &str) -> std::io::Result<()> {
+fn copy_file(tool_path: PathBuf, store_directory: &Path, exe_name: &str) -> std::io::Result<()> {
     let exe_name = mk_exe_name(exe_name);
 
     let mut install_path = PathBuf::new();

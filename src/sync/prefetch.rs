@@ -1,0 +1,157 @@
+use console::{style, Emoji};
+use indicatif::{HumanBytes, ProgressBar, ProgressStyle};
+use std::collections::BTreeMap;
+
+use super::configure::configure_tool;
+use crate::config::schema::ConfigAsset;
+use crate::infra::client::Client;
+use crate::model::tool::{Tool, ToolAsset};
+
+const PREFETCH: Emoji<'_, '_> = Emoji("🔄 ", "-> ");
+const ERROR: Emoji<'_, '_> = Emoji("❌ ", "x ");
+const PACKAGE: Emoji<'_, '_> = Emoji("📦 ", "# ");
+
+struct PrefetchProgress {
+    pb: ProgressBar,
+    total_count: usize,
+}
+
+impl PrefetchProgress {
+    fn new(total_count: usize) -> PrefetchProgress {
+        let pb = create_prefetch_progress_bar();
+        PrefetchProgress { pb, total_count }
+    }
+
+    fn update_message(&self, already_completed: usize) {
+        let remaining_count = self.total_count - already_completed;
+
+        if remaining_count == 0 {
+            self.pb.set_message("All done!");
+            self.pb.finish()
+        } else {
+            self.pb.set_message(format!(
+                "Fetching info about {} tools (this may take a few seconds)...",
+                remaining_count
+            ))
+        }
+    }
+
+    fn expected_err_msg(&self, tool_name: &str, msg: &str) {
+        let tool = format!("{}", style(tool_name).cyan().bold());
+        self.pb.println(format!("{} {} {}", ERROR, tool, msg))
+    }
+
+    fn unexpected_err_msg(&self, tool_name: &str, msg: &str) {
+        let tool = format!("{}", style(tool_name).cyan().bold());
+        let err_msg = format!(
+            r#"{emoji} {tool} {msg}
+
+If you think you see this error by a 'tool-sync' mistake,
+don't hesitate to open an issue:
+
+    * https://github.com/chshersh/tool-sync/issues/new"#,
+            emoji = ERROR,
+            tool = tool,
+            msg = msg,
+        );
+
+        self.pb.println(err_msg);
+    }
+
+    fn finish(&self) {
+        self.pb.finish()
+    }
+}
+
+/// Fetch information about all the tool from the configuration. This function
+/// combines two steps:
+///
+///   1. Resolving all the required fields from `ConfigAsset`.
+///   2. Fetching release and asset info from GitHub.
+pub fn prefetch(tools: BTreeMap<String, ConfigAsset>) -> Vec<ToolAsset> {
+    let total_count = tools.len();
+
+    let prefetch_progress = PrefetchProgress::new(total_count);
+    prefetch_progress.update_message(0);
+
+    let tool_assets: Vec<ToolAsset> = tools
+        .iter()
+        .enumerate()
+        .filter_map(|(index, (tool_name, config_asset))| {
+            prefetch_tool(tool_name, config_asset, &prefetch_progress, index)
+        })
+        .collect();
+
+    prefetch_progress.finish();
+
+    let estimated_download_size: u64 = tool_assets.iter().map(|ta| ta.asset.size).sum();
+    let size = HumanBytes(estimated_download_size);
+    eprintln!(
+        "{emoji} Estimated total download size: {size}",
+        emoji = PACKAGE,
+        size = size
+    );
+
+    tool_assets
+}
+
+fn prefetch_tool(
+    tool_name: &str,
+    config_asset: &ConfigAsset,
+    prefetch_progress: &PrefetchProgress,
+    current_index: usize,
+) -> Option<ToolAsset> {
+    // indexes start with 0 so we add 1 to calculate already fetched tools
+    let already_completed = current_index + 1;
+
+    match configure_tool(tool_name, config_asset) {
+        Tool::Error(e) => {
+            prefetch_progress.expected_err_msg(tool_name, &e.display());
+            prefetch_progress.update_message(already_completed);
+            None
+        }
+        Tool::Known(tool_info) => {
+            let client = Client {
+                owner: tool_info.owner.clone(),
+                repo: tool_info.repo.clone(),
+                version: tool_info.tag.to_str_version(),
+            };
+
+            match client.fetch_release_info() {
+                Err(e) => {
+                    prefetch_progress.unexpected_err_msg(tool_name, &format!("{}", e));
+                    prefetch_progress.update_message(already_completed);
+                    None
+                }
+                Ok(release) => match tool_info.select_asset(&release.assets) {
+                    Err(msg) => {
+                        prefetch_progress.unexpected_err_msg(tool_name, &msg);
+                        prefetch_progress.update_message(already_completed);
+                        None
+                    }
+                    Ok(asset) => {
+                        let tool_asset = ToolAsset {
+                            tool_name: String::from(tool_name),
+                            tag: release.tag_name,
+                            exe_name: tool_info.exe_name,
+                            asset,
+                            client,
+                        };
+
+                        prefetch_progress.update_message(already_completed);
+
+                        Some(tool_asset)
+                    }
+                },
+            }
+        }
+    }
+}
+
+fn create_prefetch_progress_bar() -> ProgressBar {
+    let message_style = ProgressStyle::with_template("{prefix} {msg}").unwrap();
+
+    ProgressBar::new(100)
+        .with_style(message_style)
+        .with_prefix(format!("{}", PREFETCH))
+}

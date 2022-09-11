@@ -6,7 +6,7 @@ pub struct Release {
     pub assets: Vec<Asset>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Asset {
     pub id: u32,
     pub name: String,
