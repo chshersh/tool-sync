@@ -104,6 +104,89 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_toml_error_display_io() {
+        let toml_error = TomlError::IO(String::from("some file error!"));
+
+        assert_eq!(
+            String::from("[IO Error] some file error!"),
+            toml_error.display()
+        );
+    }
+
+    #[test]
+    fn test_toml_error_display_parse() {
+        //some setup for this test
+        use serde::Deserialize;
+
+        #[derive(Deserialize)]
+        struct BrokenToml {}
+
+        let broken_toml_str: String = "broken toml".into();
+        match toml::de::from_str::<BrokenToml>(&broken_toml_str) {
+            Err(error) => {
+                let toml_error = TomlError::Parse(error);
+                assert_eq!(
+                    String::from(
+                        "[Parsing Error] expected an equals, found an identifier at line 1 column 8"
+                    ),
+                    toml_error.display()
+                );
+            }
+            Ok(_) => unreachable!(),
+        };
+    }
+
+    #[test]
+    fn test_toml_error_display_decode() {
+        let toml_error = TomlError::Decode;
+        assert_eq!(String::from("[Decode Error]"), toml_error.display());
+    }
+
+    #[test]
+    fn test_parse_file_correct_output() {
+        let test_config_path = PathBuf::from("tests/full-database.toml");
+        let config = parse_file(&test_config_path).expect("This should not fail");
+
+        assert_eq!(String::from("full-database"), config.store_directory);
+    }
+
+    #[test]
+    fn test_parse_file_error() {
+        let test_config_path = PathBuf::from("src/main.rs");
+        #[allow(unused_assignments)]
+        let mut final_assert = false;
+
+        match parse_file(&test_config_path) {
+            Ok(_) => {
+                unreachable!()
+            }
+            Err(_) => {
+                final_assert = true;
+            }
+        };
+        assert!(final_assert);
+    }
+
+    #[test]
+    fn test_parse_file_passing_tools_read() {
+        let test_config_path = PathBuf::from("tests/full-database.toml");
+        let config = parse_file(&test_config_path).expect("This should not fail");
+
+        // A BTree is sorted so the keys are also collected in order
+        let tools_vec: Vec<String> = config.tools.keys().cloned().collect();
+        let correct_vec: Vec<String> = vec![
+            "bat".into(),
+            "difftastic".into(),
+            "exa".into(),
+            "fd".into(),
+            "ripgrep".into(),
+            "tool-sync".into(),
+        ];
+
+        assert_eq!(correct_vec, tools_vec);
+    }
+
+    #[test]
     fn empty_file() {
         let toml = "";
         let res = parse_string(toml);
