@@ -85,7 +85,7 @@ jobs:
           # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
 
     - if: matrix.os != 'windows-latest'
-      name: "Characteristics test: [unix] [default-config]"
+      name: "Characterization test: [unix] [default-config]"
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -93,7 +93,7 @@ jobs:
 
           diff tools.toml tests/default-config.toml
 
-          if [[ $? == 1 ]]; then diff tools.toml tests/default-config.toml; false; fi
+          if [[ $? == 1 ]]; then cat tools.toml  && cat tests/default-config.toml; false; fi
 
     - if: matrix.os == 'windows-latest'
       name: "Integration test: [windows] [full-database]"
