@@ -26,7 +26,12 @@ jobs:
     - uses: actions/cache@v3
       name: Cache ./target
       with:
-        path: target
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target
         key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
 
     - name: Build
