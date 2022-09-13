@@ -1,5 +1,6 @@
 mod config;
 mod err;
+mod infra;
 mod model;
 mod sync;
 

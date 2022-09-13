@@ -31,12 +31,12 @@ pub struct ConfigAsset {
     /// Defaults to `repo` if not specified
     pub exe_name: Option<String>,
 
-    /// Name of the specific asset to download
-    pub asset_name: AssetName,
-
     /// Release tag to download
     /// Defaults to the latest release
     pub tag: Option<String>,
+
+    /// Name of the specific asset to download
+    pub asset_name: AssetName,
 }
 
 impl Config {
