@@ -23,7 +23,7 @@ impl ToolError {
             ToolError::Suggestion { perhaps } => {
                 format!("[suggestion] Perhaps you meant: '{}'?", perhaps)
             }
-            ToolError::Invalid => "[error] Not detailed enough configuration)".to_string(),
+            ToolError::Invalid => "[error] Not detailed enough configuration".to_string(),
         }
     }
 }
