@@ -7,7 +7,7 @@ pub fn config_template() -> String {
     let mut tools: String = String::new();
     for tool in build_db().keys().cloned().collect::<Vec<String>>() {
         if let Err(e) = writeln!(tools, "# [{}]", tool) {
-            panic!("{}", e);
+            crate::err::abort_suggest_issue(&format!("{}", e));
         };
     }
     // adding another hash to fil a new line before the next block
