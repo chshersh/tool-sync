@@ -13,8 +13,10 @@
 #
 # [bat]
 # [difftastic]
+# [exa]
 # [fd]
 # [ripgrep]
+# [tool-sync]
 #
 # To add configuration for other tools these are the config options:
 # [ripgrep]

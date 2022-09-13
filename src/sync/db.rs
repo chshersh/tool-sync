@@ -12,7 +12,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     }
 }
 
-fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
+pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
     let mut tools: BTreeMap<String, Option<ToolInfo>> = BTreeMap::new();
 
     tools.insert(

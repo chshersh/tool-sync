@@ -1,6 +1,6 @@
 mod archive;
 mod configure;
-mod db;
+pub mod db;
 mod download;
 mod install;
 mod prefetch;

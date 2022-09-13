@@ -1,6 +1,18 @@
 /// This file only holds the template that is used to generate a default .tools.toml.
+use std::fmt::Write;
+
+use crate::sync::db::build_db;
 
 pub fn config_template() -> String {
+    let mut tools: String = String::new();
+    for tool in build_db().keys().cloned().collect::<Vec<String>>() {
+        if let Err(e) = writeln!(tools, "# [{}]", tool) {
+            panic!("{}", e);
+        };
+    }
+    // adding another hash to fil a new line before the next block
+    tools.push('#');
+
     format!(
         r###"# This config file was generated for version {version}
 #
@@ -15,11 +27,7 @@ pub fn config_template() -> String {
 # tool-sync provides native support for some of the tools without the need to configure them
 # Uncomment the tools you want to have them
 #
-# [bat]
-# [difftastic]
-# [fd]
-# [ripgrep]
-#
+{tools}
 # To add configuration for other tools these are the config options:
 # [ripgrep]
 #        owner     = "BurntSushi"
@@ -39,6 +47,6 @@ pub fn config_template() -> String {
 #
 # uncomment if you want to install on Windows as well
 # asset_name.windows = "x86_64-pc-windows-msvc""###,
-        version = env!("CARGO_PKG_VERSION")
+        version = env!("CARGO_PKG_VERSION"),
     )
 }
