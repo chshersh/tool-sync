@@ -157,25 +157,6 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_file_passing_tools_read() {
-        let test_config_path = PathBuf::from("tests/full-database.toml");
-        let config = parse_file(&test_config_path).expect("This should not fail");
-
-        // A BTree is sorted so the keys are also collected in order
-        let tools_vec: Vec<String> = config.tools.keys().cloned().collect();
-        let correct_vec: Vec<String> = vec![
-            "bat".into(),
-            "difftastic".into(),
-            "exa".into(),
-            "fd".into(),
-            "ripgrep".into(),
-            "tool-sync".into(),
-        ];
-
-        assert_eq!(correct_vec, tools_vec);
-    }
-
-    #[test]
     fn empty_file() {
         let toml = "";
         let res = parse_string(toml);
