@@ -6,18 +6,15 @@ use crate::model::tool::{ToolInfo, ToolInfoTag};
 /// Get info about known tools from a hardcoded database
 pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     let mut known_db = build_db();
-    match known_db.get_mut(tool_name) {
-        Some(tool_info) => tool_info.take(),
-        None => None,
-    }
+    known_db.remove(tool_name)
 }
 
-pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
-    let mut tools: BTreeMap<String, Option<ToolInfo>> = BTreeMap::new();
+pub fn build_db() -> BTreeMap<String, ToolInfo> {
+    let mut tools: BTreeMap<String, ToolInfo> = BTreeMap::new();
 
     tools.insert(
         "bat".into(),
-        Some(ToolInfo {
+        ToolInfo {
             owner: "sharkdp".to_string(),
             repo: "bat".to_string(),
             exe_name: "bat".to_string(),
@@ -27,11 +24,11 @@ pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
             tag: ToolInfoTag::Latest,
-        }),
+        },
     );
     tools.insert(
         "difftastic".into(),
-        Some(ToolInfo {
+        ToolInfo {
             owner: "Wilfred".to_string(),
             repo: "difftastic".to_string(),
             exe_name: "difft".to_string(),
@@ -41,11 +38,11 @@ pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
             tag: ToolInfoTag::Latest,
-        }),
+        },
     );
     tools.insert(
         "exa".into(),
-        Some(ToolInfo {
+        ToolInfo {
             owner: "ogham".to_string(),
             repo: "exa".to_string(),
             exe_name: "exa".to_string(),
@@ -55,11 +52,11 @@ pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
                 windows: None,
             },
             tag: ToolInfoTag::Latest,
-        }),
+        },
     );
     tools.insert(
         "fd".into(),
-        Some(ToolInfo {
+        ToolInfo {
             owner: "sharkdp".to_string(),
             repo: "fd".to_string(),
             exe_name: "fd".to_string(),
@@ -69,11 +66,11 @@ pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
             tag: ToolInfoTag::Latest,
-        }),
+        },
     );
     tools.insert(
         "ripgrep".into(),
-        Some(ToolInfo {
+        ToolInfo {
             owner: "BurntSushi".to_string(),
             repo: "ripgrep".to_string(),
             exe_name: "rg".to_string(),
@@ -83,11 +80,11 @@ pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
             tag: ToolInfoTag::Latest,
-        }),
+        },
     );
     tools.insert(
         "tool-sync".into(),
-        Some(ToolInfo {
+        ToolInfo {
             owner: "chshersh".to_string(),
             repo: "tool-sync".to_string(),
             exe_name: "tool".to_string(),
@@ -97,9 +94,9 @@ pub fn build_db() -> BTreeMap<String, Option<ToolInfo>> {
                 windows: Some("x86_64-pc-windows-msvc".to_string()),
             },
             tag: ToolInfoTag::Latest,
-        }),
+        },
     );
-    // tools.insert("tokei", Some(ToolInfo {
+    // tools.insert("tokei", ToolInfo {
     //     owner: "XAMPPRocky".to_string(),
     //     repo: "tokei".to_string(),
     //     exe_name: "tokei".to_string(),
