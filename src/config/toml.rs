@@ -146,18 +146,14 @@ mod tests {
     #[test]
     fn test_parse_file_error() {
         let test_config_path = PathBuf::from("src/main.rs");
-        #[allow(unused_assignments)]
-        let mut final_assert = false;
-
         match parse_file(&test_config_path) {
             Ok(_) => {
-                unreachable!()
+                assert!(false, "Unexpected succces")
             }
             Err(_) => {
-                final_assert = true;
+                assert!(true, "Exepected a parsing error")
             }
         };
-        assert!(final_assert);
     }
 
     #[test]
