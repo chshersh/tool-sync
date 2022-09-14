@@ -98,6 +98,7 @@ jobs:
 
           diff tools.toml tests/default-config.toml
 
+          if [[ $? == 1 ]]; then diff tools.toml tests/default-config.toml; false; fi
 
     - if: matrix.os == 'windows-latest'
       name: "Integration test: [windows] [full-database]"
