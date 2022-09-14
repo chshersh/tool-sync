@@ -115,21 +115,14 @@ mod tests {
 
     #[test]
     fn test_toml_error_display_parse() {
-        //some setup for this test
-        use serde::Deserialize;
-
-        #[derive(Deserialize)]
-        struct BrokenToml {}
-
         let broken_toml_str: String = "broken toml".into();
-        match toml::de::from_str::<BrokenToml>(&broken_toml_str) {
+        match parse_string(&broken_toml_str) {
             Err(error) => {
-                let toml_error = TomlError::Parse(error);
                 assert_eq!(
                     String::from(
                         "[Parsing Error] expected an equals, found an identifier at line 1 column 8"
                     ),
-                    toml_error.display()
+                    error.display()
                 );
             }
             Ok(_) => unreachable!(),
