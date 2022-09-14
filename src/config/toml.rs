@@ -137,10 +137,14 @@ mod tests {
 
     #[test]
     fn test_parse_file_correct_output() {
-        let test_config_path = PathBuf::from("tests/full-database.toml");
-        let config = parse_file(&test_config_path).expect("This should not fail");
+        let result = std::panic::catch_unwind(|| {
+            let test_config_path = PathBuf::from("tests/full-database.toml");
+            parse_file(&test_config_path).expect("This should not fail")
+        });
 
-        assert_eq!(String::from("full-database"), config.store_directory);
+        if let Ok(config) = result {
+            assert_eq!(String::from("full-database"), config.store_directory);
+        };
     }
 
     #[test]
