@@ -176,6 +176,12 @@ Install all the tools from config in a different location:
 tool --config=path/to/my/config.toml sync
 ```
 
+Install a tool that is hardcoded in the known tools list:
+
+```shell
+tool install ripgrep
+```
+
 Run `tool --help` for more details.
 
 > :octocat: If you hit the limit for downloading assets or want to download
