@@ -41,6 +41,19 @@ jobs:
       run: cargo test --verbose
 
     - if: matrix.os != 'windows-latest'
+      name: "Integration test: [unix] [install ripgrep]"
+      env:
+          SYNC_DIR: "install-ripgrep"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $SYNC_DIR
+          cargo run -- --config=tests/$SYNC_DIR.toml install ripgrep
+
+          ls -l $SYNC_DIR
+
+          if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
+
+    - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [only-ripgrep]"
       env:
           SYNC_DIR: "only-ripgrep"
