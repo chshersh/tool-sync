@@ -89,6 +89,17 @@ jobs:
           # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
           # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
 
+    - if: matrix.os != 'windows-latest'
+      name: "Characterization test: [unix] [default-config]"
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          cargo run -- default-config > tools.toml
+
+          diff tools.toml tests/default-config.toml
+
+          if [[ $? == 1 ]]; then diff tools.toml tests/default-config.toml; false; fi
+
     - if: matrix.os == 'windows-latest'
       name: "Integration test: [windows] [full-database]"
       env:

@@ -104,6 +104,63 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_toml_error_display_io() {
+        let toml_error = TomlError::IO(String::from("some file error!"));
+
+        assert_eq!(
+            String::from("[IO Error] some file error!"),
+            toml_error.display()
+        );
+    }
+
+    #[test]
+    fn test_toml_error_display_parse() {
+        let broken_toml_str: String = "broken toml".into();
+        match parse_string(&broken_toml_str) {
+            Err(error) => {
+                assert_eq!(
+                    String::from(
+                        "[Parsing Error] expected an equals, found an identifier at line 1 column 8"
+                    ),
+                    error.display()
+                );
+            }
+            Ok(_) => unreachable!(),
+        };
+    }
+
+    #[test]
+    fn test_toml_error_display_decode() {
+        let toml_error = TomlError::Decode;
+        assert_eq!(String::from("[Decode Error]"), toml_error.display());
+    }
+
+    #[test]
+    fn test_parse_file_correct_output() {
+        let result = std::panic::catch_unwind(|| {
+            let test_config_path = PathBuf::from("tests/full-database.toml");
+            parse_file(&test_config_path).expect("This should not fail")
+        });
+
+        if let Ok(config) = result {
+            assert_eq!(String::from("full-database"), config.store_directory);
+        };
+    }
+
+    #[test]
+    fn test_parse_file_error() {
+        let test_config_path = PathBuf::from("src/main.rs");
+        match parse_file(&test_config_path) {
+            Ok(_) => {
+                assert!(false, "Unexpected succces")
+            }
+            Err(_) => {
+                assert!(true, "Exepected a parsing error")
+            }
+        };
+    }
+
+    #[test]
     fn empty_file() {
         let toml = "";
         let res = parse_string(toml);
