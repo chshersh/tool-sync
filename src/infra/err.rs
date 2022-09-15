@@ -29,3 +29,9 @@ this issue:
 
     process::exit(1);
 }
+
+/// Print just the message and exit
+pub fn abort(err_msg: &str) -> ! {
+    eprintln!("{}", err_msg);
+    process::exit(1);
+}

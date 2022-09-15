@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use toml::{map::Map, Value};
 
 use crate::config::schema::{Config, ConfigAsset};
+use crate::infra::err;
 use crate::model::asset_name::AssetName;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -23,7 +24,22 @@ impl TomlError {
     }
 }
 
-pub fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
+pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) {
+    match parse_file(&config_path) {
+        Ok(config) => {
+            on_success(config);
+        }
+        Err(e) => {
+            err::abort_with(&format!(
+                "Error parsing configuration at path {}: {}",
+                config_path.display(),
+                e.display()
+            ));
+        }
+    }
+}
+
+fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
     let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{}", e)))?;
 
     parse_string(&contents)
@@ -138,12 +154,12 @@ mod tests {
     #[test]
     fn test_parse_file_correct_output() {
         let result = std::panic::catch_unwind(|| {
-            let test_config_path = PathBuf::from("tests/full-database.toml");
+            let test_config_path = PathBuf::from("tests/sync-full.toml");
             parse_file(&test_config_path).expect("This should not fail")
         });
 
         if let Ok(config) = result {
-            assert_eq!(String::from("full-database"), config.store_directory);
+            assert_eq!(String::from("sync-full"), config.store_directory);
         };
     }
 

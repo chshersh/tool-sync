@@ -1,5 +1,5 @@
 # a directory to store all tools
-store_directory = "full-database"
+store_directory = "sync-full"
 
 # the following tools will be installed in 'store_directory'
 [bat]
