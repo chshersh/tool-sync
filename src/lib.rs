@@ -4,12 +4,16 @@ mod infra;
 mod model;
 mod sync;
 
-use clap::Parser;
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+use clap::Parser;
+
 use crate::config::cli::{Cli, Command};
+use crate::config::schema::ConfigAsset;
 use crate::config::template;
 use crate::config::toml;
+use crate::sync::db::lookup_tool;
 use crate::sync::sync;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
@@ -32,6 +36,16 @@ pub fn run() {
             }
         },
         Command::DefaultConfig => generate_config(),
+        Command::Install { name } => {
+            if let Some(tool_info) = lookup_tool(&name) {
+                if let Ok(mut tool) = toml::parse_file(&config_path) {
+                    let tool_btree: BTreeMap<String, ConfigAsset> =
+                        BTreeMap::from([(name, tool_info.into())]);
+                    tool.tools = tool_btree;
+                    sync(tool);
+                }
+            }
+        }
     }
 }
 
