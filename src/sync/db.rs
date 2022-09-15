@@ -114,7 +114,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
 /// Format tool names of the database using a mutating formatting function
 /// The result is something like this (depending on a function)
 ///
-/// ```
+/// ```toml
 /// # [bat]
 /// # [exa]
 /// ```
