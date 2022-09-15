@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use crate::err;
 use crate::model::asset_name::AssetName;
+use crate::model::tool::{ToolInfo, ToolInfoTag};
 
 /// Stores global information about the tool installation process and detailed
 /// info about installing each particular tool.
@@ -37,6 +38,23 @@ pub struct ConfigAsset {
 
     /// Name of the specific asset to download
     pub asset_name: AssetName,
+}
+
+impl From<ToolInfo> for ConfigAsset {
+    fn from(tool_info: ToolInfo) -> Self {
+        let tag = match tool_info.tag {
+            ToolInfoTag::Specific(version) => Some(version),
+            ToolInfoTag::Latest => None,
+        };
+
+        Self {
+            owner: Some(tool_info.owner),
+            repo: Some(tool_info.repo),
+            exe_name: Some(tool_info.exe_name),
+            tag,
+            asset_name: tool_info.asset_name,
+        }
+    }
 }
 
 impl Config {

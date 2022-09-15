@@ -20,4 +20,7 @@ pub enum Command {
 
     /// Generate a default .tools.toml file and prints it to std out
     DefaultConfig,
+
+    /// Install a tool if it is hardcoded into internal database
+    Install { name: String },
 }
