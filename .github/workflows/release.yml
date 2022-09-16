@@ -23,6 +23,10 @@ jobs:
     strategy:
       matrix:
         include:
+          # This legacy target is only for backwards compatibility
+          # TODO: remove for the v0.3.0 release
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
           - target: x86_64-apple-darwin
