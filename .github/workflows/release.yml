@@ -47,6 +47,8 @@ jobs:
           # [default value: windows]
           # [possible values: all, unix, windows, none]
           zip: windows
+          # (optional) Comma-separated list of algorithms to be used for checksum (sha256, sha512, sha1, or md5)
+          checksum: sha256
         env:
           # (required)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
