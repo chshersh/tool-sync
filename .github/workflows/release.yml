@@ -32,6 +32,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install coreutils for macOS
+        if: matrix.os == 'macOS-latest'
+        run: brew install coreutils
+
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
           # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
