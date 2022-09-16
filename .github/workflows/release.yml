@@ -33,6 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # Needed because of this
+      # https://github.com/taiki-e/upload-rust-binary-action/issues/30
       - name: Install coreutils for macOS
         if: matrix.os == 'macOS-latest'
         run: brew install coreutils
