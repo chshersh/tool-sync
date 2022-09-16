@@ -54,9 +54,9 @@ jobs:
           if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
 
     - if: matrix.os != 'windows-latest'
-      name: "Integration test: [unix] [only-ripgrep]"
+      name: "Integration test: [unix] [sync-ripgrep]"
       env:
-          SYNC_DIR: "only-ripgrep"
+          SYNC_DIR: "sync-ripgrep"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           mkdir $SYNC_DIR
@@ -67,9 +67,9 @@ jobs:
           if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
 
     - if: matrix.os == 'windows-latest'
-      name: "Integration test: [windows] [only-ripgrep]"
+      name: "Integration test: [windows] [sync-ripgrep]"
       env:
-          SYNC_DIR: "only-ripgrep"
+          SYNC_DIR: "sync-ripgrep"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           mkdir $env:SYNC_DIR
@@ -82,9 +82,9 @@ jobs:
           }
 
     - if: matrix.os != 'windows-latest'
-      name: "Integration test: [unix] [full-database]"
+      name: "Integration test: [unix] [sync-full]"
       env:
-          SYNC_DIR: "full-database"
+          SYNC_DIR: "sync-full"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           mkdir $SYNC_DIR
@@ -116,7 +116,7 @@ jobs:
     - if: matrix.os == 'windows-latest'
       name: "Integration test: [windows] [full-database]"
       env:
-          SYNC_DIR: "full-database"
+          SYNC_DIR: "sync-full"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           mkdir $env:SYNC_DIR
