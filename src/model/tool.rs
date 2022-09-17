@@ -1,6 +1,7 @@
 use super::release::Asset;
 use crate::infra::client::Client;
 use crate::model::asset_name::AssetName;
+use crate::model::release::AssetError;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Tool {
@@ -69,16 +70,14 @@ pub struct ToolInfo {
 }
 
 impl ToolInfo {
-    pub fn select_asset(&self, assets: &[Asset]) -> Result<Asset, String> {
+    pub fn select_asset(&self, assets: &[Asset]) -> Result<Asset, AssetError> {
         match self.asset_name.get_name_by_os() {
-            None => Err(String::from(
-                "Don't know the asset name for this OS: specify it explicitly in the config",
-            )),
+            None => Err(AssetError::NameUnknown),
             Some(asset_name) => {
                 let asset = assets.iter().find(|&asset| asset.name.contains(asset_name));
 
                 match asset {
-                    None => Err(format!("No asset matching name: {}", asset_name)),
+                    None => Err(AssetError::NotFound(asset_name.to_owned())),
                     Some(asset) => Ok(asset.clone()),
                 }
             }
@@ -106,4 +105,20 @@ pub struct ToolAsset {
 
     /// GitHub API client that produces the stream for downloading the asset
     pub client: Client,
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn display_os_asset_error() {
+
+    }
+
+    #[test]
+    fn display_notfound_asset_error() {
+
+    }
+
+
 }
