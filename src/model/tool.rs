@@ -73,7 +73,7 @@ impl ToolInfo {
     /// Select an Asset from all Assets based on which Operating System is used
     pub fn select_asset(&self, assets: &[Asset]) -> Result<Asset, AssetError> {
         match self.asset_name.get_name_by_os() {
-            None => Err(AssetError::NameUnknown),
+            None => Err(AssetError::OsSelectorUnknown),
             Some(asset_name) => {
                 let asset = assets.iter().find(|&asset| asset.name.contains(asset_name));
 

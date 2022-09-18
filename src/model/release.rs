@@ -18,7 +18,7 @@ pub struct Asset {
 #[derive(Debug, PartialEq, Eq)]
 pub enum AssetError {
     /// Asset name of this OS is unknown
-    NameUnknown,
+    OsSelectorUnknown,
 
     /// Asset name is not in the fetched assets
     NotFound(String),
@@ -27,7 +27,7 @@ pub enum AssetError {
 impl Display for AssetError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NameUnknown => {
+            Self::OsSelectorUnknown => {
                 write!(
                     f,
                     "Unknown asset selector for OS: {}. Specify 'asset_name.your_os' in the cofig.",
