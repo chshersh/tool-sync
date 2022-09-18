@@ -1,3 +1,4 @@
+use std::env;
 use serde::Deserialize;
 use std::fmt::{Display, Formatter};
 
@@ -37,17 +38,5 @@ impl Display for AssetError {
                 write!(f, "No asset matching name: {}", asset_name)
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn display_asset_error() {
-        let asset_name = "test_asset";
-        let error_str = AssetError::NotFound(asset_name.to_string()).to_string();
-        assert_ne!(error_str.find(asset_name), None);
     }
 }
