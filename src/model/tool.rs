@@ -195,4 +195,24 @@ mod tests {
             Err(AssetError::NotFound(asset_name.to_string()))
         );
     }
+
+    #[test]
+    fn asset_os_selector_unknown() {
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: None,
+                macos: None,
+                windows: None,
+            },
+        };
+
+        assert_eq!(
+            tool_info.select_asset(&Vec::new()),
+            Err(AssetError::OsSelectorUnknown)
+        );
+    }
 }
