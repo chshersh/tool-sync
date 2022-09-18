@@ -112,6 +112,51 @@ mod tests {
     use super::*;
 
     #[test]
+    fn asset_fount() {
+        let asset_name = "asset";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: "1".to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: asset_name.to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: "3".to_string(),
+                size: 77,
+            },
+        ];
+
+        assert_eq!(
+            tool_info.select_asset(&assets),
+            Ok(Asset {
+                id: 2,
+                name: asset_name.to_string(),
+                size: 50
+            })
+        );
+    }
+
+
+    #[test]
     fn asset_not_found() {
         let asset_name = "asset";
 
