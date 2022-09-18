@@ -1,6 +1,7 @@
 use super::release::Asset;
 use crate::infra::client::Client;
 use crate::model::asset_name::AssetName;
+use crate::model::release::AssetError;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Tool {
@@ -69,16 +70,15 @@ pub struct ToolInfo {
 }
 
 impl ToolInfo {
-    pub fn select_asset(&self, assets: &[Asset]) -> Result<Asset, String> {
+    /// Select an Asset from all Assets based on which Operating System is used
+    pub fn select_asset(&self, assets: &[Asset]) -> Result<Asset, AssetError> {
         match self.asset_name.get_name_by_os() {
-            None => Err(String::from(
-                "Don't know the asset name for this OS: specify it explicitly in the config",
-            )),
+            None => Err(AssetError::OsSelectorUnknown),
             Some(asset_name) => {
                 let asset = assets.iter().find(|&asset| asset.name.contains(asset_name));
 
                 match asset {
-                    None => Err(format!("No asset matching name: {}", asset_name)),
+                    None => Err(AssetError::NotFound(asset_name.to_owned())),
                     Some(asset) => Ok(asset.clone()),
                 }
             }
@@ -106,4 +106,113 @@ pub struct ToolAsset {
 
     /// GitHub API client that produces the stream for downloading the asset
     pub client: Client,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn asset_fount() {
+        let asset_name = "asset";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: "1".to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: asset_name.to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: "3".to_string(),
+                size: 77,
+            },
+        ];
+
+        assert_eq!(
+            tool_info.select_asset(&assets),
+            Ok(Asset {
+                id: 2,
+                name: asset_name.to_string(),
+                size: 50
+            })
+        );
+    }
+
+    #[test]
+    fn asset_not_found() {
+        let asset_name = "asset";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: "1".to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: "2".to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: "3".to_string(),
+                size: 77,
+            },
+        ];
+
+        assert_eq!(
+            tool_info.select_asset(&assets),
+            Err(AssetError::NotFound(asset_name.to_string()))
+        );
+    }
+
+    #[test]
+    fn asset_os_selector_unknown() {
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: None,
+                macos: None,
+                windows: None,
+            },
+        };
+
+        assert_eq!(
+            tool_info.select_asset(&Vec::new()),
+            Err(AssetError::OsSelectorUnknown)
+        );
+    }
 }

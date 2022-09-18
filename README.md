@@ -103,7 +103,7 @@ store_directory = "~/.local/bin"
 By default `tool-sync` reads configuration from `$HOME/.tool.toml` you can run `tool
 default-config` to print a default configuration example to std out. You can
 redirect this out put to a file like so `tool default-config >
-$HOME/.tools.toml`.
+$HOME/.tool.toml`.
 
 You can also quickly copy the above configuration to the default path by running
 the following command (Unix-only):

@@ -124,8 +124,8 @@ fn prefetch_tool(
                     None
                 }
                 Ok(release) => match tool_info.select_asset(&release.assets) {
-                    Err(msg) => {
-                        prefetch_progress.unexpected_err_msg(tool_name, &msg);
+                    Err(err) => {
+                        prefetch_progress.unexpected_err_msg(tool_name, &err.to_string());
                         prefetch_progress.update_message(already_completed);
                         None
                     }
