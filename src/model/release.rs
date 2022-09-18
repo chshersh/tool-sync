@@ -7,7 +7,7 @@ pub struct Release {
     pub assets: Vec<Asset>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct Asset {
     pub id: u32,
     pub name: String,
@@ -27,7 +27,10 @@ impl Display for AssetError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::NameUnknown => {
-                write!(f, "Don't know the asset name for this OS: specify it explicitly in the config")
+                write!(
+                    f,
+                    "Don't know the asset name for this OS: specify it explicitly in the config"
+                )
             }
             Self::NotFound(asset_name) => {
                 write!(f, "No asset matching name: {}", asset_name)
@@ -35,7 +38,6 @@ impl Display for AssetError {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
