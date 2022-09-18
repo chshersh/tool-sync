@@ -1,5 +1,5 @@
-use std::env;
 use serde::Deserialize;
+use std::env;
 use std::fmt::{Display, Formatter};
 
 #[derive(Deserialize, Debug)]
