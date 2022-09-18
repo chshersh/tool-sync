@@ -155,7 +155,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn asset_not_found() {
         let asset_name = "asset";
