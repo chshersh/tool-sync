@@ -29,7 +29,8 @@ impl Display for AssetError {
             Self::NameUnknown => {
                 write!(
                     f,
-                    "Don't know the asset name for this OS: specify it explicitly in the config"
+                    "Unknown asset selector for OS: {}. Specify 'asset_name.your_os' in the cofig.",
+                    env::consts::OS
                 )
             }
             Self::NotFound(asset_name) => {
