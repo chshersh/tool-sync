@@ -1,4 +1,5 @@
 use flate2::read::GzDecoder;
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
@@ -24,13 +25,13 @@ pub enum UnpackError {
     ExeNotFound(String),
 }
 
-impl UnpackError {
-    pub fn display(&self) -> String {
+impl Display for UnpackError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            UnpackError::IOError(e) => format!("{}", e),
-            UnpackError::ZipError(e) => format!("{}", e),
+            UnpackError::IOError(e) => write!(f, "{}", e),
+            UnpackError::ZipError(e) => write!(f, "{}", e),
             UnpackError::ExeNotFound(archive_name) => {
-                format!("Can't find executable in archive: {}", archive_name)
+                write!(f, "Can't find executable in archive: {}", archive_name)
             }
         }
     }

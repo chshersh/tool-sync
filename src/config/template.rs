@@ -1,4 +1,4 @@
-/// This file only holds the template that is used to generate a default .tools.toml.
+/// This file only holds the template that is used to generate a default .tool.toml.
 use crate::sync::db;
 
 pub fn generate_default_config() {

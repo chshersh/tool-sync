@@ -2,6 +2,7 @@ use super::release::Asset;
 use crate::infra::client::Client;
 use crate::model::asset_name::AssetName;
 use crate::model::release::AssetError;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Tool {
@@ -18,13 +19,13 @@ pub enum ToolError {
     Invalid,
 }
 
-impl ToolError {
-    pub fn display(&self) -> String {
+impl Display for ToolError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             ToolError::Suggestion { perhaps } => {
-                format!("[suggestion] Perhaps you meant: '{}'?", perhaps)
+                write!(f, "[suggestion] Perhaps you meant: '{}'?", perhaps)
             }
-            ToolError::Invalid => "[error] Not detailed enough configuration".to_string(),
+            ToolError::Invalid => write!(f, "[error] Not detailed enough configuration"),
         }
     }
 }
@@ -211,7 +212,7 @@ mod tests {
         };
 
         assert_eq!(
-            tool_info.select_asset(&Vec::new()),
+            tool_info.select_asset(&[]),
             Err(AssetError::OsSelectorUnknown)
         );
     }

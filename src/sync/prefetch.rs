@@ -106,7 +106,7 @@ fn prefetch_tool(
 
     match configure_tool(tool_name, config_asset) {
         Tool::Error(e) => {
-            prefetch_progress.expected_err_msg(tool_name, &e.display());
+            prefetch_progress.expected_err_msg(tool_name, &e.to_string());
             prefetch_progress.update_message(already_completed);
             None
         }
