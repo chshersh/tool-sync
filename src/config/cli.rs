@@ -18,7 +18,7 @@ pub enum Command {
     /// Sync all tools specified in configuration file
     Sync,
 
-    /// Generate a default .tools.toml file and prints it to std out
+    /// Generate a default .tool.toml file and prints it to std out
     DefaultConfig,
 
     /// Install a tool if it is hardcoded into internal database
