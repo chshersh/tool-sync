@@ -7,6 +7,7 @@ use std::fmt::Display;
 use super::configure::configure_tool;
 use crate::config::schema::ConfigAsset;
 use crate::infra::client::Client;
+use crate::model::release::AssetError;
 use crate::model::tool::{Tool, ToolAsset};
 
 const PREFETCH: Emoji<'_, '_> = Emoji("🔄 ", "-> ");
@@ -128,11 +129,18 @@ fn prefetch_tool(
                     None
                 }
                 Ok(release) => match tool_info.select_asset(&release.assets) {
-                    Err(err) => {
-                        prefetch_progress.unexpected_err_msg(tool_name, &err);
-                        prefetch_progress.update_message(already_completed);
-                        None
-                    }
+                    Err(err) => match err {
+                        AssetError::MultipleFound(_) => {
+                            prefetch_progress.expected_err_msg(tool_name, &err);
+                            prefetch_progress.update_message(already_completed);
+                            None
+                        }
+                        _ => {
+                            prefetch_progress.unexpected_err_msg(tool_name, &err);
+                            prefetch_progress.update_message(already_completed);
+                            None
+                        }
+                    },
                     Ok(asset) => {
                         let tool_asset = ToolAsset {
                             tool_name: String::from(tool_name),
