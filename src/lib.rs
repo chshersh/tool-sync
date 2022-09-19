@@ -37,7 +37,7 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
                 path
             }
             None => {
-                err::abort_suggest_issue("Unable to find $HOME directory");
+                err::abort_suggest_issue(&Box::new("Unable to find $HOME directory"));
             }
         },
     }

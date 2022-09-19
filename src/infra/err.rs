@@ -16,7 +16,7 @@ pub fn abort_with<Message: Display>(err_msg: &Message) -> ! {
 
 /// Print an error message, suggesting opening an issue and exit with code 1
 /// This function can take in any type that implements the [`Display`] trait
-pub fn abort_suggest_issue<Message: Display + ?Sized>(err_msg: &Message) -> ! {
+pub fn abort_suggest_issue<Message: Display>(err_msg: &Message) -> ! {
     eprintln!(
         r#"Aborting 'tool-sync' with error:
 
