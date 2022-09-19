@@ -64,14 +64,14 @@ impl Config {
         let expanded_store_directory = shellexpand::full(&self.store_directory);
 
         let store_directory = match expanded_store_directory {
-            Err(e) => err::abort_with(&e),
+            Err(e) => err::abort_with(e),
             Ok(cow_path) => PathBuf::from(cow_path.into_owned()),
         };
 
         let has_store_directory = store_directory.as_path().is_dir();
 
         if !has_store_directory {
-            err::abort_with(&format!(
+            err::abort_with(format!(
                 "Specified directory for storing tools doesn't exist: {}",
                 store_directory.display()
             ));
