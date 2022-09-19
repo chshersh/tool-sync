@@ -108,7 +108,7 @@ fn prefetch_tool(
 
     match configure_tool(tool_name, config_asset) {
         Tool::Error(e) => {
-            prefetch_progress.expected_err_msg(tool_name, &e.to_string());
+            prefetch_progress.expected_err_msg(tool_name, &e);
             prefetch_progress.update_message(already_completed);
             None
         }
@@ -127,7 +127,7 @@ fn prefetch_tool(
                 }
                 Ok(release) => match tool_info.select_asset(&release.assets) {
                     Err(err) => {
-                        prefetch_progress.unexpected_err_msg(tool_name, &err.to_string());
+                        prefetch_progress.unexpected_err_msg(tool_name, &err);
                         prefetch_progress.update_message(already_completed);
                         None
                     }
