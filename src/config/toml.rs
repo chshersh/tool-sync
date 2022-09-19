@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::PathBuf;
 use toml::{map::Map, Value};
@@ -14,12 +15,12 @@ pub enum TomlError {
     Decode,
 }
 
-impl TomlError {
-    pub fn display(&self) -> String {
+impl Display for TomlError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            TomlError::IO(e) => format!("[IO Error] {}", e),
-            TomlError::Parse(e) => format!("[Parsing Error] {}", e),
-            TomlError::Decode => "[Decode Error]".to_string(),
+            TomlError::IO(e) => write!(f, "[IO Error] {}", e),
+            TomlError::Parse(e) => write!(f, "[Parsing Error] {}", e),
+            TomlError::Decode => write!(f, "[Decode Error]"),
         }
     }
 }
@@ -33,7 +34,7 @@ pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) 
             err::abort_with(&format!(
                 "Error parsing configuration at path {}: {}",
                 config_path.display(),
-                e.display()
+                e.to_string()
             ));
         }
     }
@@ -125,7 +126,7 @@ mod tests {
 
         assert_eq!(
             String::from("[IO Error] some file error!"),
-            toml_error.display()
+            toml_error.to_string()
         );
     }
 
@@ -138,7 +139,7 @@ mod tests {
                     String::from(
                         "[Parsing Error] expected an equals, found an identifier at line 1 column 8"
                     ),
-                    error.display()
+                    error.to_string()
                 );
             }
             Ok(_) => unreachable!(),
@@ -148,7 +149,7 @@ mod tests {
     #[test]
     fn test_toml_error_display_decode() {
         let toml_error = TomlError::Decode;
-        assert_eq!(String::from("[Decode Error]"), toml_error.display());
+        assert_eq!(String::from("[Decode Error]"), toml_error.to_string());
     }
 
     #[test]
