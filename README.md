@@ -4,7 +4,15 @@
 [![Latest GitHub release](https://img.shields.io/github/v/release/chshersh/tool-sync)](https://github.com/chshersh/tool-sync/releases/latest)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 
-`tool-sync` is a CLI tool for installing your other favourite tools from GitHub Releases.
+`tool-sync` is a CLI tool that solves one problem:
+
+**📥 Download pre-built binaries of all your favourite tools with a single command.**
+
+`tool-sync` embraces the idea that configuring your personal development
+environment should be as easy as possible. And the life is pretty easy when all
+the tools are simple executables.
+
+**So why not simply download all the executables you use and put them in a single place???** 🚀 😱
 
 ![tool-sync demo](./images/demo.gif)
 
@@ -14,45 +22,66 @@
 > [GitHub Sponsorship](https://github.com/sponsors/chshersh) to support
 > the development of this project.
 
-## What it really does?
-
-`tool-sync` embraces the idea that configuring your personal development
-environment should be as easy as possible. And the life is pretty easy when all
-the tools are simple executables.
-
-**So why not simply download all executables you use and put them in one place???** 😱
+## Quick start guide
 
 With `tool-sync`, you can install all the tools you use by following three
 simple steps:
 
 1. [Install `tool-sync`](#install).
-2. [Configure](#configure) `tool-sync` by listing all the tools you need and
-   specifying where to put them.
+2. [Configure](#configure) `tool-sync` by describing all the tools you want.
 3. Run `tool sync`.
 
 That's all! 🥳
 
-Then `tool-sync` does the following:
+The `tool sync` command does the following:
 
-* Fetches the information about tools from GitHub Releases
-* Automatically guesses the asset name from your OS for common tools
-* Downloads and unpacks assets
-* Copies binaries from unpacked assets to the location of your choice
+1. Fetches the information about tools from GitHub Releases
+2. Automatically guesses the asset name from your OS for common tools
+3. Downloads and unpacks assets
+4. Copies binaries from unpacked assets to the location of your choice
 
 ## Features
 
 `tool-sync` has several distinguished features that allows you to manage your
 personal toolbox easily:
 
-* Installs the latest version of tools by default. You can easily update all
-  your tools with a single command!
-* Supports common tools that you can easily install without extra configuration
-* Automatically guesses asset name from your current OS
-* Configures via a simple TOML file
+* 🚀 Installs the latest version of tools by default
+* 🧹 Helps you to avoid boilerplate configuration for popular tools
+* 📜 Configures via a simple TOML file
+* ☸️ Cross-platform: works on Linux🐧, macOS🍏 and Windows💠
+* 🪶 No runtime dependencies: doesn't require any other tools to do the job
+
+## Limitations
+
+Currently, `tool-sync` has a few limitations:
+
+* Supports downloading pre-built binaries only from GitHub Releases
+* Doesn't support other configuration besides downloading the binary
+  (e.g. copying additional assets or setting up auto-completion)
+* Doesn't avoid downloading of the same version
+
+## Project goals
+
+> This project is created in pursue of the following goals. Feature requests not
+> compatible with the following list of goals might be rejected.
+
+1. **Learning Rust.**
+    + I like learning by creating new things. I'm learning a lot while working
+      on `tool-sync` and at the same time I find this tool useful for myself! So,
+      please, don't ask "Why create another package manager?". It's not even a
+      package manager 😒
+2. **Single-command batch installation.**
+    + Another `tool-sync` is to be able to configure it once and forget about it
+      (ideally forever) and use with the minimal overhead. Installing lots of
+      tools with a single command helps achieving this goal.
+3. **Informative messages.**
+    + When something doesn't work, it should be clear "Why?" and
+      "How to fix it?". `tool-sync` strives to provide good error messages (but
+      this is an endless work).
 
 ## Install
 
-### From releases (recommended)
+### From binary releases (recommended)
 
 You can install `tool-sync` directly from GitHub releases in a few steps:
 
@@ -60,8 +89,14 @@ You can install `tool-sync` directly from GitHub releases in a few steps:
 2. Download an asset for your OS.
 3. Unpack the `tool` executable to a desired location.
 
-<!-- Good news, you only need to do this once! `tool-sync` will manage future
-installations of itself (if you add it to your config). -->
+Good news, you only need to do this once! `tool-sync` will automatically manage
+future installations of itself (if you add it to your config).
+
+> ℹ️ Installing pre-built binaries for `tool-sync` is the recommended option
+> because they are:
+>
+>   + **Statically linked** (so they work out-of-the-box on every system)
+>   + **Stripped** (so their size is reduced)
 
 ### From crates
 
@@ -85,8 +120,26 @@ cargo build --release
 
 ## Configure
 
-`tool-sync` reads configuration from a file in TOML format. An example
-configuration file is shown below:
+Before using `tool-sync`, you need to configure it by specifying the location
+for downloading the tools and listing all the tools you want.
+
+By default `tool-sync` reads the configuration from from the `$HOME/.tool.toml`
+path. But you can specify a custom location via the
+`--config=/path/to/my/config` flag.
+
+### Quick start
+
+`tool-sync` has a command to generate a default configuration with examples and
+field description. Simply generate it into a file and edit it:
+
+```shell
+tool default-config > ~/.tool.toml  # generate the default config
+vim ~/.tool.toml                    # open it with an editor of your choice
+```
+
+### Simple example
+
+Below you can find a simple configuration example:
 
 ```toml
 # a directory to store all tools
@@ -100,10 +153,8 @@ store_directory = "~/.local/bin"
 [ripgrep]
 ```
 
-By default `tool-sync` reads configuration from `$HOME/.tool.toml` you can run `tool
-default-config` to print a default configuration example to std out. You can
-redirect this out put to a file like so `tool default-config >
-$HOME/.tool.toml`.
+> ℹ️ `tool-sync` automatically expands the tilde `~` and environment variables
+> (e.g `$HOME`) in the `store_directory` field.
 
 You can also quickly copy the above configuration to the default path by running
 the following command (Unix-only):
@@ -111,15 +162,14 @@ the following command (Unix-only):
 ```shell
 curl https://raw.githubusercontent.com/chshersh/tool-sync/main/example-tool-sync-config.toml > ~/.tool.toml
 ```
-A default config can be also be generated by running `tool --config=path/to/config generate`.
-This will generate an example file at `path/to/config`.
 
 The above example config lists some tools natively supported by `tool-sync` and
 therefore they don't require extra configuration.
 
+### Advanced configuration
+
 To specify a tool not supported by `tool-sync`, add a TOML table entry and list
 all the required fields like in the example below:
-
 
 ```toml
 [tokei]
@@ -133,10 +183,10 @@ exe_name = "tokei"       # Executable name inside the asset
 # Asset name to download on linux OSes
 asset_name.linux = "x86_64-unknown-linux-musl"
 
-# uncomment if you want to install on macOS as well
+# Uncomment if you want to install on macOS as well
 # asset_name.macos = "apple-darwin"
 
-# uncomment if you want to install on Windows as well
+# Uncomment if you want to install on Windows as well
 # asset_name.windows = "x86_64-pc-windows-msvc"
 ```
 
@@ -182,6 +232,12 @@ Install a tool that is hardcoded in the known tools list:
 tool install ripgrep
 ```
 
+Print the default config to stdout:
+
+```shell
+tool default-config
+```
+
 Run `tool --help` for more details.
 
 > :octocat: If you hit the limit for downloading assets or want to download
@@ -193,7 +249,7 @@ Run `tool --help` for more details.
 
 This section contains `tool-sync` comparison to existing alternatives:
 
-1. **Manual download**. You can download GitHub releases manually without using
+1. **Manual download**: you can download GitHub releases manually without using
    any extra tools.
 
    + **Pros**
@@ -201,7 +257,7 @@ This section contains `tool-sync` comparison to existing alternatives:
    + **Cons**
      + Tedious manual process
 
-2. **GitHub CLI**. You can download assets from releases using
+2. **GitHub CLI**: You can download assets from releases using
    [the GitHub CLI tool `gh`][gh].
 
    ```shell
@@ -216,17 +272,8 @@ This section contains `tool-sync` comparison to existing alternatives:
      + Can't download multiple tools with a single command
      + Can't guess the asset name by your OS
 
-3. [**dra**][dra]. `dra` is the closest alternative to `tool-sync`. It's a CLI
-   tool, written in Rust, that allows downloading individual releases easily.
-
-   + **Pros**
-     + Convenient interface for downloading a single release
-   + **Cons**
-     + Can't download multiple tools with a single command
-     + Can't guess the asset name by your OS
-
-4. [**home-manager**][home-manager]. Home Manager provides a full-features
-   solution for managing a user environment using the Nix package manager.
+3. [**home-manager**][home-manager]: provides a full-featured solution for
+   managing a user environment using the Nix package manager.
 
    + **Pros**
      + Supports more than downloading tools from GitHub Releases
@@ -235,31 +282,54 @@ This section contains `tool-sync` comparison to existing alternatives:
      + More complicated solution
      + Requires learning and using Nix
 
+4. [**topgrade**][topgrade]: a CLI tool for automatically upgrading everything
+   you have on your system. Its similar to `tool-sync` in a sense that it uses the
+   latest version but it relies on existing packages managers and doesn't install
+   new tools.
+
+   + **Pros**
+     + Leverages your existing package managers and their configuration
+     + Support plugins, editor configs and much more besides executable tools
+   + **Cons**
+     + Only updates, doesn't install new
+
+5. [**cargo-binstall**][cargo-binstall]:
+
+   + **Pros**
+     + Installs more Rust tools than `tool-sync` without configuration
+     + Builds a tool from sources if it doesn't provide a binary release
+   + **Cons**
+     + Supports only Rust tools
+     + Doesn't install multiple tools with a single command
+
+6. [**dra**][dra]: the closest alternative to `tool-sync`. It's a CLI tool,
+   written in Rust, that allows downloading individual releases easily.
+
+   + **Pros**
+     + Convenient interface for downloading a single release
+   + **Cons**
+     + Can't download multiple tools with a single command
+     + Can't guess the asset name by your OS
+
+7. [**clyde**][clyde]: another alternative to `tool-sync`
+
+   + **Pros**
+     + Package integrity checks
+     + Supports man pages
+     + Doesn't require to select a location for installing tools
+   + **Cons**
+     + Tools can't be installed if not added in a central repository
+     + Can't install multiple tools with a single command
+     + Has runtime dependencies: `git` and `tar`
+
 [gh]: https://github.com/cli/cli
-[dra]: https://github.com/devmatteini/dra
 [home-manager]: https://github.com/nix-community/home-manager
+[topgrade]: https://github.com/r-darwish/topgrade
+[cargo-binstall]: https://github.com/cargo-bins/cargo-binstall/
+[dra]: https://github.com/devmatteini/dra
+[clyde]: https://github.com/agateau/clyde
 
-## For contributors
-
-Check [CONTRIBUTING.md](https://github.com/chshersh/tool-sync/blob/main/CONTRIBUTING.md)
-for contributing guidelines.
-
-## Development
-
-### Build
-
-Use `cargo` to build the project and run all tests:
-
-```shell
-cargo build
-cargo test
-```
-
-There is a predefined `.pre-commit-config.yaml` that you can install using
-[pre-commit](https://pre-commit.com/). This will make sure the tests are run
-locally before committing changes.
-
-### Adding a new tool
+## Adding a new tool
 
 `tool-sync` contains [a database of common tools][db] and provides easier
 support for them. It's possible to add more tools (and you can suggest them!).
@@ -280,3 +350,34 @@ serve as gatekeeping criteria but more as points system:
       authors decide what they want to use and whether they want to support a tool indefinitely.
 
 [db]: https://github.com/chshersh/tool-sync/blob/main/src/sync/db.rs
+
+## For contributors
+
+Check [CONTRIBUTING.md](https://github.com/chshersh/tool-sync/blob/main/CONTRIBUTING.md)
+for contributing guidelines.
+
+## Development
+
+### Build
+
+Use `cargo` to build the project and run all tests:
+
+```shell
+cargo build
+cargo test
+```
+
+### Pre-commit hooks
+
+There is a predefined `.pre-commit-config.yaml` that you can install using
+[pre-commit](https://pre-commit.com/). This will make sure the linting checks
+are run locally before committing changes.
+
+### Update the default config golden test
+
+When changing the format of the default configuration, run the following command
+to quickly update the golden `default-config.toml` test:
+
+```shell
+cargo run -- default-config > tests/default-config.toml
+```
