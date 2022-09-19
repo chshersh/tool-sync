@@ -38,11 +38,13 @@ impl PrefetchProgress {
         }
     }
 
+    /// This method can take in any type that implements the [`Display`] trait
     fn expected_err_msg<Message: Display>(&self, tool_name: &str, msg: &Message) {
         let tool = format!("{}", style(tool_name).cyan().bold());
         self.pb.println(format!("{} {} {}", ERROR, tool, msg))
     }
 
+    /// This method can take in any type that implements the [`Display`] trait
     fn unexpected_err_msg<Message: Display>(&self, tool_name: &str, msg: &Message) {
         let tool = format!("{}", style(tool_name).cyan().bold());
         let err_msg = format!(

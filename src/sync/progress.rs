@@ -86,6 +86,7 @@ impl SyncProgress {
         pb.finish();
     }
 
+    /// This method can take in any type that implements the [`Display`] trait
     pub fn failure<Message: Display>(
         &self,
         pb: ProgressBar,
