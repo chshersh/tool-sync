@@ -84,7 +84,7 @@ impl ToolInfo {
                 match asset.len() {
                     0 => Err(AssetError::NotFound(asset_name.clone())),
 
-                    // This unwrap is safe because there is exactly 1 element
+                    // This is safe because there is exactly 1 element
                     1 => Ok(asset.remove(0)),
                     _ => {
                         let assets: Vec<String> =
@@ -124,7 +124,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn asset_fount() {
+    fn asset_found() {
         let asset_name = "asset";
 
         let tool_info = ToolInfo {
@@ -164,6 +164,50 @@ mod tests {
                 name: asset_name.to_string(),
                 size: 50
             })
+        );
+    }
+
+    #[test]
+    fn multiple_asset_found() {
+        let asset_name = "asset";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: asset_name.to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: asset_name.to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: asset_name.to_string(),
+                size: 77,
+            },
+        ];
+
+        assert_eq!(
+            tool_info.select_asset(&assets),
+            Err(AssetError::MultipleFound(vec![
+                "asset".into(),
+                "asset".into(),
+                "asset".into()
+            ]))
         );
     }
 
