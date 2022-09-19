@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use console::{style, Emoji};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
@@ -84,7 +86,14 @@ impl SyncProgress {
         pb.finish();
     }
 
-    pub fn failure(&self, pb: ProgressBar, tool_name: &str, tag: &str, err_msg: String) {
+    /// This method can take in any type that implements the [`Display`] trait
+    pub fn failure<Message: Display>(
+        &self,
+        pb: ProgressBar,
+        tool_name: &str,
+        tag: &str,
+        err_msg: Message,
+    ) {
         pb.set_prefix(self.fmt_prefix(FAILURE, tool_name, tag));
 
         let failure_msg = format!("{}", style(err_msg).red());

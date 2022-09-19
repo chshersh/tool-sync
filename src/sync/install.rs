@@ -28,7 +28,7 @@ impl<'a> Installer<'a> {
         let tmp_dir = TempDir::new("tool-sync");
         match tmp_dir {
             Err(e) => {
-                err::abort_suggest_issue(&format!("Error creating temporary directory: {}", e));
+                err::abort_suggest_issue(format!("Error creating temporary directory: {}", e));
             }
             Ok(tmp_dir) => Installer {
                 store_directory,

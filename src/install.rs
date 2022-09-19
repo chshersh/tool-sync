@@ -27,6 +27,6 @@ Supported tools:
 {tools}"#
         );
 
-        err::abort(&exit_message);
+        err::abort(exit_message);
     }
 }
