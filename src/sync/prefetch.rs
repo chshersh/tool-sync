@@ -123,7 +123,7 @@ fn prefetch_tool(
 
             match client.fetch_release_info() {
                 Err(e) => {
-                    prefetch_progress.unexpected_err_msg(tool_name, &format!("{}", e));
+                    prefetch_progress.unexpected_err_msg(tool_name, &e);
                     prefetch_progress.update_message(already_completed);
                     None
                 }

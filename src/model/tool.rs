@@ -76,12 +76,29 @@ impl ToolInfo {
         match self.asset_name.get_name_by_os() {
             None => Err(AssetError::OsSelectorUnknown),
             Some(asset_name) => {
-                let asset = assets.iter().find(|&asset| asset.name.contains(asset_name));
+                let mut asset = assets
+                    .iter()
+                    .filter(|&asset| asset.name.contains(asset_name))
+                    .map(|asset| asset.to_owned())
+                    .collect::<Vec<Asset>>();
+                match asset.len() {
+                    0 => Err(AssetError::NotFound(asset_name.clone())),
 
-                match asset {
-                    None => Err(AssetError::NotFound(asset_name.to_owned())),
-                    Some(asset) => Ok(asset.clone()),
+                    // This unwrap is safe because there is exactly 1 element
+                    1 => Ok(asset.remove(0)),
+                    _ => {
+                        let assets: Vec<String> =
+                            asset.iter().map(|item| item.name.clone()).collect();
+                        Err(AssetError::MultipleFound(assets))
+                    }
                 }
+
+                //match asset {
+                //    None => {
+                //        Err(AssetError::NotFound(asset_name.clone()))
+                //    },
+                //    Some(asset) => Ok(asset.clone()),
+                //}
             }
         }
     }

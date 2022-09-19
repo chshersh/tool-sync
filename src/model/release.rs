@@ -22,6 +22,9 @@ pub enum AssetError {
 
     /// Asset name is not in the fetched assets
     NotFound(String),
+
+    /// Multiple asset names are found
+    MultipleFound(Vec<String>),
 }
 
 impl Display for AssetError {
@@ -36,6 +39,9 @@ impl Display for AssetError {
             }
             Self::NotFound(asset_name) => {
                 write!(f, "No asset matching name: {}", asset_name)
+            }
+            Self::MultipleFound(assets) => {
+                write!(f, "Multiple name matches found for this asset \n{} please add this to the config.", assets.join("\n"))
             }
         }
     }
