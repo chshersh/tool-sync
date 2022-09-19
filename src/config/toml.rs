@@ -34,7 +34,7 @@ pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) 
             err::abort_with(&format!(
                 "Error parsing configuration at path {}: {}",
                 config_path.display(),
-                e.to_string()
+                e
             ));
         }
     }

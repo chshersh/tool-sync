@@ -1,7 +1,8 @@
+use std::fmt::Display;
 use std::process;
 
 /// Print an error message and exit with code 1
-pub fn abort_with(err_msg: &str) -> ! {
+pub fn abort_with<Message: Display>(err_msg: &Message) -> ! {
     eprintln!(
         r#"Aborting 'tool-sync' with error:
 
@@ -13,7 +14,7 @@ pub fn abort_with(err_msg: &str) -> ! {
 }
 
 /// Print an error message, suggesting opening an issue and exit with code 1
-pub fn abort_suggest_issue(err_msg: &str) -> ! {
+pub fn abort_suggest_issue<Message: Display + ?Sized>(err_msg: &Message) -> ! {
     eprintln!(
         r#"Aborting 'tool-sync' with error:
 
@@ -31,7 +32,7 @@ this issue:
 }
 
 /// Print just the message and exit
-pub fn abort(err_msg: &str) -> ! {
+pub fn abort<Message: Display>(err_msg: &Message) -> ! {
     eprintln!("{}", err_msg);
     process::exit(1);
 }

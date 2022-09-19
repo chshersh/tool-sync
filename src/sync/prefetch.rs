@@ -1,6 +1,8 @@
 use console::{style, Emoji};
 use indicatif::{HumanBytes, ProgressBar, ProgressStyle};
+
 use std::collections::BTreeMap;
+use std::fmt::Display;
 
 use super::configure::configure_tool;
 use crate::config::schema::ConfigAsset;
@@ -36,12 +38,12 @@ impl PrefetchProgress {
         }
     }
 
-    fn expected_err_msg(&self, tool_name: &str, msg: &str) {
+    fn expected_err_msg<Message: Display>(&self, tool_name: &str, msg: &Message) {
         let tool = format!("{}", style(tool_name).cyan().bold());
         self.pb.println(format!("{} {} {}", ERROR, tool, msg))
     }
 
-    fn unexpected_err_msg(&self, tool_name: &str, msg: &str) {
+    fn unexpected_err_msg<Message: Display>(&self, tool_name: &str, msg: &Message) {
         let tool = format!("{}", style(tool_name).cyan().bold());
         let err_msg = format!(
             r#"{emoji} {tool} {msg}
