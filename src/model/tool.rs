@@ -92,13 +92,6 @@ impl ToolInfo {
                         Err(AssetError::MultipleFound(assets))
                     }
                 }
-
-                //match asset {
-                //    None => {
-                //        Err(AssetError::NotFound(asset_name.clone()))
-                //    },
-                //    Some(asset) => Ok(asset.clone()),
-                //}
             }
         }
     }
