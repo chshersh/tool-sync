@@ -79,6 +79,10 @@ available [on GitHub][2].
   Adding extra lookup path inside asset. Additionally, added a new error message for the case where multiple assets are found
   (by [@MitchellBerend][MitchellBerend])
   **#SYNC** **#OUTPUT**
+* [#55](https://github.com/chshersh/tool-sync/issues/55):
+  Make `exe_name` optional in the config and use the value of `repo` by default
+  (by [@mmohammadi9812][mmohammadi9812], [@chshersh][chshersh])
+  **#CONFIG**
 
 ## [0.1.0] — 2022-08-29 🌇
 
@@ -89,6 +93,7 @@ Initial release prepared by [@chshersh][chshersh].
 [chshersh]: https://github.com/chshersh
 [FrancisMurillo]: https://github.com/FrancisMurillo
 [MitchellBerend]: https://github.com/MitchellBerend
+[mmohammadi9812]: https://github.com/mmohammadi9812
 [zixuanzhang-x]: https://github.com/zixuanzhang-x
 
 <!-- Header links -->

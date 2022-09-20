@@ -34,7 +34,7 @@ fn full_configure(config_asset: &ConfigAsset) -> Option<ToolInfo> {
     let exe_name = config_asset
         .exe_name
         .clone()
-        .unwrap_or(config_asset.repo.clone()?);
+        .unwrap_or_else(|| repo.clone());
     let tag = config_asset
         .tag
         .clone()
@@ -69,7 +69,7 @@ impl ToolInfo {
             exe_name: config_asset
                 .exe_name
                 .clone()
-                .unwrap_or_else(|| config_asset.repo.clone().unwrap()),
+                .unwrap_or_else(|| self.exe_name.clone()),
             asset_name: AssetName {
                 linux: config_asset
                     .asset_name
