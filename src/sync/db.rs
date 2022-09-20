@@ -9,136 +9,6 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     known_db.remove(tool_name)
 }
 
-macro_rules! insert_tool_into {
-    //trailing commas
-    (
-        $tools:expr,
-        $tool_name:expr,
-        {
-            owner: $owner:expr,
-            repo: $repo:expr,
-            exe_name: $exe_name:expr,
-            asset_name: {
-                linux: $linux:expr,
-                macos: $macos:expr,
-                windows: $windows:expr,
-            },
-            tag: $tag:expr,
-        }
-    ) => {
-        $tools.insert(
-            $tool_name.to_string(),
-            ToolInfo {
-                owner: $owner.to_string(),
-                repo: $repo.to_string(),
-                exe_name: $exe_name.to_string(),
-                asset_name: AssetName {
-                    linux: Some($linux.to_string()),
-                    macos: Some($macos.to_string()),
-                    windows: Some($windows.to_string()),
-                },
-                tag: $tag,
-            },
-        )
-    };
-
-    // first trailing comma
-    (
-        $tools:expr,
-        $tool_name:expr,
-        {
-            owner: $owner:expr,
-            repo: $repo:expr,
-            exe_name: $exe_name:expr,
-            asset_name: {
-                linux: $linux:expr,
-                macos: $macos:expr,
-                windows: $windows:expr,
-            },
-            tag: $tag:expr
-        }
-    ) => {
-        $tools.insert(
-            $tool_name.to_string(),
-            ToolInfo {
-                owner: $owner.to_string(),
-                repo: $repo.to_string(),
-                exe_name: $exe_name.to_string(),
-                asset_name: AssetName {
-                    linux: Some($linux.to_string()),
-                    macos: Some($macos.to_string()),
-                    windows: Some($windows.to_string()),
-                },
-                tag: $tag,
-            },
-        )
-    };
-
-    // last trailing comma
-    (
-        $tools:expr,
-        $tool_name:expr,
-        {
-            owner: $owner:expr,
-            repo: $repo:expr,
-            exe_name: $exe_name:expr,
-            asset_name: {
-                linux: $linux:expr,
-                macos: $macos:expr,
-                windows: $windows:expr,
-            }
-            tag: $tag:expr,
-        }
-    ) => {
-        $tools.insert(
-            $tool_name.to_string(),
-            ToolInfo {
-                owner: $owner.to_string(),
-                repo: $repo.to_string(),
-                exe_name: $exe_name.to_string(),
-                asset_name: AssetName {
-                    linux: Some($linux.to_string()),
-                    macos: Some($macos.to_string()),
-                    windows: Some($windows.to_string()),
-                },
-                tag: $tag,
-            },
-        )
-    };
-
-    // no commas
-    (
-        $tools:expr,
-        $tool_name:expr,
-        {
-            owner: $owner:expr,
-            repo: $repo:expr,
-            exe_name: $exe_name:expr,
-            asset_name: {
-                linux: $linux:expr,
-                macos: $macos:expr,
-                windows: $windows:expr
-            }
-            tag: $tag:expr
-        }
-    ) => {
-        $tools.insert(
-            $tool_name.to_string(),
-            ToolInfo {
-                owner: $owner.to_string(),
-                repo: $repo.to_string(),
-                exe_name: $exe_name.to_string(),
-                asset_name: AssetName {
-                    linux: Some($linux.to_string()),
-                    macos: Some($macos.to_string()),
-                    windows: Some($windows.to_string()),
-                },
-                tag: $tag,
-            },
-        )
-    };
-}
-
 pub fn build_db() -> BTreeMap<String, ToolInfo> {
     let mut tools: BTreeMap<String, ToolInfo> = BTreeMap::new();
 
@@ -284,3 +154,137 @@ pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
         .collect::<Vec<String>>()
         .join("\n")
 }
+
+macro_rules! insert_tool_into {
+    //trailing commas
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr,
+            },
+            tag: $tag:expr,
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+
+    // first trailing comma
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr,
+            },
+            tag: $tag:expr
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+
+    // last trailing comma
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr,
+            }
+            tag: $tag:expr,
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+
+    // no commas
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr
+            }
+            tag: $tag:expr
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+}
+
+// Macros normally have to be defined before they get used, this statement makes it usable above
+// its definition as well.
+use insert_tool_into;
