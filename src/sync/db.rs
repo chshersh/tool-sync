@@ -96,6 +96,20 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             tag: ToolInfoTag::Latest,
         },
     );
+    tools.insert(
+        "github".into(),
+        ToolInfo {
+            owner: "cli".to_string(),
+            repo: "cli".to_string(),
+            exe_name: "gh".to_string(),
+            asset_name: AssetName {
+                linux: Some("linux_amd64.tar.gz".to_string()),
+                macos: Some("macOS_amd64".to_string()),
+                windows: Some("windows_amd64.zip".to_string()),
+            },
+            tag: ToolInfoTag::Latest,
+        },
+    );
     // tools.insert("tokei", ToolInfo {
     //     owner: "XAMPPRocky".to_string(),
     //     repo: "tokei".to_string(),

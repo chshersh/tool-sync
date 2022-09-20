@@ -7,6 +7,7 @@ use std::fmt::Display;
 use super::configure::configure_tool;
 use crate::config::schema::ConfigAsset;
 use crate::infra::client::Client;
+use crate::model::release::AssetError;
 use crate::model::tool::{Tool, ToolAsset};
 
 const PREFETCH: Emoji<'_, '_> = Emoji("🔄 ", "-> ");
@@ -39,13 +40,13 @@ impl PrefetchProgress {
     }
 
     /// This method can take in any type that implements the [`Display`] trait
-    fn expected_err_msg<Message: Display>(&self, tool_name: &str, msg: &Message) {
+    fn expected_err_msg<Message: Display>(&self, tool_name: &str, msg: Message) {
         let tool = format!("{}", style(tool_name).cyan().bold());
         self.pb.println(format!("{} {} {}", ERROR, tool, msg))
     }
 
     /// This method can take in any type that implements the [`Display`] trait
-    fn unexpected_err_msg<Message: Display>(&self, tool_name: &str, msg: &Message) {
+    fn unexpected_err_msg<Message: Display>(&self, tool_name: &str, msg: Message) {
         let tool = format!("{}", style(tool_name).cyan().bold());
         let err_msg = format!(
             r#"{emoji} {tool} {msg}
@@ -123,16 +124,24 @@ fn prefetch_tool(
 
             match client.fetch_release_info() {
                 Err(e) => {
-                    prefetch_progress.unexpected_err_msg(tool_name, &format!("{}", e));
+                    prefetch_progress.unexpected_err_msg(tool_name, e);
+                    // do some other processing
                     prefetch_progress.update_message(already_completed);
                     None
                 }
                 Ok(release) => match tool_info.select_asset(&release.assets) {
-                    Err(err) => {
-                        prefetch_progress.unexpected_err_msg(tool_name, &err);
-                        prefetch_progress.update_message(already_completed);
-                        None
-                    }
+                    Err(err) => match err {
+                        AssetError::MultipleFound(_) => {
+                            prefetch_progress.expected_err_msg(tool_name, err);
+                            prefetch_progress.update_message(already_completed);
+                            None
+                        }
+                        _ => {
+                            prefetch_progress.unexpected_err_msg(tool_name, err);
+                            prefetch_progress.update_message(already_completed);
+                            None
+                        }
+                    },
                     Ok(asset) => {
                         let tool_asset = ToolAsset {
                             tool_name: String::from(tool_name),

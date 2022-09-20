@@ -26,7 +26,11 @@ impl SyncProgress {
     /// !!! The given `Vec` must be non-empty !!!
     pub fn new(tool_pairs: Vec<ToolPair>) -> SyncProgress {
         // unwrap is safe here because 'new' is called with a non-empty vector
-        let max_tool_size = tool_pairs.iter().map(|tp| tp.name.len()).max().unwrap();
+        let max_tool_size = tool_pairs
+            .iter()
+            .map(|tp| tp.name.len())
+            .max()
+            .unwrap_or(MIN_TAG_SIZE);
 
         // putting a default of 8 here since tags like v0.10.10 is already 8
         let max_tag_size = tool_pairs

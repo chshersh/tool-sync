@@ -76,11 +76,21 @@ impl ToolInfo {
         match self.asset_name.get_name_by_os() {
             None => Err(AssetError::OsSelectorUnknown),
             Some(asset_name) => {
-                let asset = assets.iter().find(|&asset| asset.name.contains(asset_name));
+                let mut filtered_assets = assets
+                    .iter()
+                    .filter(|&asset| asset.name.contains(asset_name))
+                    .map(|asset| asset.to_owned())
+                    .collect::<Vec<Asset>>();
+                match filtered_assets.len() {
+                    0 => Err(AssetError::NotFound(asset_name.clone())),
 
-                match asset {
-                    None => Err(AssetError::NotFound(asset_name.to_owned())),
-                    Some(asset) => Ok(asset.clone()),
+                    // This is safe because there is exactly 1 element
+                    1 => Ok(filtered_assets.remove(0)),
+                    _ => {
+                        let assets: Vec<String> =
+                            filtered_assets.into_iter().map(|item| item.name).collect();
+                        Err(AssetError::MultipleFound(assets))
+                    }
                 }
             }
         }
@@ -114,7 +124,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn asset_fount() {
+    fn asset_found() {
         let asset_name = "asset";
 
         let tool_info = ToolInfo {
@@ -154,6 +164,55 @@ mod tests {
                 name: asset_name.to_string(),
                 size: 50
             })
+        );
+    }
+
+    #[test]
+    fn multiple_asset_found() {
+        let asset_name = "asset";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: "asset_1".to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: "asset_2".to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: "asset_3".to_string(),
+                size: 77,
+            },
+            Asset {
+                id: 3,
+                name: "not a match".to_string(),
+                size: 77,
+            },
+        ];
+
+        assert_eq!(
+            tool_info.select_asset(&assets),
+            Err(AssetError::MultipleFound(vec![
+                "asset_1".into(),
+                "asset_2".into(),
+                "asset_3".into()
+            ]))
         );
     }
 
