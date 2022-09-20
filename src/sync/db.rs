@@ -9,6 +9,136 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     known_db.remove(tool_name)
 }
 
+macro_rules! insert_tool_into {
+    //trailing commas
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr,
+            },
+            tag: $tag:expr,
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+
+    // first trailing comma
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr,
+            },
+            tag: $tag:expr
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+
+    // last trailing comma
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr,
+            }
+            tag: $tag:expr,
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+
+    // no commas
+    (
+        $tools:expr,
+        $tool_name:expr,
+        {
+            owner: $owner:expr,
+            repo: $repo:expr,
+            exe_name: $exe_name:expr,
+            asset_name: {
+                linux: $linux:expr,
+                macos: $macos:expr,
+                windows: $windows:expr
+            }
+            tag: $tag:expr
+        }
+    ) => {
+        $tools.insert(
+            $tool_name.to_string(),
+            ToolInfo {
+                owner: $owner.to_string(),
+                repo: $repo.to_string(),
+                exe_name: $exe_name.to_string(),
+                asset_name: AssetName {
+                    linux: Some($linux.to_string()),
+                    macos: Some($macos.to_string()),
+                    windows: Some($windows.to_string()),
+                },
+                tag: $tag,
+            },
+        )
+    };
+}
+
 pub fn build_db() -> BTreeMap<String, ToolInfo> {
     let mut tools: BTreeMap<String, ToolInfo> = BTreeMap::new();
 
@@ -109,6 +239,21 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             },
             tag: ToolInfoTag::Latest,
         },
+    );
+    insert_tool_into!(
+        tools,
+        "github",
+        {
+            owner: "cli",
+            repo: "cli",
+            exe_name: "gh",
+            asset_name: {
+                linux: "linux_amd64.tar.gz",
+                macos: "macOS_amd64",
+                windows: "windows_amd64.zip",
+            },
+            tag: ToolInfoTag::Latest
+        }
     );
     // tools.insert("tokei", ToolInfo {
     //     owner: "XAMPPRocky".to_string(),
