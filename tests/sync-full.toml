@@ -8,6 +8,7 @@ store_directory = "sync-full"
 [fd]
 [ripgrep]
 [tool-sync]
+[github]
 
-# disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
+#disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
 # [tokei]
