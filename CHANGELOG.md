@@ -17,7 +17,7 @@ available [on GitHub][2].
   **#CLI**
 * [#52](https://github.com/chshersh/tool-sync/issues/52),
   [#73](https://github.com/chshersh/tool-sync/issues/73):
-  Add the `default-config` command to generate the default `.tools.toml` file
+  Add the `default-config` command to generate the default `.tool.toml` file
   with the tool version and all natively supported tools
   (by [@MitchellBerend][MitchellBerend])
   **#CLI** **#CONFIG**
