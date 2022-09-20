@@ -8,9 +8,10 @@ available [on GitHub][2].
 
 ## [Unreleased]
 
-## [0.2.0] — 2022-09-?? 🔃
+## [0.2.0] — 2022-09-20 🔃
 
 ### Added
+
 * [#57](https://github.com/chshersh/tool-sync/issues/57):
   Adds the `install` command to install known tools
   (by [@MitchellBerend][MitchellBerend])
@@ -71,6 +72,13 @@ available [on GitHub][2].
   Refactor commands into separate modules
   (by [@chshersh][chshersh])
   **#REFACTORING**
+
+### Fixed
+
+* [#54](https://github.com/chshersh/tool-sync/issues/54):
+  Adding extra lookup path inside asset. Additionally, added a new error message for the case where multiple assets are found
+  (by [@MitchellBerend][MitchellBerend])
+  **#SYNC** **#OUTPUT**
 
 ## [0.1.0] — 2022-08-29 🌇
 
