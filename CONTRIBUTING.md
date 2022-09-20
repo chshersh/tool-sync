@@ -71,6 +71,21 @@ That's all so far!
 > to make the review easier or if it's your preferred workflow. But
 > all commits will be squashed when merged to `main`.
 
+## Response times
+
+Maintainers of this project strive to respond to you contributions within a
+week. Life happens, OSS maintainers also have their lives, so you still might
+not get a timely response.
+
+To keep the project moving and avoid having stale PRs and bug reports,
+maintainers may decide to close them if they don't hear back from authors in a
+week.
+
+> It's okay to say that you're busy now and can only reply/finish properly
+> later. But also keep in mind that your contributions might be rejected or
+> replaced by someone or something else. Be mindful about other's time and
+> capabilities. And be human 💞
+
 ## Write access to the repository
 
 If you want to gain write access to the repository, open a
