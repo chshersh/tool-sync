@@ -87,8 +87,7 @@ impl ToolInfo {
                     // This is safe because there is exactly 1 element
                     1 => Ok(asset.remove(0)),
                     _ => {
-                        let assets: Vec<String> =
-                            asset.iter().map(|item| item.name.clone()).collect();
+                        let assets: Vec<String> = asset.into_iter().map(|item| item.name).collect();
                         Err(AssetError::MultipleFound(assets))
                     }
                 }
@@ -186,17 +185,17 @@ mod tests {
         let assets = vec![
             Asset {
                 id: 1,
-                name: asset_name.to_string(),
+                name: "asset_1".to_string(),
                 size: 10,
             },
             Asset {
                 id: 2,
-                name: asset_name.to_string(),
+                name: "asset_2".to_string(),
                 size: 50,
             },
             Asset {
                 id: 3,
-                name: asset_name.to_string(),
+                name: "asset_3".to_string(),
                 size: 77,
             },
         ];
@@ -204,9 +203,9 @@ mod tests {
         assert_eq!(
             tool_info.select_asset(&assets),
             Err(AssetError::MultipleFound(vec![
-                "asset".into(),
-                "asset".into(),
-                "asset".into()
+                "asset_1".into(),
+                "asset_2".into(),
+                "asset_3".into()
             ]))
         );
     }
