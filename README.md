@@ -257,7 +257,7 @@ This section contains `tool-sync` comparison to existing alternatives:
    + **Cons**
      + Tedious manual process
 
-2. **GitHub CLI**: You can download assets from releases using
+2. **GitHub CLI**: you can download assets from releases using
    [the GitHub CLI tool `gh`][gh].
 
    ```shell
