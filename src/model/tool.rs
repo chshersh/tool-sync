@@ -198,6 +198,11 @@ mod tests {
                 name: "asset_3".to_string(),
                 size: 77,
             },
+            Asset {
+                id: 3,
+                name: "not a match".to_string(),
+                size: 77,
+            },
         ];
 
         assert_eq!(
