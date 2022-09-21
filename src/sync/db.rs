@@ -89,9 +89,23 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             repo: "tool-sync".to_string(),
             exe_name: "tool".to_string(),
             asset_name: AssetName {
-                linux: Some("x86_64-unknown-linux-gnu".to_string()),
-                macos: Some("x86_64-apple-darwin".to_string()),
-                windows: Some("x86_64-pc-windows-msvc".to_string()),
+                linux: Some("x86_64-unknown-linux-gnu.tar.gz".to_string()),
+                macos: Some("x86_64-apple-darwin.tar.gz".to_string()),
+                windows: Some("x86_64-pc-windows-msvc.zip".to_string()),
+            },
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
+        "github".into(),
+        ToolInfo {
+            owner: "cli".to_string(),
+            repo: "cli".to_string(),
+            exe_name: "gh".to_string(),
+            asset_name: AssetName {
+                linux: Some("linux_amd64.tar.gz".to_string()),
+                macos: Some("macOS_amd64".to_string()),
+                windows: Some("windows_amd64.zip".to_string()),
             },
             tag: ToolInfoTag::Latest,
         },

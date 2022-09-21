@@ -31,7 +31,10 @@ pub fn configure_tool(tool_name: &str, config_asset: &ConfigAsset) -> Tool {
 fn full_configure(config_asset: &ConfigAsset) -> Option<ToolInfo> {
     let owner = config_asset.owner.clone()?;
     let repo = config_asset.repo.clone()?;
-    let exe_name = config_asset.exe_name.clone()?;
+    let exe_name = config_asset
+        .exe_name
+        .clone()
+        .unwrap_or_else(|| repo.clone());
     let tag = config_asset
         .tag
         .clone()
@@ -215,6 +218,38 @@ mod tests {
                     windows: Some("yours-windows".to_string()),
                 },
                 tag: ToolInfoTag::Specific("1.2.3".to_string()),
+            })
+        );
+    }
+
+    #[test]
+    fn empty_exe_name() {
+        let tool_name = "abcdef";
+
+        let config_asset = ConfigAsset {
+            owner: Some(String::from("chshersh")),
+            repo: Some(String::from("tool-sync")),
+            exe_name: None,
+            asset_name: AssetName {
+                linux: Some(String::from("my-linux")),
+                macos: Some(String::from("my-macos")),
+                windows: Some(String::from("yours-windows")),
+            },
+            tag: Some(String::from("1.0.0")),
+        };
+
+        assert_eq!(
+            configure_tool(tool_name, &config_asset),
+            Tool::Known(ToolInfo {
+                owner: "chshersh".to_string(),
+                repo: "tool-sync".to_string(),
+                exe_name: "tool-sync".to_string(),
+                asset_name: AssetName {
+                    linux: Some("my-linux".to_string()),
+                    macos: Some("my-macos".to_string()),
+                    windows: Some("yours-windows".to_string()),
+                },
+                tag: ToolInfoTag::Specific("1.0.0".to_string()),
             })
         );
     }

@@ -98,6 +98,7 @@ jobs:
           if [[ ! -x $SYNC_DIR/fd    ]]; then echo "error on: fd";    false; fi
           if [[ ! -x $SYNC_DIR/rg    ]]; then echo "error on: rg";    false; fi
           if [[ ! -x $SYNC_DIR/tool  ]]; then echo "error on: tool";  false; fi
+          if [[ ! -x $SYNC_DIR/gh  ]]; then echo "error on: gh";  false; fi
 
           # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
           # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
@@ -138,6 +139,9 @@ jobs:
           }
           if (!(Test-Path $env:SYNC_DIR\tool.exe)) {
               throw 'error on tool.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\gh.exe)) {
+              throw 'error on gh.exe'
           }
 
   rustfmt:
