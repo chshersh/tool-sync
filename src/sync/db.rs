@@ -11,11 +11,11 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     known_db.remove(tool_name)
 }
 
-pub fn build_db() -> BTreeMap<String, ToolInfo> {
-    let mut tools: BTreeMap<String, ToolInfo> = BTreeMap::new();
+pub fn build_db() -> BTreeMap<&'static str, ToolInfo> {
+    let mut tools: BTreeMap<&'static str, ToolInfo> = BTreeMap::new();
 
     tools.insert(
-        "bat".into(),
+        "bat",
         StaticToolInfo {
             owner: "sharkdp",
             repo: "bat",
@@ -28,7 +28,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         .into(),
     );
     tools.insert(
-        "difftastic".into(),
+        "difftastic",
         StaticToolInfo {
             owner: "Wilfred",
             repo: "difftastic",
@@ -41,7 +41,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         .into(),
     );
     tools.insert(
-        "exa".into(),
+        "exa",
         StaticToolInfo {
             owner: "ogham",
             repo: "exa",
@@ -54,7 +54,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         .into(),
     );
     tools.insert(
-        "fd".into(),
+        "fd",
         StaticToolInfo {
             owner: "sharkdp",
             repo: "fd",
@@ -67,7 +67,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         .into(),
     );
     tools.insert(
-        "ripgrep".into(),
+        "ripgrep",
         StaticToolInfo {
             owner: "BurntSushi",
             repo: "ripgrep",
@@ -80,7 +80,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         .into(),
     );
     tools.insert(
-        "tool-sync".into(),
+        "tool-sync",
         StaticToolInfo {
             owner: "chshersh",
             repo: "tool-sync",
@@ -93,7 +93,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         .into(),
     );
     tools.insert(
-        "github".into(),
+        "github",
         StaticToolInfo {
             owner: "cli",
             repo: "cli",
@@ -105,18 +105,20 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         }
         .into(),
     );
-    // tools.insert("tokei", ToolInfo {
-    //     owner: "XAMPPRocky".to_string(),
-    //     repo: "tokei".to_string(),
-    //     exe_name: "tokei".to_string(),
-    //     asset_name: AssetName {
-    //         linux: Some("x86_64-unknown-linux-musl".to_string()),
-    //         macos: Some("apple-darwin".to_string()),
-    //         windows: Some("x86_64-pc-windows-msvc".to_string()),
-    //       }
-    //     tag: ToolInfoTag::Latest,
-    // }));
-    //
+    //tools.insert(
+    //    "tokei",
+    //    StaticToolInfo {
+    //        owner: "XAMPPRocky",
+    //        repo: "tokei",
+    //        exe_name: "tokei",
+    //        linux: "x86_64-unknown-linux-musl",
+    //        macos: "apple-darwin",
+    //        windows: "x86_64-pc-windows-msvc",
+    //        tag: ToolInfoTag::Latest,
+    //    }
+    //    .into(),
+    //);
+
     tools
 }
 
@@ -127,7 +129,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
 /// # [bat]
 /// # [exa]
 /// ```
-pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
+pub fn fmt_tool_names<F: FnMut(&'static str) -> String>(fmt_tool: F) -> String {
     build_db()
         .keys()
         .map(fmt_tool)
@@ -136,9 +138,6 @@ pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
 }
 
 struct StaticToolInfo {
-    /// Tool name
-    //pub name: &'static str,
-
     /// GitHub repository author
     pub owner: &'static str,
 
