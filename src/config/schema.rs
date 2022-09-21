@@ -20,7 +20,7 @@ pub struct Config {
 }
 
 /// Additional details, telling how to download a tool
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ConfigAsset {
     /// GitHub repository author
     pub owner: Option<String>,
