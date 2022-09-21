@@ -11,8 +11,9 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     known_db.remove(tool_name)
 }
 
-pub fn build_db() -> BTreeMap<&'static str, ToolInfo> {
-    let mut tools: BTreeMap<&'static str, ToolInfo> = BTreeMap::new();
+pub fn build_db() -> BTreeMap<String, ToolInfo> {
+    //let mut tools: BTreeMap<&'static str, ToolInfo> = BTreeMap::new();
+    let mut tools = ToolBTreeMap::new();
 
     tools.insert(
         "bat",
@@ -119,7 +120,7 @@ pub fn build_db() -> BTreeMap<&'static str, ToolInfo> {
     //    .into(),
     //);
 
-    tools
+    tools.into()
 }
 
 /// Format tool names of the database using a mutating formatting function
@@ -129,12 +130,34 @@ pub fn build_db() -> BTreeMap<&'static str, ToolInfo> {
 /// # [bat]
 /// # [exa]
 /// ```
-pub fn fmt_tool_names<F: FnMut(&'static str) -> String>(fmt_tool: F) -> String {
+pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
     build_db()
         .keys()
         .map(fmt_tool)
         .collect::<Vec<String>>()
         .join("\n")
+}
+
+struct ToolBTreeMap {
+    _inner_map: BTreeMap<String, ToolInfo>,
+}
+
+impl ToolBTreeMap {
+    fn new() -> Self {
+        Self {
+            _inner_map: BTreeMap::new(),
+        }
+    }
+
+    fn insert(&mut self, key: &'static str, value: ToolInfo) -> Option<ToolInfo> {
+        self._inner_map.insert(key.into(), value)
+    }
+}
+
+impl From<ToolBTreeMap> for BTreeMap<String, ToolInfo> {
+    fn from(tool_btree: ToolBTreeMap) -> Self {
+        tool_btree._inner_map
+    }
 }
 
 struct StaticToolInfo {
