@@ -12,7 +12,6 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
 }
 
 pub fn build_db() -> BTreeMap<String, ToolInfo> {
-    //let mut tools: BTreeMap<&'static str, ToolInfo> = BTreeMap::new();
     let mut tools = ToolBTreeMap::new();
 
     tools.insert(
@@ -177,27 +176,6 @@ struct StaticToolInfo {
     pub macos: &'static str,
     pub windows: &'static str,
 }
-
-//impl Into<ToolInfo> for StaticToolInfo {
-//    fn into(self) -> ToolInfo {
-//        ToolInfo {
-//            owner: self.owner.to_string(),
-//            repo: self.repo.to_string(),
-//            exe_name: self.exe_name.to_string(),
-//            tag: self.tag,
-//            asset_name: AssetName {
-//                linux: to_supported_asset(self.linux.to_string()),
-//                macos: to_supported_asset(self.macos.to_string()),
-//                windows: to_supported_asset(self.windows.to_string()),
-//            },
-//        }
-//    }
-//}
-
-//#[inline]
-//fn to_supported_asset(asset_name: String) -> Option<String> {
-//    if asset_name == NOT_SUPPORTED { None } else { Some(asset_name) }
-//}
 
 impl From<StaticToolInfo> for ToolInfo {
     fn from(static_tool_info: StaticToolInfo) -> Self {
