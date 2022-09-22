@@ -10,7 +10,7 @@ use console::Emoji;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use crate::config::schema::Config;
+use crate::config::schema::{Config, ConfigAsset};
 use crate::config::toml;
 
 use self::install::Installer;
@@ -29,13 +29,10 @@ pub fn sync_from_config(config: Config, tool: Option<String>) {
     }
 
     match tool {
-        Some(tool) => {
-            if config.tools.contains_key(&tool) {
-                sync_tool_no_check(config, tool);
-            } else {
-                tool_not_in_config_message(&tool, &config.store_directory);
-            }
-        }
+        Some(tool) => match config.tools.get(&tool) {
+            Some(asset) => sync_single_tool(config.clone(), tool, (*asset).clone()),
+            None => tool_not_in_config_message(&tool, &config.store_directory),
+        },
         None => sync_from_config_no_check(config),
     }
 }
@@ -77,14 +74,8 @@ installing one of the tools natively supported by 'tool-sync'."#,
 const DONE: Emoji<'_, '_> = Emoji("✨ ", "* ");
 const DIRECTORY: Emoji<'_, '_> = Emoji("📁 ", "* ");
 
-fn sync_tool_no_check(mut config: Config, tool: String) {
-    let tool_config_asset = (*config.tools.get(&tool).unwrap()).clone();
-
-    let mut tool_btree = BTreeMap::new();
-    tool_btree.insert(tool.clone(), tool_config_asset);
-
-    config.tools = tool_btree;
-
+pub fn sync_single_tool(mut config: Config, name: String, asset: ConfigAsset) {
+    config.tools = BTreeMap::from([(name, asset)]);
     sync_from_config_no_check(config);
 }
 
