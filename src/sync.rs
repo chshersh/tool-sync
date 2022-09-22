@@ -8,7 +8,7 @@ mod progress;
 
 use console::Emoji;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::config::schema::{Config, ConfigAsset};
 use crate::config::toml;
@@ -19,10 +19,12 @@ use self::progress::SyncProgress;
 use self::progress::ToolPair;
 
 pub fn sync_from_path(config_path: PathBuf, tool: Option<String>) {
-    toml::with_parsed_file(config_path, |config| sync_from_config(config, tool));
+    toml::with_parsed_file(config_path.clone(), |config| {
+        sync_from_config(config, config_path, tool)
+    });
 }
 
-pub fn sync_from_config(config: Config, tool: Option<String>) {
+pub fn sync_from_config(config: Config, config_path: PathBuf, tool: Option<String>) {
     if config.tools.is_empty() {
         no_tools_message();
         return;
@@ -31,7 +33,7 @@ pub fn sync_from_config(config: Config, tool: Option<String>) {
     match tool {
         Some(tool) => match config.tools.get(&tool) {
             Some(asset) => sync_single_tool(config.clone(), tool, (*asset).clone()),
-            None => tool_not_in_config_message(&tool, &config.store_directory),
+            None => tool_not_in_config_message(&tool, &config_path),
         },
         None => sync_from_config_no_check(config),
     }
@@ -61,13 +63,14 @@ For more details, refer to the official documentation:
     );
 }
 
-fn tool_not_in_config_message(tool: &str, path: &str) {
+fn tool_not_in_config_message(tool: &str, path: &Path) {
     eprintln!(
-        r#"The '{}' tool is not listed in the configuration file: {}.
+        r#"The '{}' tool is not listed in the configuration file: {}
 
 Add the tool to the configuration file or use the 'tool install' command for 
 installing one of the tools natively supported by 'tool-sync'."#,
-        tool, path,
+        tool,
+        path.display(),
     );
 }
 
