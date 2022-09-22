@@ -179,7 +179,7 @@ struct StaticToolInfo {
 
 impl From<StaticToolInfo> for ToolInfo {
     fn from(static_tool_info: StaticToolInfo) -> Self {
-        Self {
+        ToolInfo {
             owner: static_tool_info.owner.to_string(),
             repo: static_tool_info.repo.to_string(),
             exe_name: static_tool_info.exe_name.to_string(),
