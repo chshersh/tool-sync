@@ -12,7 +12,7 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
 }
 
 pub fn build_db() -> BTreeMap<String, ToolInfo> {
-    let mut tools = ToolBTreeMap::new();
+    let mut tools = BTreeMap::<&'static str, StaticToolInfo>::new();
 
     tools.insert(
         "bat",
@@ -24,8 +24,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "x86_64-apple-darwin",
             windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     tools.insert(
         "difftastic",
@@ -37,8 +36,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "x86_64-apple-darwin",
             windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     tools.insert(
         "exa",
@@ -50,8 +48,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "macos-x86_64",
             windows: NOT_SUPPORTED,
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     tools.insert(
         "fd",
@@ -63,8 +60,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "x86_64-apple-darwin",
             windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     tools.insert(
         "ripgrep",
@@ -76,8 +72,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "apple-darwin",
             windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     tools.insert(
         "tool-sync",
@@ -89,8 +84,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "x86_64-apple-darwin.tar.gz",
             windows: "x86_64-pc-windows-msvc.zip",
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     tools.insert(
         "github",
@@ -102,8 +96,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             macos: "macOS_amd64",
             windows: "windows_amd64.zip",
             tag: ToolInfoTag::Latest,
-        }
-        .into(),
+        },
     );
     //tools.insert(
     //    "tokei",
@@ -116,10 +109,13 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
     //        windows: "x86_64-pc-windows-msvc",
     //        tag: ToolInfoTag::Latest,
     //    }
-    //    .into(),
     //);
 
-    tools.into()
+    BTreeMap::from_iter(
+        tools
+            .into_iter()
+            .map(|(name, tool_info)| (name.to_owned(), tool_info.into())),
+    )
 }
 
 /// Format tool names of the database using a mutating formatting function
@@ -135,28 +131,6 @@ pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
         .map(fmt_tool)
         .collect::<Vec<String>>()
         .join("\n")
-}
-
-struct ToolBTreeMap {
-    _inner_map: BTreeMap<String, ToolInfo>,
-}
-
-impl ToolBTreeMap {
-    fn new() -> Self {
-        Self {
-            _inner_map: BTreeMap::new(),
-        }
-    }
-
-    fn insert(&mut self, key: &'static str, value: ToolInfo) -> Option<ToolInfo> {
-        self._inner_map.insert(key.into(), value)
-    }
-}
-
-impl From<ToolBTreeMap> for BTreeMap<String, ToolInfo> {
-    fn from(tool_btree: ToolBTreeMap) -> Self {
-        tool_btree._inner_map
-    }
 }
 
 struct StaticToolInfo {
@@ -184,9 +158,9 @@ impl From<StaticToolInfo> for ToolInfo {
             repo: static_tool_info.repo.to_string(),
             exe_name: static_tool_info.exe_name.to_string(),
             asset_name: AssetName {
-                linux: from_supported_asset(static_tool_info.linux.to_string()),
-                macos: from_supported_asset(static_tool_info.macos.to_string()),
-                windows: from_supported_asset(static_tool_info.windows.to_string()),
+                linux: from_supported_asset(static_tool_info.linux),
+                macos: from_supported_asset(static_tool_info.macos),
+                windows: from_supported_asset(static_tool_info.windows),
             },
             tag: static_tool_info.tag,
         }
@@ -194,10 +168,10 @@ impl From<StaticToolInfo> for ToolInfo {
 }
 
 #[inline]
-fn from_supported_asset(asset_name: String) -> Option<String> {
+fn from_supported_asset(asset_name: &str) -> Option<String> {
     if asset_name == NOT_SUPPORTED {
         None
     } else {
-        Some(asset_name)
+        Some(asset_name.to_string())
     }
 }
