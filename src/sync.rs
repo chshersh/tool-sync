@@ -33,7 +33,7 @@ pub fn sync_from_config(config: Config, tool: Option<String>) {
             if config.tools.contains_key(&tool) {
                 sync_tool_no_check(config, tool);
             } else {
-                tool_not_in_config_message(&tool);
+                tool_not_in_config_message(&tool, &config.store_directory);
             }
         }
         None => sync_from_config_no_check(config),
@@ -64,12 +64,13 @@ For more details, refer to the official documentation:
     );
 }
 
-fn tool_not_in_config_message(tool: &str) {
+fn tool_not_in_config_message(tool: &str, path: &str) {
+    eprintln!(
         r#"The '{}' tool is not listed in the configuration file: {}.
 
-Add the tool to the configuration file or use the 'tool install' command for installing one of the tools natively supported by 'tool-sync'."#,
-        tool,
-        path,
+Add the tool to the configuration file or use the 'tool install' command for 
+installing one of the tools natively supported by 'tool-sync'."#,
+        tool, path,
     );
 }
 
