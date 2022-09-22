@@ -220,6 +220,12 @@ Install all the tools specified in `~/.tool.toml`:
 tool sync
 ```
 
+Install one tool specified in `~/.tool.toml`:
+
+```shell
+tool sync exa
+```
+
 Install all the tools from config in a different location:
 
 ```shell
