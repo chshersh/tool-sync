@@ -8,6 +8,14 @@ available [on GitHub][2].
 
 ## [Unreleased]
 
+### Fixed
+
+* [#84](https://github.com/chshersh/tool-sync/issues/84):
+  Refactor of hardcoded tools
+  (by [@MitchellBerend][MitchellBerend])
+
+
+
 ## [0.2.0] — 2022-09-20 🔃
 
 ### Added
