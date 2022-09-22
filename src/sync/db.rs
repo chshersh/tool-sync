@@ -3,6 +3,8 @@ use std::collections::BTreeMap;
 use crate::model::asset_name::AssetName;
 use crate::model::tool::{ToolInfo, ToolInfoTag};
 
+const NOT_SUPPORTED: &str = "NOT_SUPPORTED";
+
 /// Get info about known tools from a hardcoded database
 pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
     let mut known_db = build_db();
@@ -10,119 +12,110 @@ pub fn lookup_tool(tool_name: &str) -> Option<ToolInfo> {
 }
 
 pub fn build_db() -> BTreeMap<String, ToolInfo> {
-    let mut tools: BTreeMap<String, ToolInfo> = BTreeMap::new();
+    let mut tools = BTreeMap::<&'static str, StaticToolInfo>::new();
 
     tools.insert(
-        "bat".into(),
-        ToolInfo {
-            owner: "sharkdp".to_string(),
-            repo: "bat".to_string(),
-            exe_name: "bat".to_string(),
-            asset_name: AssetName {
-                linux: Some("x86_64-unknown-linux-musl".to_string()),
-                macos: Some("x86_64-apple-darwin".to_string()),
-                windows: Some("x86_64-pc-windows-msvc".to_string()),
-            },
+        "bat",
+        StaticToolInfo {
+            owner: "sharkdp",
+            repo: "bat",
+            exe_name: "bat",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
         },
     );
     tools.insert(
-        "difftastic".into(),
-        ToolInfo {
-            owner: "Wilfred".to_string(),
-            repo: "difftastic".to_string(),
-            exe_name: "difft".to_string(),
-            asset_name: AssetName {
-                linux: Some("x86_64-unknown-linux-gnu".to_string()),
-                macos: Some("x86_64-apple-darwin".to_string()),
-                windows: Some("x86_64-pc-windows-msvc".to_string()),
-            },
+        "difftastic",
+        StaticToolInfo {
+            owner: "Wilfred",
+            repo: "difftastic",
+            exe_name: "difft",
+            linux: "x86_64-unknown-linux-gnu",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
         },
     );
     tools.insert(
-        "exa".into(),
-        ToolInfo {
-            owner: "ogham".to_string(),
-            repo: "exa".to_string(),
-            exe_name: "exa".to_string(),
-            asset_name: AssetName {
-                linux: Some("linux-x86_64-musl".to_string()),
-                macos: Some("macos-x86_64".to_string()),
-                windows: None,
-            },
+        "exa",
+        StaticToolInfo {
+            owner: "ogham",
+            repo: "exa",
+            exe_name: "exa",
+            linux: "linux-x86_64-musl",
+            macos: "macos-x86_64",
+            windows: NOT_SUPPORTED,
             tag: ToolInfoTag::Latest,
         },
     );
     tools.insert(
-        "fd".into(),
-        ToolInfo {
-            owner: "sharkdp".to_string(),
-            repo: "fd".to_string(),
-            exe_name: "fd".to_string(),
-            asset_name: AssetName {
-                linux: Some("x86_64-unknown-linux-musl".to_string()),
-                macos: Some("x86_64-apple-darwin".to_string()),
-                windows: Some("x86_64-pc-windows-msvc".to_string()),
-            },
+        "fd",
+        StaticToolInfo {
+            owner: "sharkdp",
+            repo: "fd",
+            exe_name: "fd",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
         },
     );
     tools.insert(
-        "ripgrep".into(),
-        ToolInfo {
-            owner: "BurntSushi".to_string(),
-            repo: "ripgrep".to_string(),
-            exe_name: "rg".to_string(),
-            asset_name: AssetName {
-                linux: Some("unknown-linux-musl".to_string()),
-                macos: Some("apple-darwin".to_string()),
-                windows: Some("x86_64-pc-windows-msvc".to_string()),
-            },
+        "ripgrep",
+        StaticToolInfo {
+            owner: "BurntSushi",
+            repo: "ripgrep",
+            exe_name: "rg",
+            linux: "unknown-linux-musl",
+            macos: "apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
         },
     );
     tools.insert(
-        "tool-sync".into(),
-        ToolInfo {
-            owner: "chshersh".to_string(),
-            repo: "tool-sync".to_string(),
-            exe_name: "tool".to_string(),
-            asset_name: AssetName {
-                linux: Some("x86_64-unknown-linux-gnu.tar.gz".to_string()),
-                macos: Some("x86_64-apple-darwin.tar.gz".to_string()),
-                windows: Some("x86_64-pc-windows-msvc.zip".to_string()),
-            },
+        "tool-sync",
+        StaticToolInfo {
+            owner: "chshersh",
+            repo: "tool-sync",
+            exe_name: "tool",
+            linux: "x86_64-unknown-linux-gnu.tar.gz",
+            macos: "x86_64-apple-darwin.tar.gz",
+            windows: "x86_64-pc-windows-msvc.zip",
             tag: ToolInfoTag::Latest,
         },
     );
     tools.insert(
-        "github".into(),
-        ToolInfo {
-            owner: "cli".to_string(),
-            repo: "cli".to_string(),
-            exe_name: "gh".to_string(),
-            asset_name: AssetName {
-                linux: Some("linux_amd64.tar.gz".to_string()),
-                macos: Some("macOS_amd64".to_string()),
-                windows: Some("windows_amd64.zip".to_string()),
-            },
+        "github",
+        StaticToolInfo {
+            owner: "cli",
+            repo: "cli",
+            exe_name: "gh",
+            linux: "linux_amd64.tar.gz",
+            macos: "macOS_amd64",
+            windows: "windows_amd64.zip",
             tag: ToolInfoTag::Latest,
         },
     );
-    // tools.insert("tokei", ToolInfo {
-    //     owner: "XAMPPRocky".to_string(),
-    //     repo: "tokei".to_string(),
-    //     exe_name: "tokei".to_string(),
-    //     asset_name: AssetName {
-    //         linux: Some("x86_64-unknown-linux-musl".to_string()),
-    //         macos: Some("apple-darwin".to_string()),
-    //         windows: Some("x86_64-pc-windows-msvc".to_string()),
-    //       }
-    //     tag: ToolInfoTag::Latest,
-    // }));
-    //
-    tools
+    //tools.insert(
+    //    "tokei",
+    //    StaticToolInfo {
+    //        owner: "XAMPPRocky",
+    //        repo: "tokei",
+    //        exe_name: "tokei",
+    //        linux: "x86_64-unknown-linux-musl",
+    //        macos: "apple-darwin",
+    //        windows: "x86_64-pc-windows-msvc",
+    //        tag: ToolInfoTag::Latest,
+    //    }
+    //);
+
+    BTreeMap::from_iter(
+        tools
+            .into_iter()
+            .map(|(name, tool_info)| (name.to_owned(), tool_info.into())),
+    )
 }
 
 /// Format tool names of the database using a mutating formatting function
@@ -138,4 +131,47 @@ pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
         .map(fmt_tool)
         .collect::<Vec<String>>()
         .join("\n")
+}
+
+struct StaticToolInfo {
+    /// GitHub repository author
+    pub owner: &'static str,
+
+    /// GitHub repository name
+    pub repo: &'static str,
+
+    /// Executable name inside the .tar.gz or .zip archive
+    pub exe_name: &'static str,
+
+    /// Version tag
+    pub tag: ToolInfoTag,
+
+    pub linux: &'static str,
+    pub macos: &'static str,
+    pub windows: &'static str,
+}
+
+impl From<StaticToolInfo> for ToolInfo {
+    fn from(static_tool_info: StaticToolInfo) -> Self {
+        ToolInfo {
+            owner: static_tool_info.owner.to_string(),
+            repo: static_tool_info.repo.to_string(),
+            exe_name: static_tool_info.exe_name.to_string(),
+            asset_name: AssetName {
+                linux: from_supported_asset(static_tool_info.linux),
+                macos: from_supported_asset(static_tool_info.macos),
+                windows: from_supported_asset(static_tool_info.windows),
+            },
+            tag: static_tool_info.tag,
+        }
+    }
+}
+
+#[inline]
+fn from_supported_asset(asset_name: &str) -> Option<String> {
+    if asset_name == NOT_SUPPORTED {
+        None
+    } else {
+        Some(asset_name.to_string())
+    }
 }

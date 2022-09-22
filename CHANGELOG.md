@@ -13,6 +13,9 @@ available [on GitHub][2].
 * [#116](https://github.com/chshersh/tool-sync/issues/116):
   Prevent sha from being included in asset name hits
   (by [@MitchellBerend][MitchellBerend])
+* [#84](https://github.com/chshersh/tool-sync/issues/84):
+  Refactor of hardcoded tools
+  (by [@MitchellBerend][MitchellBerend])
 
 ## [0.2.0] — 2022-09-20 🔃
 
