@@ -78,7 +78,9 @@ impl ToolInfo {
             Some(asset_name) => {
                 let mut filtered_assets = assets
                     .iter()
-                    .filter(|&asset| asset.name.contains(asset_name) && !asset.name.contains("sha"))
+                    .filter(|&asset| {
+                        asset.name.contains(asset_name) && !asset.name.contains(".sha")
+                    })
                     .map(|asset| asset.to_owned())
                     .collect::<Vec<Asset>>();
                 match filtered_assets.len() {
