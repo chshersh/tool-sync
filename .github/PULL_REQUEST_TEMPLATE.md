@@ -13,3 +13,4 @@ Write description of your changes here
 
 - [ ] Documentation for changes provided/changed
 - [ ] Tests added
+- [ ] Updated CHANGELOG.md
