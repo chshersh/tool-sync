@@ -65,13 +65,11 @@ For more details, refer to the official documentation:
 }
 
 fn tool_not_in_config_message(tool: &str) {
-    eprintln!(
-        r#"Tool: {} is not specified in the configuration file.
+        r#"The '{}' tool is not listed in the configuration file: {}.
 
-Consider adding it to the configuration file or use tool install command
-to install it if it's a known tool.
-        "#,
-        tool
+Add the tool to the configuration file or use the 'tool install' command for installing one of the tools natively supported by 'tool-sync'."#,
+        tool,
+        path,
     );
 }
 
