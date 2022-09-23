@@ -107,7 +107,16 @@ pub fn sync_from_config_no_check(config: Config) {
         }
     }
 
-    eprintln!("{} Successfully installed {} tools!", DONE, installed_tools);
+    eprintln!(
+        "{} Successfully installed {} {}!",
+        DONE,
+        installed_tools,
+        if installed_tools == 1 {
+            "tool"
+        } else {
+            "tools"
+        }
+    );
     eprintln!(
         "{} Installation directory: {}",
         DIRECTORY,
