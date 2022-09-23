@@ -8,6 +8,13 @@ available [on GitHub][2].
 
 ## [Unreleased]
 
+### Added
+
+* [#92](https://github.com/chshersh/tool-sync/issues/92):
+  Adds the `tool sync <tool-name>` command to install only one tool
+  from the configuration file
+  (by [@zixuanzhang-x][zixuanzhang-x])
+
 ### Fixed
 
 * [#84](https://github.com/chshersh/tool-sync/issues/84):

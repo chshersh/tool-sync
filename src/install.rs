@@ -1,7 +1,6 @@
-use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use crate::config::schema::{Config, ConfigAsset};
+use crate::config::schema::Config;
 use crate::config::toml;
 use crate::infra::err;
 use crate::sync;
@@ -13,11 +12,9 @@ pub fn install(config_path: PathBuf, name: String) {
 }
 
 /// Find if the tool is already mentioned in the config
-fn install_tool(mut config: Config, name: String) {
+fn install_tool(config: Config, name: String) {
     if let Some(tool_info) = lookup_tool(&name) {
-        let tool_btree: BTreeMap<String, ConfigAsset> = BTreeMap::from([(name, tool_info.into())]);
-        config.tools = tool_btree;
-        sync::sync_from_config_no_check(config);
+        sync::sync_single_tool(config, name, tool_info.into());
     } else {
         let tools = fmt_tool_names(|name| format!("    * {name}"));
 

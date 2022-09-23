@@ -19,7 +19,7 @@ pub fn run() {
 
     match cli.command {
         Command::DefaultConfig => config::template::generate_default_config(),
-        Command::Sync => sync::sync_from_path(config_path),
+        Command::Sync { tool } => sync::sync_from_path(config_path, tool),
         Command::Install { name } => install::install(config_path, name),
     }
 }

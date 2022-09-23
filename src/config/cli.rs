@@ -15,8 +15,8 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Sync all tools specified in configuration file
-    Sync,
+    /// Sync all tools specified in configuration file or the only one specified in the command line
+    Sync { tool: Option<String> },
 
     /// Generate a default .tool.toml file and prints it to std out
     DefaultConfig,
