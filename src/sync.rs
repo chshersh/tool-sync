@@ -107,6 +107,10 @@ pub fn sync_from_config_no_check(config: Config) {
         }
     }
 
+    summary_message(installed_tools, store_directory);
+}
+
+fn summary_message(installed_tools: u64, store_directory: PathBuf) {
     eprintln!(
         "{} Successfully installed {} {}!",
         DONE,
