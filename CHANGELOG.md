@@ -20,6 +20,9 @@ available [on GitHub][2].
 * [#84](https://github.com/chshersh/tool-sync/issues/84):
   Refactor of hardcoded tools
   (by [@MitchellBerend][MitchellBerend])
+* [#119](https://github.com/chshersh/tool-sync/issues/119):
+  De-pluralize success message when only 1 tool is installed
+  (by [@zixuanzhang-x][zixuanzhang-x])
 
 
 
