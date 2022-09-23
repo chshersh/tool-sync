@@ -10,7 +10,7 @@ use crate::model::tool::{ToolInfo, ToolInfoTag};
 /// info about installing each particular tool.
 ///
 /// This data type is parsed from the TOML configuration file.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Config {
     /// Directory to store all locally downloaded tools
     pub store_directory: String,
@@ -20,7 +20,7 @@ pub struct Config {
 }
 
 /// Additional details, telling how to download a tool
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ConfigAsset {
     /// GitHub repository author
     pub owner: Option<String>,

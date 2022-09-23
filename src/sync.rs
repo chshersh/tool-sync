@@ -24,15 +24,15 @@ pub fn sync_from_path(config_path: PathBuf, tool: Option<String>) {
     });
 }
 
-pub fn sync_from_config(config: Config, config_path: PathBuf, tool: Option<String>) {
+pub fn sync_from_config(mut config: Config, config_path: PathBuf, tool: Option<String>) {
     if config.tools.is_empty() {
         no_tools_message();
         return;
     }
 
     match tool {
-        Some(tool) => match config.tools.get(&tool) {
-            Some(asset) => sync_single_tool(config.clone(), tool, (*asset).clone()),
+        Some(tool) => match config.tools.remove(&tool) {
+            Some(asset) => sync_single_tool(config, tool, asset),
             None => tool_not_in_config_message(&tool, &config_path),
         },
         None => sync_from_config_no_check(config),
