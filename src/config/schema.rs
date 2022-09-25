@@ -15,6 +15,7 @@ pub struct Config {
     /// Directory to store all locally downloaded tools
     pub store_directory: String,
 
+    pub proxy: Option<String>,
     /// Info about each individual tool
     pub tools: BTreeMap<String, ConfigAsset>,
 }
@@ -38,6 +39,9 @@ pub struct ConfigAsset {
 
     /// Name of the specific asset to download
     pub asset_name: AssetName,
+
+    /// Proxy which will get used for all communication except hardcoded tools
+    pub proxy: Option<ureq::Proxy>,
 }
 
 impl From<ToolInfo> for ConfigAsset {
@@ -53,6 +57,7 @@ impl From<ToolInfo> for ConfigAsset {
             exe_name: Some(tool_info.exe_name),
             tag,
             asset_name: tool_info.asset_name,
+            proxy: None,
         }
     }
 }

@@ -58,36 +58,47 @@ fn parse_string(contents: &str) -> Result<Config, TomlError> {
 
 fn decode_config(toml: Value) -> Option<Config> {
     let str_store_directory = toml.get("store_directory")?.as_str()?;
+    let proxy: Option<String> = match toml.get("proxy") {
+        Some(p) => Some(p.as_str()?.into()),
+        None => None,
+    };
     let store_directory = String::from(str_store_directory);
 
     let mut tools = BTreeMap::new();
 
     for (key, val) in toml.as_table()?.iter() {
         if let Value::Table(table) = val {
-            tools.insert(key.clone(), decode_config_asset(table));
+            tools.insert(key.clone(), decode_config_asset(table, &proxy));
         }
     }
 
     Some(Config {
         store_directory,
         tools,
+        proxy,
     })
 }
 
-fn decode_config_asset(table: &Map<String, Value>) -> ConfigAsset {
+fn decode_config_asset(table: &Map<String, Value>, proxy: &Option<String>) -> ConfigAsset {
     let owner = str_by_key(table, "owner");
     let repo = str_by_key(table, "repo");
     let exe_name = str_by_key(table, "exe_name");
     let asset_name = decode_asset_name(table);
     let tag = str_by_key(table, "tag");
 
-    ConfigAsset {
+    let mut config_asset = ConfigAsset {
         owner,
         repo,
         exe_name,
         asset_name,
         tag,
-    }
+        proxy: None,
+    };
+    if let Some(p) = proxy {
+        config_asset.proxy = Some(ureq::Proxy::new(p.clone()).unwrap_or_else(|_| panic!("Could not parse proxy address, please check the syntax: {}",
+            p)));
+    };
+    config_asset
 }
 
 fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
