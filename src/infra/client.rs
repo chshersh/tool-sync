@@ -71,23 +71,16 @@ impl Client {
                 add_auth_header(
                     agent
                         .get(&asset_url)
-                        .set("Accept", "application/vnd.github+json")
+                        .set("Accept", "application/octet-stream")
                         .set("User-Agent", "chshersh/tool-sync-0.2.0"),
                 )
             }
             None => add_auth_header(
                 ureq::get(&asset_url)
-                    .set("Accept", "application/vnd.github+json")
+                    .set("Accept", "application/octet-stream")
                     .set("User-Agent", "chshersh/tool-sync-0.2.0"),
             ),
         };
-
-        //println!("{:?}", &self.proxy);
-        //let req = add_auth_header(
-        //    ureq::get(&asset_url)
-        //        .set("Accept", "application/octet-stream")
-        //        .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-        //);
 
         Ok(req.call()?.into_reader())
     }

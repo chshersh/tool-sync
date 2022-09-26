@@ -95,8 +95,12 @@ fn decode_config_asset(table: &Map<String, Value>, proxy: &Option<String>) -> Co
         proxy: None,
     };
     if let Some(p) = proxy {
-        config_asset.proxy = Some(ureq::Proxy::new(p.clone()).unwrap_or_else(|_| panic!("Could not parse proxy address, please check the syntax: {}",
-            p)));
+        config_asset.proxy = Some(ureq::Proxy::new(p.clone()).unwrap_or_else(|_| {
+            panic!(
+                "Could not parse proxy address, please check the syntax: {}",
+                p
+            )
+        }));
     };
     config_asset
 }
