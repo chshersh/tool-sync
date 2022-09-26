@@ -19,8 +19,8 @@ pub fn run() {
 
     match cli.command {
         Command::DefaultConfig => config::template::generate_default_config(),
-        Command::Sync { tool } => sync::sync_from_path(config_path, tool),
-        Command::Install { name } => install::install(config_path, name),
+        Command::Sync { tool } => sync::sync_from_path(config_path, tool, cli.proxy),
+        Command::Install { name } => install::install(config_path, name, cli.proxy),
     }
 }
 

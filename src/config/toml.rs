@@ -25,8 +25,12 @@ impl Display for TomlError {
     }
 }
 
-pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) {
-    match parse_file(&config_path) {
+pub fn with_parsed_file<F: FnOnce(Config)>(
+    config_path: PathBuf,
+    proxy: Option<String>,
+    on_success: F,
+) {
+    match parse_file(&config_path, proxy) {
         Ok(config) => {
             on_success(config);
         }
@@ -40,28 +44,32 @@ pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) 
     }
 }
 
-fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
+fn parse_file(config_path: &PathBuf, proxy: Option<String>) -> Result<Config, TomlError> {
     let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{}", e)))?;
 
-    parse_string(&contents)
+    parse_string(&contents, proxy)
 }
 
-fn parse_string(contents: &str) -> Result<Config, TomlError> {
+fn parse_string(contents: &str, proxy: Option<String>) -> Result<Config, TomlError> {
     contents
         .parse::<Value>()
         .map_err(TomlError::Parse)
-        .and_then(|toml| match decode_config(toml) {
+        .and_then(|toml| match decode_config(toml, proxy) {
             None => Err(TomlError::Decode),
             Some(config) => Ok(config),
         })
 }
 
-fn decode_config(toml: Value) -> Option<Config> {
+fn decode_config(toml: Value, proxy: Option<String>) -> Option<Config> {
     let str_store_directory = toml.get("store_directory")?.as_str()?;
-    let proxy: Option<String> = match toml.get("proxy") {
-        Some(p) => Some(p.as_str()?.into()),
-        None => None,
+    let proxy = match proxy {
+        Some(p) => Some(p),
+        None => match toml.get("proxy") {
+            Some(p) => Some(p.as_str()?.into()),
+            None => None,
+        },
     };
+
     let store_directory = String::from(str_store_directory);
 
     let mut tools = BTreeMap::new();

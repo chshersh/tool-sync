@@ -18,8 +18,8 @@ use self::prefetch::prefetch;
 use self::progress::SyncProgress;
 use self::progress::ToolPair;
 
-pub fn sync_from_path(config_path: PathBuf, tool: Option<String>) {
-    toml::with_parsed_file(config_path.clone(), |config| {
+pub fn sync_from_path(config_path: PathBuf, tool: Option<String>, proxy: Option<String>) {
+    toml::with_parsed_file(config_path.clone(), proxy, |config| {
         sync_from_config(config, config_path, tool)
     });
 }
@@ -67,7 +67,7 @@ fn tool_not_in_config_message(tool: &str, path: &Path) {
     eprintln!(
         r#"The '{}' tool is not listed in the configuration file: {}
 
-Add the tool to the configuration file or use the 'tool install' command for 
+Add the tool to the configuration file or use the 'tool install' command for
 installing one of the tools natively supported by 'tool-sync'."#,
         tool,
         path.display(),
