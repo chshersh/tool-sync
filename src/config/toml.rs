@@ -156,7 +156,7 @@ mod tests {
     #[test]
     fn test_toml_error_display_parse() {
         let broken_toml_str: String = "broken toml".into();
-        match parse_string(&broken_toml_str) {
+        match parse_string(&broken_toml_str, None) {
             Err(error) => {
                 assert_eq!(
                     String::from(
@@ -179,7 +179,7 @@ mod tests {
     fn test_parse_file_correct_output() {
         let result = std::panic::catch_unwind(|| {
             let test_config_path = PathBuf::from("tests/sync-full.toml");
-            parse_file(&test_config_path).expect("This should not fail")
+            parse_file(&test_config_path, None).expect("This should not fail")
         });
 
         if let Ok(config) = result {
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn test_parse_file_error() {
         let test_config_path = PathBuf::from("src/main.rs");
-        match parse_file(&test_config_path) {
+        match parse_file(&test_config_path, None) {
             Ok(_) => {
                 assert!(false, "Unexpected succces")
             }
@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn empty_file() {
         let toml = "";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         assert_eq!(res, Err(TomlError::Decode));
     }
@@ -211,7 +211,7 @@ mod tests {
     #[test]
     fn store_directory_is_dotted() {
         let toml = "store.directory = \"pancake\"";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         assert_eq!(res, Err(TomlError::Decode));
     }
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn store_directory_is_a_number() {
         let toml = "store_directory = 42";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         assert_eq!(res, Err(TomlError::Decode));
     }
@@ -227,11 +227,12 @@ mod tests {
     #[test]
     fn only_store_directory() {
         let toml = "store_directory = \"pancake\"";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
             tools: BTreeMap::new(),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -245,7 +246,7 @@ mod tests {
             [ripgrep]
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -261,8 +262,10 @@ mod tests {
                         windows: None,
                     },
                     tag: None,
+                    proxy: None,
                 },
             )]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -277,7 +280,7 @@ mod tests {
             [bat]
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -294,6 +297,7 @@ mod tests {
                             windows: None,
                         },
                         tag: None,
+                        proxy: None,
                     },
                 ),
                 (
@@ -308,9 +312,11 @@ mod tests {
                             windows: None,
                         },
                         tag: None,
+                        proxy: None,
                     },
                 ),
             ]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -326,7 +332,7 @@ mod tests {
             asset_name.linux = "R2D2"
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -342,8 +348,10 @@ mod tests {
                         windows: None,
                     },
                     tag: None,
+                    proxy: None,
                 },
             )]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -364,7 +372,7 @@ mod tests {
             tag = "4.2.0"
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -380,8 +388,10 @@ mod tests {
                         windows: Some("IG-88".to_owned()),
                     },
                     tag: Some("4.2.0".to_owned()),
+                    proxy: None,
                 },
             )]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
