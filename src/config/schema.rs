@@ -40,7 +40,7 @@ pub struct ConfigAsset {
     /// Name of the specific asset to download
     pub asset_name: AssetName,
 
-    /// Proxy which will get used for all communication except hardcoded tools
+    /// Proxy which will get used for all communication
     pub proxy: Option<ureq::Proxy>,
 }
 
@@ -57,6 +57,8 @@ impl From<ToolInfo> for ConfigAsset {
             exe_name: Some(tool_info.exe_name),
             tag,
             asset_name: tool_info.asset_name,
+
+            /// Hardcoded tools don't supply their own proxy automatically
             proxy: None,
         }
     }
