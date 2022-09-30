@@ -9,11 +9,23 @@ use crate::infra::err;
 use crate::model::asset_name::AssetName;
 use crate::model::os::OS;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum TomlError {
     IO(String),
     Parse(toml::de::Error),
-    Decode,
+    Decode(DecodeError),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum DecodeError {
+    MissingKey {
+        key: String,
+    },
+    InvalidType {
+        key: String,
+        expected: Value,
+        found: Value,
+    },
 }
 
 impl Display for TomlError {
@@ -21,7 +33,29 @@ impl Display for TomlError {
         match self {
             TomlError::IO(e) => write!(f, "[IO Error] {}", e),
             TomlError::Parse(e) => write!(f, "[Parsing Error] {}", e),
-            TomlError::Decode => write!(f, "[Decode Error]"),
+            TomlError::Decode(e) => write!(f, "[Decode Error] {}", e),
+        }
+    }
+}
+
+impl Display for DecodeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DecodeError::MissingKey { key } => {
+                write!(f, "The key '{}' is missing (a typo or not specified?)", key)
+            }
+            DecodeError::InvalidType {
+                key,
+                expected,
+                found,
+            } => write!(
+                f,
+                "unexpected value type '{}={}': expected `{}`, found `{}`",
+                key,
+                found,
+                expected.type_str(),
+                found.type_str()
+            ),
         }
     }
 }
@@ -55,30 +89,44 @@ fn parse_string(contents: &str, proxy: Option<String>) -> Result<Config, TomlErr
     contents
         .parse::<Value>()
         .map_err(TomlError::Parse)
-        .and_then(|toml| match decode_config(toml, proxy) {
-            None => Err(TomlError::Decode),
-            Some(config) => Ok(config),
-        })
+        .and_then(|toml| decode_config(toml, proxy).map_err(TomlError::Decode))
 }
 
-fn decode_config(toml: Value, proxy: Option<String>) -> Option<Config> {
-    let str_store_directory = toml.get("store_directory")?.as_str()?;
+fn decode_config(toml: Value, proxy: Option<String>) -> Result<Config, DecodeError> {
+    let str_store_directory = toml.get("store_directory");
+
+    let store_directory = str_store_directory.map_or(
+        Err(DecodeError::MissingKey {
+            key: String::from("store_directory"),
+        }),
+        |directory_config| match directory_config {
+            Value::String(directory) => Ok(directory.clone()),
+            other => Err(DecodeError::InvalidType {
+                key: String::from("store_directory"),
+                expected: Value::String("some_value".into()),
+                found: other.clone(),
+            }),
+        },
+    )?;
+
     let proxy: Option<String> = proxy.or_else(|| match toml.get("proxy") {
         Some(p) => Some(p.as_str().unwrap_or("").into()),
         None => None,
     });
 
-    let store_directory = String::from(str_store_directory);
-
     let mut tools = BTreeMap::new();
 
-    for (key, val) in toml.as_table()?.iter() {
+    let table = toml
+        .as_table()
+        .expect("unable to parse config file to a table");
+
+    for (key, val) in table.iter() {
         if let Value::Table(table) = val {
             tools.insert(key.clone(), decode_config_asset(table, &proxy));
         }
     }
 
-    Some(Config {
+    Ok(Config {
         store_directory,
         tools,
         proxy,
@@ -169,8 +217,25 @@ mod tests {
 
     #[test]
     fn test_toml_error_display_decode() {
-        let toml_error = TomlError::Decode;
-        assert_eq!(String::from("[Decode Error]"), toml_error.to_string());
+        let toml_error = TomlError::Decode(DecodeError::MissingKey {
+            key: String::from("store_directory"),
+        });
+        assert_eq!(
+            String::from(
+                "[Decode Error] The key 'store_directory' is missing (a typo or not specified?)"
+            ),
+            toml_error.to_string()
+        );
+
+        let toml_error = TomlError::Decode(DecodeError::InvalidType {
+            key: String::from("store_directory"),
+            expected: Value::String("some_value".into()),
+            found: Value::Integer(32),
+        });
+        assert_eq!(
+            String::from("[Decode Error] unexpected value type 'store_directory=32': expected `string`, found `integer`"),
+            toml_error.to_string()
+        );
     }
 
     #[test]
@@ -203,7 +268,12 @@ mod tests {
         let toml = "";
         let res = parse_string(toml, None);
 
-        assert_eq!(res, Err(TomlError::Decode));
+        assert_eq!(
+            res,
+            Err(TomlError::Decode(DecodeError::MissingKey {
+                key: String::from("store_directory")
+            }))
+        );
     }
 
     #[test]
@@ -211,7 +281,12 @@ mod tests {
         let toml = "store.directory = \"pancake\"";
         let res = parse_string(toml, None);
 
-        assert_eq!(res, Err(TomlError::Decode));
+        assert_eq!(
+            res,
+            Err(TomlError::Decode(DecodeError::MissingKey {
+                key: String::from("store_directory")
+            }))
+        );
     }
 
     #[test]
@@ -219,7 +294,14 @@ mod tests {
         let toml = "store_directory = 42";
         let res = parse_string(toml, None);
 
-        assert_eq!(res, Err(TomlError::Decode));
+        assert_eq!(
+            res,
+            Err(TomlError::Decode(DecodeError::InvalidType {
+                key: String::from("store_directory"),
+                expected: Value::String("some_value".into()),
+                found: Value::Integer(42)
+            }))
+        );
     }
 
     #[test]
