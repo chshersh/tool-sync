@@ -116,6 +116,7 @@ Initial release prepared by [@chshersh][chshersh].
 [MitchellBerend]: https://github.com/MitchellBerend
 [mmohammadi9812]: https://github.com/mmohammadi9812
 [zixuanzhang-x]: https://github.com/zixuanzhang-x
+[crudiedo]: https://github.com/crudiedo
 
 <!-- Header links -->
 
