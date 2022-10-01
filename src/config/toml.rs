@@ -62,13 +62,10 @@ fn parse_string(contents: &str, proxy: Option<String>) -> Result<Config, TomlErr
 
 fn decode_config(toml: Value, proxy: Option<String>) -> Option<Config> {
     let str_store_directory = toml.get("store_directory")?.as_str()?;
-    let proxy = match proxy {
-        Some(p) => Some(p),
-        None => match toml.get("proxy") {
-            Some(p) => Some(p.as_str()?.into()),
-            None => None,
-        },
-    };
+    let proxy: Option<String> = proxy.or_else(|| match toml.get("proxy") {
+        Some(p) => Some(p.as_str().unwrap_or("").into()),
+        None => None,
+    });
 
     let store_directory = String::from(str_store_directory);
 
