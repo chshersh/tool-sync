@@ -10,7 +10,7 @@ fn config_template() -> String {
         .keys()
         .map(|a| a.len())
         .collect::<Vec<usize>>();
-    let max_name_length = names_length.iter().max().unwrap_or_default() + 1;
+    let max_name_length = names_length.iter().max().unwrap_or(&0) + 1;
 
     let tools = db::fmt_tool_names_info(|(name, info)| {
         format!(
