@@ -133,6 +133,21 @@ pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
         .join("\n")
 }
 
+/// Format tool names and info of the database using a mutating formatting function
+/// The result is something like this (depending on a function)
+///
+/// ```toml
+/// # [bat] # https://github.com/ogham/exa
+/// # [exa] # https://github.com/sharkdp/bat
+/// ```
+pub fn fmt_tool_names_info<F: FnMut((&String, &ToolInfo)) -> String>(fmt_tool: F) -> String {
+    build_db()
+        .iter()
+        .map(fmt_tool)
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
 struct StaticToolInfo {
     /// GitHub repository author
     pub owner: &'static str,
