@@ -6,13 +6,19 @@ pub fn generate_default_config() {
 }
 
 fn config_template() -> String {
-    let names_length = db::build_db().keys().map(|a| a.len()).collect::<Vec<usize>>();
+    let names_length = db::build_db()
+        .keys()
+        .map(|a| a.len())
+        .collect::<Vec<usize>>();
     let max_name_length = names_length.iter().max().unwrap() + 1;
 
     let tools = db::fmt_tool_names_info(|(name, info)| {
-        format!("# [{name}] {delim:>padding$} https://github.com/{owner}/{repo}",
-                delim = "#", padding = max_name_length - name.len(),
-                owner = info.owner, repo = info.repo,
+        format!(
+            "# [{name}] {delim:>padding$} https://github.com/{owner}/{repo}",
+            delim = "#",
+            padding = max_name_length - name.len(),
+            owner = info.owner,
+            repo = info.repo,
         )
     });
 
