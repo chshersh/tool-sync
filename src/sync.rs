@@ -67,7 +67,7 @@ fn tool_not_in_config_message(tool: &str, path: &Path) {
     eprintln!(
         r#"The '{}' tool is not listed in the configuration file: {}
 
-Add the tool to the configuration file or use the 'tool install' command for 
+Add the tool to the configuration file or use the 'tool install' command for
 installing one of the tools natively supported by 'tool-sync'."#,
         tool,
         path.display(),
