@@ -100,9 +100,9 @@ fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
         },
 
         Some(table) => {
-            let linux = str_by_key(table, OS::Linux.to_string().as_str());
-            let macos = str_by_key(table, OS::MacOS.to_string().as_str());
-            let windows = str_by_key(table, OS::Windows.to_string().as_str());
+            let linux = str_by_key(table, &OS::Linux.to_string());
+            let macos = str_by_key(table, &OS::MacOS.to_string());
+            let windows = str_by_key(table, &OS::Windows.to_string());
 
             AssetName {
                 linux,
