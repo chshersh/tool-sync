@@ -17,6 +17,9 @@ available [on GitHub][2].
 * [#111](https://github.com/chshersh/tool-sync/issues/111):
   Adds repo URLs to the output of `default-config` and `install` commands
   (by [@crudiedo][crudiedo])
+* [#110](https://github.com/chshersh/tool-sync/issues/110):
+  Adds the 'OS' enum and improves error messages
+  (by [@crudiedo][crudiedo])
 
 ### Fixed
 

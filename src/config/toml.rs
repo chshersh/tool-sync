@@ -7,6 +7,7 @@ use toml::{map::Map, Value};
 use crate::config::schema::{Config, ConfigAsset};
 use crate::infra::err;
 use crate::model::asset_name::AssetName;
+use crate::model::os::OS;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum TomlError {
@@ -99,9 +100,9 @@ fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
         },
 
         Some(table) => {
-            let linux = str_by_key(table, "linux");
-            let macos = str_by_key(table, "macos");
-            let windows = str_by_key(table, "windows");
+            let linux = str_by_key(table, OS::Linux.to_string().as_str());
+            let macos = str_by_key(table, OS::MacOS.to_string().as_str());
+            let windows = str_by_key(table, OS::Windows.to_string().as_str());
 
             AssetName {
                 linux,

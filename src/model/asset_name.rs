@@ -1,4 +1,4 @@
-use std::env;
+use crate::model::os::{get_current_os, OS};
 
 /// Part of the name for each OS to identify proper asset
 #[derive(Debug, PartialEq, Eq)]
@@ -9,17 +9,13 @@ pub struct AssetName {
 }
 
 impl AssetName {
-    /// Get the current OS where the 'tool-sync' is running and extract the
-    /// corresponding name of the downloaded tool
-    ///
-    /// !!! WARNING !!! This function uses OS of the system where 'tool-sync' was
-    /// compiled. The function relies on the assumption that a user will run e.g.
-    /// the macOS executable on macOS
+    /// Get the current OS and extract the corresponding name
+    /// of the downloaded tool
     pub fn get_name_by_os(&self) -> Option<&String> {
-        match env::consts::OS {
-            "windows" => self.windows.as_ref(),
-            "macos" => self.macos.as_ref(),
-            _ => self.linux.as_ref(),
+        match get_current_os() {
+            OS::Windows => self.windows.as_ref(),
+            OS::MacOS => self.macos.as_ref(),
+            OS::Linux => self.linux.as_ref(),
         }
     }
 }
