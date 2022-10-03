@@ -118,17 +118,29 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
     )
 }
 
-/// Format tool names of the database using a mutating formatting function
+/// Format tool names and info of the database using a name formatting function
 /// The result is something like this (depending on a function)
 ///
 /// ```toml
-/// # [bat]
-/// # [exa]
+/// # [bat] # https://github.com/ogham/exa
+/// # [exa] # https://github.com/sharkdp/bat
 /// ```
-pub fn fmt_tool_names<F: FnMut(&String) -> String>(fmt_tool: F) -> String {
-    build_db()
-        .keys()
-        .map(fmt_tool)
+pub fn fmt_tool_names_info<F: FnMut(&String) -> String>(mut fmt_name: F) -> String {
+    let known_db: BTreeMap<String, ToolInfo> = build_db();
+    let max_name_len: usize = known_db.keys().map(|a| a.len()).max().unwrap_or_default() + 1;
+
+    known_db
+        .iter()
+        .map(|(name, info): (&String, &ToolInfo)| {
+            format!(
+                "{formatted_name} {delim:>padding$} https://github.com/{owner}/{repo}",
+                formatted_name = fmt_name(name),
+                delim = "#",
+                padding = max_name_len - name.len(),
+                owner = info.owner,
+                repo = info.repo,
+            )
+        })
         .collect::<Vec<String>>()
         .join("\n")
 }

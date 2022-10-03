@@ -17,6 +17,9 @@ available [on GitHub][2].
 * [#82](https://github.com/chshersh/tool-sync/issues/82):
   Adds proxy as a flag and config option
   (by [@MitchellBerend][MitchellBerend])
+* [#111](https://github.com/chshersh/tool-sync/issues/111):
+  Adds repo URLs to the output of `default-config` and `install` commands
+  (by [@crudiedo][crudiedo])
 
 ### Fixed
 
@@ -116,6 +119,7 @@ Initial release prepared by [@chshersh][chshersh].
 [MitchellBerend]: https://github.com/MitchellBerend
 [mmohammadi9812]: https://github.com/mmohammadi9812
 [zixuanzhang-x]: https://github.com/zixuanzhang-x
+[crudiedo]: https://github.com/crudiedo
 
 <!-- Header links -->
 

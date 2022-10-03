@@ -9,13 +9,13 @@
 # configure them. Uncomment all the tools you want to install with a single
 # 'tool sync' command:
 #
-# [bat]
-# [difftastic]
-# [exa]
-# [fd]
-# [github]
-# [ripgrep]
-# [tool-sync]
+# [bat]        # https://github.com/sharkdp/bat
+# [difftastic] # https://github.com/Wilfred/difftastic
+# [exa]        # https://github.com/ogham/exa
+# [fd]         # https://github.com/sharkdp/fd
+# [github]     # https://github.com/cli/cli
+# [ripgrep]    # https://github.com/BurntSushi/ripgrep
+# [tool-sync]  # https://github.com/chshersh/tool-sync
 #
 # You can configure the installation of any tool by specifying corresponding options:
 #
