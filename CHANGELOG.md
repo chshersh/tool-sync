@@ -17,6 +17,9 @@ available [on GitHub][2].
 * [#111](https://github.com/chshersh/tool-sync/issues/111):
   Adds repo URLs to the output of `default-config` and `install` commands
   (by [@crudiedo][crudiedo])
+* [#69](https://github.com/chshersh/tool-sync/issues/69):
+  Adds improved error message with suggesstion when trying to prefetch non-existing tag 
+  (by [@crudiedo][crudiedo])
 
 ### Fixed
 

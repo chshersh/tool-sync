@@ -8,7 +8,9 @@ use super::configure::configure_tool;
 use crate::config::schema::ConfigAsset;
 use crate::infra::client::Client;
 use crate::model::release::AssetError;
+use crate::model::tag::TagError;
 use crate::model::tool::{Tool, ToolAsset};
+use crate::sync::edit_distance::closest_string;
 
 const PREFETCH: Emoji<'_, '_> = Emoji("🔄 ", "-> ");
 const ERROR: Emoji<'_, '_> = Emoji("❌ ", "x ");
@@ -123,8 +125,27 @@ fn prefetch_tool(
             };
 
             match client.fetch_release_info() {
-                Err(e) => {
+                Err(mut e) => {
+                    if let Some(ureq::Error::Status(404, _)) = e.downcast_ref::<ureq::Error>() {
+                        if let Ok(available_tags) = client.fetch_available_tags() {
+                            let raw_tag = tool_info.tag.to_str_version().replace("tags/", "");
+
+                            e = TagError::NotFound(
+                                raw_tag.clone(),
+                                closest_string(
+                                    raw_tag,
+                                    available_tags
+                                        .iter()
+                                        .map(|tag| tag.name.to_string())
+                                        .collect(),
+                                ),
+                            )
+                            .into();
+                        }
+                    }
+
                     prefetch_progress.unexpected_err_msg(tool_name, e);
+
                     // do some other processing
                     prefetch_progress.update_message(already_completed);
                     None

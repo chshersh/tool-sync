@@ -3,6 +3,7 @@ use std::error::Error;
 use std::io::Read;
 
 use crate::model::release::{Asset, Release};
+use crate::model::tag::Tag;
 
 /// GitHub API client to handle all API requests
 pub struct Client {
@@ -30,6 +31,14 @@ impl Client {
         )
     }
 
+    fn tags_url(&self) -> String {
+        format!(
+            "https://api.github.com/repos/{owner}/{repo}/tags",
+            owner = self.owner,
+            repo = self.repo,
+        )
+    }
+
     pub fn fetch_release_info(&self) -> Result<Release, Box<dyn Error>> {
         let release_url = self.release_url();
 
@@ -40,6 +49,20 @@ impl Client {
         );
 
         let release: Release = req.call()?.into_json()?;
+
+        Ok(release)
+    }
+
+    pub fn fetch_available_tags(&self) -> Result<Vec<Tag>, Box<dyn Error>> {
+        let tags_url = self.tags_url();
+
+        let req = add_auth_header(
+            ureq::get(&tags_url)
+                .set("Accept", "application/vnd.github+json")
+                .set("User-Agent", "chshersh/tool-sync-0.2.0"),
+        );
+
+        let release: Vec<Tag> = req.call()?.into_json()?;
 
         Ok(release)
     }

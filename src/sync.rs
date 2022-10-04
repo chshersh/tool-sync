@@ -2,6 +2,7 @@ mod archive;
 mod configure;
 pub mod db;
 mod download;
+mod edit_distance;
 mod install;
 mod prefetch;
 mod progress;
