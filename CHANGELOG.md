@@ -17,6 +17,10 @@ available [on GitHub][2].
 * [#111](https://github.com/chshersh/tool-sync/issues/111):
   Adds repo URLs to the output of `default-config` and `install` commands
   (by [@crudiedo][crudiedo])
+* [#109](https://github.com/chshersh/tool-sync/issues/109)
+  Adds a `--path` option to the `default-config` command to print
+  default config location intead
+  (by [@zixuanzhang-x][zixuanzhang-x])
 
 ### Fixed
 
