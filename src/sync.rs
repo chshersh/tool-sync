@@ -85,7 +85,12 @@ pub fn sync_single_tool(mut config: Config, name: String, asset: ConfigAsset) {
 /// Like `sync_from_config` but expects non-empty list of tools
 pub fn sync_from_config_no_check(config: Config) {
     let store_directory = config.ensure_store_directory();
+
     let tool_assets = prefetch(config.tools);
+    if tool_assets.is_empty() {
+        empty_prefetched_tool_assets_message();
+        return;
+    }
 
     let tool_pairs = tool_assets
         .iter()
@@ -126,4 +131,11 @@ fn summary_message(installed_tools: u64, store_directory: PathBuf) {
         DIRECTORY,
         store_directory.display()
     );
+}
+
+fn empty_prefetched_tool_assets_message() {
+    eprintln!(
+        r"No tools are required to sync: configuration is empty 
+or encountered error prefetching tools."
+    )
 }
