@@ -18,7 +18,10 @@ pub fn run() {
     let config_path = resolve_config_path(cli.config);
 
     match cli.command {
-        Command::DefaultConfig => config::template::generate_default_config(),
+        Command::DefaultConfig { path } => match path {
+            true => print_default_path(),
+            false => config::template::generate_default_config(),
+        },
         Command::Sync { tool } => sync::sync_from_path(config_path, tool),
         Command::Install { name } => install::install(config_path, name),
     }
@@ -29,16 +32,24 @@ const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
 fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
     match config_path {
         Some(path) => path,
-        None => match dirs::home_dir() {
-            Some(home_path) => {
-                let mut path = PathBuf::new();
-                path.push(home_path);
-                path.push(DEFAULT_CONFIG_PATH);
-                path
-            }
-            None => {
-                err::abort_suggest_issue("Unable to find $HOME directory");
-            }
-        },
+        None => get_default_config_path(),
     }
+}
+
+fn get_default_config_path() -> PathBuf {
+    match dirs::home_dir() {
+        Some(home_path) => {
+            let mut path = PathBuf::new();
+            path.push(home_path);
+            path.push(DEFAULT_CONFIG_PATH);
+            path
+        }
+        None => {
+            err::abort_suggest_issue("Unable to find $HOME directory");
+        }
+    }
+}
+
+fn print_default_path() {
+    println!("{}", get_default_config_path().display());
 }
