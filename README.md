@@ -244,6 +244,12 @@ Print the default config to stdout:
 tool default-config
 ```
 
+Print the default config location to stdout:
+
+```shell
+tool default-config --path
+```
+
 Run `tool --help` for more details.
 
 > :octocat: If you hit the limit for downloading assets or want to download
