@@ -135,7 +135,6 @@ fn summary_message(installed_tools: u64, store_directory: PathBuf) {
 
 fn empty_prefetched_tool_assets_message() {
     eprintln!(
-        r"No tools are required to sync: configuration is empty 
-or encountered error prefetching tools."
+        r"Nothing to sync or encountered multiple errors prefetching tools."
     )
 }
