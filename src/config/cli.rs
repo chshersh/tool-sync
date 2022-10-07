@@ -9,6 +9,9 @@ pub struct Cli {
     #[clap(short, long, value_name = "FILE")]
     pub config: Option<PathBuf>,
 
+    #[clap(short, long, value_name = "uri")]
+    pub proxy: Option<String>,
+
     #[clap(subcommand)]
     pub command: Command,
 }

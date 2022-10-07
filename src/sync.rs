@@ -18,8 +18,8 @@ use self::prefetch::prefetch;
 use self::progress::SyncProgress;
 use self::progress::ToolPair;
 
-pub fn sync_from_path(config_path: PathBuf, tool: Option<String>) {
-    toml::with_parsed_file(config_path.clone(), |config| {
+pub fn sync_from_path(config_path: PathBuf, tool: Option<String>, proxy: Option<String>) {
+    toml::with_parsed_file(config_path.clone(), proxy, |config| {
         sync_from_config(config, config_path, tool)
     });
 }

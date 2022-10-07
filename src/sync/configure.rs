@@ -114,6 +114,7 @@ mod tests {
                 windows: None,
             },
             tag: None,
+            proxy: None,
         };
 
         assert_eq!(
@@ -136,6 +137,7 @@ mod tests {
                 windows: None,
             },
             tag: None,
+            proxy: None,
         };
 
         assert_eq!(
@@ -158,6 +160,7 @@ mod tests {
                 windows: None,
             },
             tag: None,
+            proxy: None,
         };
 
         assert_eq!(
@@ -182,6 +185,7 @@ mod tests {
                 windows: None,
             },
             tag: Some(String::from("1.2.3")),
+            proxy: None,
         };
 
         assert_eq!(
@@ -204,6 +208,7 @@ mod tests {
                 windows: Some(String::from("yours-windows")),
             },
             tag: Some(String::from("1.2.3")),
+            proxy: None,
         };
 
         assert_eq!(
@@ -236,6 +241,7 @@ mod tests {
                 windows: Some(String::from("yours-windows")),
             },
             tag: Some(String::from("1.0.0")),
+            proxy: None,
         };
 
         assert_eq!(
@@ -268,6 +274,7 @@ mod tests {
                 windows: None,
             },
             tag: None,
+            proxy: None,
         };
 
         assert_eq!(
@@ -300,6 +307,7 @@ mod tests {
                 windows: Some(String::from("yours-windows")),
             },
             tag: Some(String::from("3.2.1")),
+            proxy: None,
         };
 
         assert_eq!(

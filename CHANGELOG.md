@@ -14,6 +14,9 @@ available [on GitHub][2].
   Adds the `tool sync <tool-name>` command to install only one tool
   from the configuration file
   (by [@zixuanzhang-x][zixuanzhang-x])
+* [#82](https://github.com/chshersh/tool-sync/issues/82):
+  Adds proxy as a flag and config option
+  (by [@MitchellBerend][MitchellBerend])
 * [#111](https://github.com/chshersh/tool-sync/issues/111):
   Adds repo URLs to the output of `default-config` and `install` commands
   (by [@crudiedo][crudiedo])
