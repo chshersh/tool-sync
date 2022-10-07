@@ -134,7 +134,5 @@ fn summary_message(installed_tools: u64, store_directory: PathBuf) {
 }
 
 fn empty_prefetched_tool_assets_message() {
-    eprintln!(
-        r"Nothing to sync or encountered multiple errors prefetching tools."
-    )
+    eprintln!(r"Nothing to sync or encountered multiple errors prefetching tools.")
 }
