@@ -100,6 +100,7 @@ impl ToolInfo {
 /// All information about the tool, needed to download its asset after fetching
 /// the release and asset info. Values of this type are created in
 /// `src/sync/prefetch.rs` from `ToolInfo`.
+#[derive(Debug)]
 pub struct ToolAsset {
     /// Name of the tool (e.g. "ripgrep" or "exa")
     pub tool_name: String,

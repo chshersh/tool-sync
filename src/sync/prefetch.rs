@@ -83,7 +83,14 @@ pub fn prefetch(tools: BTreeMap<String, ConfigAsset>) -> Vec<ToolAsset> {
         .iter()
         .enumerate()
         .filter_map(|(index, (tool_name, config_asset))| {
-            prefetch_tool(tool_name, config_asset, &prefetch_progress, index)
+            //println!("{:?}", config_asset.proxy.clone());
+            prefetch_tool(
+                tool_name,
+                config_asset,
+                &prefetch_progress,
+                index,
+                config_asset.proxy.clone(),
+            )
         })
         .collect();
 
@@ -105,6 +112,7 @@ fn prefetch_tool(
     config_asset: &ConfigAsset,
     prefetch_progress: &PrefetchProgress,
     current_index: usize,
+    proxy: Option<ureq::Proxy>,
 ) -> Option<ToolAsset> {
     // indexes start with 0 so we add 1 to calculate already fetched tools
     let already_completed = current_index + 1;
@@ -120,6 +128,7 @@ fn prefetch_tool(
                 owner: tool_info.owner.clone(),
                 repo: tool_info.repo.clone(),
                 version: tool_info.tag.to_str_version(),
+                proxy,
             };
 
             match client.fetch_release_info() {
