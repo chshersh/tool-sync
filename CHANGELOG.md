@@ -23,6 +23,10 @@ available [on GitHub][2].
 * [#110](https://github.com/chshersh/tool-sync/issues/110):
   Adds the 'OS' enum and improves error messages
   (by [@crudiedo][crudiedo])
+* [#109](https://github.com/chshersh/tool-sync/issues/109)
+  Adds a `--path` option to the `default-config` command to print
+  default config location intead
+  (by [@zixuanzhang-x][zixuanzhang-x])
 
 ### Fixed
 

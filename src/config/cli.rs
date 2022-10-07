@@ -21,8 +21,12 @@ pub enum Command {
     /// Sync all tools specified in configuration file or the only one specified in the command line
     Sync { tool: Option<String> },
 
-    /// Generate a default .tool.toml file and prints it to std out
-    DefaultConfig,
+    /// Print a default .tool.toml configuration to std out
+    DefaultConfig {
+        /// Print the default config file location instead
+        #[clap(long)]
+        path: bool,
+    },
 
     /// Install a tool if it is hardcoded into internal database
     Install { name: String },
