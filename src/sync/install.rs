@@ -82,7 +82,10 @@ impl<'a> Installer<'a> {
         match archive {
             None => Err(format!("Unsupported asset type: {}", tool_asset.asset.name).into()),
             Some(archive) => match archive.unpack() {
-                Err(unpack_err) => Err(unpack_err.to_string().into()),
+                Err(unpack_err) => {
+                    println!("{:?}", &tool_asset);
+                    Err(unpack_err.to_string().into())
+                }
                 Ok(tool_path) => {
                     copy_file(tool_path, self.store_directory, &tool_asset.exe_name)?;
                     Ok(())

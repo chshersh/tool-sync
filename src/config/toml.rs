@@ -7,6 +7,7 @@ use toml::{map::Map, Value};
 use crate::config::schema::{Config, ConfigAsset};
 use crate::infra::err;
 use crate::model::asset_name::AssetName;
+use crate::model::os::OS;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum TomlError {
@@ -25,8 +26,12 @@ impl Display for TomlError {
     }
 }
 
-pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) {
-    match parse_file(&config_path) {
+pub fn with_parsed_file<F: FnOnce(Config)>(
+    config_path: PathBuf,
+    proxy: Option<String>,
+    on_success: F,
+) {
+    match parse_file(&config_path, proxy) {
         Ok(config) => {
             on_success(config);
         }
@@ -40,54 +45,70 @@ pub fn with_parsed_file<F: FnOnce(Config)>(config_path: PathBuf, on_success: F) 
     }
 }
 
-fn parse_file(config_path: &PathBuf) -> Result<Config, TomlError> {
+fn parse_file(config_path: &PathBuf, proxy: Option<String>) -> Result<Config, TomlError> {
     let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{}", e)))?;
 
-    parse_string(&contents)
+    parse_string(&contents, proxy)
 }
 
-fn parse_string(contents: &str) -> Result<Config, TomlError> {
+fn parse_string(contents: &str, proxy: Option<String>) -> Result<Config, TomlError> {
     contents
         .parse::<Value>()
         .map_err(TomlError::Parse)
-        .and_then(|toml| match decode_config(toml) {
+        .and_then(|toml| match decode_config(toml, proxy) {
             None => Err(TomlError::Decode),
             Some(config) => Ok(config),
         })
 }
 
-fn decode_config(toml: Value) -> Option<Config> {
+fn decode_config(toml: Value, proxy: Option<String>) -> Option<Config> {
     let str_store_directory = toml.get("store_directory")?.as_str()?;
+    let proxy: Option<String> = proxy.or_else(|| match toml.get("proxy") {
+        Some(p) => Some(p.as_str().unwrap_or("").into()),
+        None => None,
+    });
+
     let store_directory = String::from(str_store_directory);
 
     let mut tools = BTreeMap::new();
 
     for (key, val) in toml.as_table()?.iter() {
         if let Value::Table(table) = val {
-            tools.insert(key.clone(), decode_config_asset(table));
+            tools.insert(key.clone(), decode_config_asset(table, &proxy));
         }
     }
 
     Some(Config {
         store_directory,
         tools,
+        proxy,
     })
 }
 
-fn decode_config_asset(table: &Map<String, Value>) -> ConfigAsset {
+fn decode_config_asset(table: &Map<String, Value>, proxy: &Option<String>) -> ConfigAsset {
     let owner = str_by_key(table, "owner");
     let repo = str_by_key(table, "repo");
     let exe_name = str_by_key(table, "exe_name");
     let asset_name = decode_asset_name(table);
     let tag = str_by_key(table, "tag");
 
-    ConfigAsset {
+    let mut config_asset = ConfigAsset {
         owner,
         repo,
         exe_name,
         asset_name,
         tag,
-    }
+        proxy: None,
+    };
+    if let Some(p) = proxy {
+        config_asset.proxy = Some(ureq::Proxy::new(p.clone()).unwrap_or_else(|_| {
+            panic!(
+                "Could not parse proxy address, please check the syntax: {}",
+                p
+            )
+        }));
+    };
+    config_asset
 }
 
 fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
@@ -99,9 +120,9 @@ fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
         },
 
         Some(table) => {
-            let linux = str_by_key(table, "linux");
-            let macos = str_by_key(table, "macos");
-            let windows = str_by_key(table, "windows");
+            let linux = str_by_key(table, &OS::Linux.to_string());
+            let macos = str_by_key(table, &OS::MacOS.to_string());
+            let windows = str_by_key(table, &OS::Windows.to_string());
 
             AssetName {
                 linux,
@@ -133,7 +154,7 @@ mod tests {
     #[test]
     fn test_toml_error_display_parse() {
         let broken_toml_str: String = "broken toml".into();
-        match parse_string(&broken_toml_str) {
+        match parse_string(&broken_toml_str, None) {
             Err(error) => {
                 assert_eq!(
                     String::from(
@@ -156,7 +177,7 @@ mod tests {
     fn test_parse_file_correct_output() {
         let result = std::panic::catch_unwind(|| {
             let test_config_path = PathBuf::from("tests/sync-full.toml");
-            parse_file(&test_config_path).expect("This should not fail")
+            parse_file(&test_config_path, None).expect("This should not fail")
         });
 
         if let Ok(config) = result {
@@ -167,7 +188,7 @@ mod tests {
     #[test]
     fn test_parse_file_error() {
         let test_config_path = PathBuf::from("src/main.rs");
-        match parse_file(&test_config_path) {
+        match parse_file(&test_config_path, None) {
             Ok(_) => {
                 assert!(false, "Unexpected succces")
             }
@@ -180,7 +201,7 @@ mod tests {
     #[test]
     fn empty_file() {
         let toml = "";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         assert_eq!(res, Err(TomlError::Decode));
     }
@@ -188,7 +209,7 @@ mod tests {
     #[test]
     fn store_directory_is_dotted() {
         let toml = "store.directory = \"pancake\"";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         assert_eq!(res, Err(TomlError::Decode));
     }
@@ -196,7 +217,7 @@ mod tests {
     #[test]
     fn store_directory_is_a_number() {
         let toml = "store_directory = 42";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         assert_eq!(res, Err(TomlError::Decode));
     }
@@ -204,11 +225,12 @@ mod tests {
     #[test]
     fn only_store_directory() {
         let toml = "store_directory = \"pancake\"";
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
             tools: BTreeMap::new(),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -222,7 +244,7 @@ mod tests {
             [ripgrep]
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -238,8 +260,10 @@ mod tests {
                         windows: None,
                     },
                     tag: None,
+                    proxy: None,
                 },
             )]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -254,7 +278,7 @@ mod tests {
             [bat]
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -271,6 +295,7 @@ mod tests {
                             windows: None,
                         },
                         tag: None,
+                        proxy: None,
                     },
                 ),
                 (
@@ -285,9 +310,11 @@ mod tests {
                             windows: None,
                         },
                         tag: None,
+                        proxy: None,
                     },
                 ),
             ]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -303,7 +330,7 @@ mod tests {
             asset_name.linux = "R2D2"
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -319,8 +346,10 @@ mod tests {
                         windows: None,
                     },
                     tag: None,
+                    proxy: None,
                 },
             )]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));
@@ -341,7 +370,7 @@ mod tests {
             tag = "4.2.0"
         "#;
 
-        let res = parse_string(toml);
+        let res = parse_string(toml, None);
 
         let cfg = Config {
             store_directory: String::from("pancake"),
@@ -357,8 +386,10 @@ mod tests {
                         windows: Some("IG-88".to_owned()),
                     },
                     tag: Some("4.2.0".to_owned()),
+                    proxy: None,
                 },
             )]),
+            proxy: None,
         };
 
         assert_eq!(res, Ok(cfg));

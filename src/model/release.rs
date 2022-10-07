@@ -1,8 +1,8 @@
 use serde::Deserialize;
-use std::env;
 use std::fmt::{Display, Formatter, Write};
 
 use crate::infra::err;
+use crate::model::os::get_current_os;
 
 #[derive(Deserialize, Debug)]
 pub struct Release {
@@ -35,8 +35,8 @@ impl Display for AssetError {
             Self::OsSelectorUnknown => {
                 write!(
                     f,
-                    "Unknown asset selector for OS: {}. Specify 'asset_name.your_os' in the cofig.",
-                    env::consts::OS
+                    "Unknown asset selector for the current OS. Specify 'asset_name.{}' in the config.",
+                    get_current_os()
                 )
             }
             Self::NotFound(asset_name) => {

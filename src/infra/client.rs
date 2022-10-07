@@ -5,10 +5,13 @@ use std::io::Read;
 use crate::model::release::{Asset, Release};
 
 /// GitHub API client to handle all API requests
+#[derive(Debug)]
 pub struct Client {
     pub owner: String,
     pub repo: String,
     pub version: String,
+
+    pub proxy: Option<ureq::Proxy>,
 }
 
 impl Client {
@@ -22,6 +25,7 @@ impl Client {
     }
 
     fn asset_url(&self, asset_id: u32) -> String {
+        println!("{:?}", &self.proxy);
         format!(
             "https://api.github.com/repos/{owner}/{repo}/releases/assets/{asset_id}",
             owner = self.owner,
@@ -31,13 +35,26 @@ impl Client {
     }
 
     pub fn fetch_release_info(&self) -> Result<Release, Box<dyn Error>> {
+        println!("{:?}", &self.proxy);
         let release_url = self.release_url();
 
-        let req = add_auth_header(
-            ureq::get(&release_url)
-                .set("Accept", "application/vnd.github+json")
-                .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-        );
+        let req = match &self.proxy {
+            Some(proxy) => {
+                let agent = ureq::AgentBuilder::new().proxy(proxy.clone()).build();
+
+                add_auth_header(
+                    agent
+                        .get(&release_url)
+                        .set("Accept", "application/vnd.github+json")
+                        .set("User-Agent", "chshersh/tool-sync-0.2.0"),
+                )
+            }
+            None => add_auth_header(
+                ureq::get(&release_url)
+                    .set("Accept", "application/vnd.github+json")
+                    .set("User-Agent", "chshersh/tool-sync-0.2.0"),
+            ),
+        };
 
         let release: Release = req.call()?.into_json()?;
 
@@ -49,12 +66,23 @@ impl Client {
         asset: &Asset,
     ) -> Result<Box<dyn Read + Send + Sync>, ureq::Error> {
         let asset_url = self.asset_url(asset.id);
+        let req = match &self.proxy {
+            Some(proxy) => {
+                let agent = ureq::AgentBuilder::new().proxy(proxy.clone()).build();
 
-        let req = add_auth_header(
-            ureq::get(&asset_url)
-                .set("Accept", "application/octet-stream")
-                .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-        );
+                add_auth_header(
+                    agent
+                        .get(&asset_url)
+                        .set("Accept", "application/octet-stream")
+                        .set("User-Agent", "chshersh/tool-sync-0.2.0"),
+                )
+            }
+            None => add_auth_header(
+                ureq::get(&asset_url)
+                    .set("Accept", "application/octet-stream")
+                    .set("User-Agent", "chshersh/tool-sync-0.2.0"),
+            ),
+        };
 
         Ok(req.call()?.into_reader())
     }
@@ -79,6 +107,7 @@ mod tests {
             owner: String::from("OWNER"),
             repo: String::from("REPO"),
             version: ToolInfoTag::Latest.to_str_version(),
+            proxy: None,
         };
 
         assert_eq!(
@@ -93,6 +122,7 @@ mod tests {
             owner: String::from("OWNER"),
             repo: String::from("REPO"),
             version: ToolInfoTag::Specific(String::from("SPECIFIC_TAG")).to_str_version(),
+            proxy: None,
         };
 
         assert_eq!(
