@@ -32,7 +32,10 @@ available [on GitHub][2].
 * [#119](https://github.com/chshersh/tool-sync/issues/119):
   De-pluralize success message when only 1 tool is installed
   (by [@zixuanzhang-x][zixuanzhang-x])
-
+* [#108](https://github.com/chshersh/tool-sync/issues/108):
+  Check prefetched `tool_assets` is not empty before passing
+  it to `SyncProgress::new`
+  (by [@zixuanzhang-x][zixuanzhang-x])
 
 
 ## [0.2.0] — 2022-09-20 🔃
