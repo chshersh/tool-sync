@@ -18,6 +18,11 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
+    /// Help text
+    Completion {
+        shell: clap_complete::Shell
+    },
+
     /// Sync all tools specified in configuration file or the only one specified in the command line
     Sync { tool: Option<String> },
 

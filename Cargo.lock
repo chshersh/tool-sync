@@ -76,12 +76,31 @@ dependencies = [
  "atty",
  "bitflags",
  "clap_derive",
- "clap_lex",
+ "clap_lex 0.2.4",
  "indexmap",
  "once_cell",
  "strsim",
  "termcolor",
  "textwrap",
+]
+
+[[package]]
+name = "clap"
+version = "4.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ed45cc2c62a3eff523e718d8576ba762c83a3146151093283ac62ae11933a73"
+dependencies = [
+ "bitflags",
+ "clap_lex 0.3.0",
+]
+
+[[package]]
+name = "clap_complete"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11cba7abac9b56dfe2f035098cdb3a43946f276e6db83b72c4e692343f9aab9a"
+dependencies = [
+ "clap 4.0.11",
 ]
 
 [[package]]
@@ -102,6 +121,15 @@ name = "clap_lex"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d4198f73e42b4936b35b5bb248d81d2b595ecb170da0bac7655c54eedfa8da8"
 dependencies = [
  "os_str_bytes",
 ]
@@ -644,7 +672,8 @@ dependencies = [
 name = "tool-sync"
 version = "0.2.0"
 dependencies = [
- "clap",
+ "clap 3.2.17",
+ "clap_complete",
  "console",
  "dirs",
  "flate2",
