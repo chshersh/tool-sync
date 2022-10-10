@@ -12,6 +12,8 @@ use std::path::PathBuf;
 use crate::config::cli::{Cli, Command};
 use crate::infra::err;
 
+const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
+
 pub fn run() {
     let cli = Cli::parse();
 
@@ -32,12 +34,11 @@ pub fn run() {
     }
 }
 
-const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
 fn generate_completion(shell: clap_complete::Shell) {
     let mut cmd: clap::Command = crate::config::cli::Cli::command();
     let cmd_name: String = cmd.get_name().into();
 
-    generate(shell, &mut Cli::command(), cmd_name, &mut std::io::stdout());
+    generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
 
 }
 
