@@ -24,7 +24,7 @@ pub fn run() {
     match cli.command {
         Command::Completion { shell } => {
             generate_completion(shell);
-        },
+        }
         Command::DefaultConfig { path } => match path {
             true => print_default_path(),
             false => config::template::generate_default_config(),
@@ -39,7 +39,6 @@ fn generate_completion(shell: clap_complete::Shell) {
     let cmd_name: String = cmd.get_name().into();
 
     generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
-
 }
 
 fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
