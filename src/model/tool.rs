@@ -40,7 +40,7 @@ pub enum ToolInfoTag {
     Specific(String),
 }
 
-pub const LATEST_VERSION: &str = "latest";
+const LATEST_VERSION: &str = "latest";
 
 impl ToolInfoTag {
     pub fn to_str_version(&self) -> String {

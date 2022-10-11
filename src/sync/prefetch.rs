@@ -140,7 +140,7 @@ fn prefetch_tool(
                             RepoError::NotFound {
                                 owner: tool_info.owner,
                                 repo: tool_info.repo,
-                                tag: tool_info.tag.to_str_version(),
+                                tag: tool_info.tag,
                             },
                         );
                     } else {
