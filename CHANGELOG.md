@@ -27,6 +27,10 @@ available [on GitHub][2].
   Adds a `--path` option to the `default-config` command to print
   default config location intead
   (by [@zixuanzhang-x][zixuanzhang-x])
+* [#128](https://github.com/chshersh/tool-sync/issues/128)
+  Adds new error message RepoError::NotFound when fetch_release_info
+  returns 404
+  (by [@crudiedo][crudiedo])
 
 ### Fixed
 
