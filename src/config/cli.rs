@@ -3,16 +3,16 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
-#[clap(author="Dmitrii Kovanikov <kovanikov@gmail.com>", version, about="A CLI tool to manage other CLI tools", long_about = None)]
+#[command(author="Dmitrii Kovanikov <kovanikov@gmail.com>", version, about="A CLI tool to manage other CLI tools", long_about = None)]
 pub struct Cli {
     /// Sets a path to a configuration file (default: $HOME/.tool.toml)
-    #[clap(short, long, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE")]
     pub config: Option<PathBuf>,
 
-    #[clap(short, long, value_name = "uri")]
+    #[arg(short, long, value_name = "uri")]
     pub proxy: Option<String>,
 
-    #[clap(subcommand)]
+    #[command(subcommand)]
     pub command: Command,
 }
 
@@ -24,7 +24,7 @@ pub enum Command {
     /// Print a default .tool.toml configuration to std out
     DefaultConfig {
         /// Print the default config file location instead
-        #[clap(long)]
+        #[arg(long)]
         path: bool,
     },
 
