@@ -109,10 +109,8 @@ fn decode_config(toml: Value, proxy: Option<String>) -> Result<Config, DecodeErr
         },
     )?;
 
-    let proxy: Option<String> = proxy.or_else(|| match toml.get("proxy") {
-        Some(p) => Some(p.as_str().unwrap_or("").into()),
-        None => None,
-    });
+    let proxy: Option<String> =
+        proxy.or_else(|| toml.get("proxy").map(|p| p.as_str().unwrap_or("").into()));
 
     let mut tools = BTreeMap::new();
 
@@ -253,14 +251,10 @@ mod tests {
     #[test]
     fn test_parse_file_error() {
         let test_config_path = PathBuf::from("src/main.rs");
-        match parse_file(&test_config_path, None) {
-            Ok(_) => {
-                assert!(false, "Unexpected succces")
-            }
-            Err(_) => {
-                assert!(true, "Exepected a parsing error")
-            }
-        };
+        assert!(
+            parse_file(&test_config_path, None).is_err(),
+            "Expected a parsing error, parsing succeeded instead"
+        );
     }
 
     #[test]
