@@ -8,6 +8,7 @@ use super::configure::configure_tool;
 use crate::config::schema::ConfigAsset;
 use crate::infra::client::Client;
 use crate::model::release::AssetError;
+use crate::model::repo::RepoError;
 use crate::model::tool::{Tool, ToolAsset};
 
 const PREFETCH: Emoji<'_, '_> = Emoji("🔄 ", "-> ");
@@ -133,7 +134,18 @@ fn prefetch_tool(
 
             match client.fetch_release_info() {
                 Err(e) => {
-                    prefetch_progress.unexpected_err_msg(tool_name, e);
+                    if let Some(ureq::Error::Status(404, _)) = e.downcast_ref::<ureq::Error>() {
+                        prefetch_progress.unexpected_err_msg(
+                            tool_name,
+                            RepoError::NotFound {
+                                owner: tool_info.owner,
+                                repo: tool_info.repo,
+                                tag: tool_info.tag,
+                            },
+                        );
+                    } else {
+                        prefetch_progress.unexpected_err_msg(tool_name, e);
+                    }
                     // do some other processing
                     prefetch_progress.update_message(already_completed);
                     None
