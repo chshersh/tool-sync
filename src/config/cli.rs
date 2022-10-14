@@ -30,18 +30,18 @@ pub enum Command {
     ///
     /// After, add this to your `~/.bash_profile`:
     ///
-    ///     eval "$(tool completion bash)"
+    /// `eval "$(tool completion bash)"`
     ///
     /// ### zsh
     ///
     /// Generate a `_tool` completion script and put it somewhere in your `$fpath`:
     ///
-    ///     tool completion zsh > /usr/local/share/zsh/site-functions/_tool
+    /// `tool completion zsh > /usr/local/share/zsh/site-functions/_tool`
     ///
     /// Ensure that the following is present in your `~/.zshrc`:
     ///
-    ///     autoload -U compinit
-    ///     compinit -i
+    /// `autoload -U compinit`
+    /// `compinit -i`
     ///
     /// Zsh version 5.7 or later is recommended.
     ///
@@ -49,18 +49,18 @@ pub enum Command {
     ///
     /// Generate a `tool.fish` completion script:
     ///
-    ///     tool completion fish > ~/.config/fish/completions/tool.fish
+    /// `tool completion fish > ~/.config/fish/completions/tool.fish`
     ///
     /// ### PowerShell
     ///
     /// Open your profile script with:
     ///
-    ///     mkdir -Path (Split-Path -Parent $profile) -ErrorAction SilentlyContinue
-    ///     notepad $profile
+    /// `mkdir -Path (Split-Path -Parent $profile) -ErrorAction SilentlyContinue`
+    /// `notepad $profile`
     ///
     /// Add the line and save the file:
     ///
-    ///     Invoke-Expression -Command $(tool completion powershell | Out-String)
+    /// `Invoke-Expression -Command $(tool completion powershell | Out-String)`
     Completion { shell: clap_complete::Shell },
 
     /// Sync all tools specified in configuration file or the only one specified in the command line
