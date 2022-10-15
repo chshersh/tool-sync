@@ -127,6 +127,14 @@ By default `tool-sync` reads the configuration from from the `$HOME/.tool.toml`
 path. But you can specify a custom location via the
 `--config=/path/to/my/config` flag.
 
+### Autocomplete
+
+`tool-sync` can generate it's own autocomplete scripts for some common shell
+emulators. you can run `tool completion --help` to see the supported shells.
+
+If you decide to rename the `tool` binary a `--rename` flag will help make sure
+the autocompletion will keep working.
+
 ### Quick start
 
 `tool-sync` has a command to generate a default configuration with examples and
