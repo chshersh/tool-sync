@@ -59,8 +59,7 @@ Ensure that the following is present in your `~/.zshrc`:
 
 `autoload -U compinit`
 
-`compinit -i`
-"##),
+`compinit -i`"##),
         Shell::Bash => format!(r##"First, ensure that you install `bash-completion` using your package manager.
 
 After, add this to your `~/.bash_profile`:
