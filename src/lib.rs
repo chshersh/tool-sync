@@ -36,16 +36,22 @@ pub fn run() {
 
 fn generate_completion(shell: clap_complete::Shell, rename: Option<String>) {
     let mut cmd: clap::Command = Cli::command();
-    let cmd_name: String = match rename {
-        Some(name) => {
-            rename_completion_suggestion(&shell, &name)
+    match rename {
+        Some(cmd_name) => {
+            generate(shell, &mut cmd, &cmd_name, &mut std::io::stdout());
+            rename_completion_suggestion(&shell, &cmd_name)
                 .unwrap_or_else(|e| err::abort_suggest_issue(e));
-            name
         }
-        None => cmd.get_name().into(),
+        None => {
+            let cmd_name: String = cmd.get_name().into();
+            generate(
+                shell,
+                &mut cmd,
+                cmd_name,
+                &mut std::io::stdout(),
+            );
+        }
     };
-
-    generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
 }
 
 // This function can break when clap_complete adds support for a new shell type
@@ -80,7 +86,7 @@ Add the line and save the file:
         _ => return Err(RenameError::NewShellFound(shell.to_owned())),
     };
 
-    eprintln!("{}", completion_str);
+    eprintln!("\n\n############################\n{}\n############################", completion_str);
 
     Ok(())
 }
