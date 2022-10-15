@@ -5,11 +5,12 @@ mod model;
 mod sync;
 
 use clap::{CommandFactory, Parser};
-use clap_complete::{generate, Shell};
+use clap_complete::generate;
 
 use std::path::PathBuf;
 
 use crate::config::cli::{Cli, Command};
+use crate::config::template::{rename_completion_suggestion, RenameError};
 use crate::infra::err;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
@@ -47,49 +48,6 @@ fn generate_completion(shell: clap_complete::Shell, rename: Option<String>) {
             generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
         }
     };
-}
-
-// This function can break when clap_complete adds support for a new shell type
-fn rename_completion_suggestion(shell: &Shell, bin_name: &str) -> Result<(), RenameError> {
-    let completion_str: String = match shell {
-        Shell::Zsh => format!(r##"Generate a `_{bin_name}` completion script and put it somewhere in your `$fpath`:
-`{bin_name} completion zsh --rename {bin_name} > /usr/local/share/zsh/site-functions/_{bin_name}`
-
-Ensure that the following is present in your `~/.zshrc`:
-
-`autoload -U compinit`
-
-`compinit -i`"##),
-        Shell::Bash => format!(r##"First, ensure that you install `bash-completion` using your package manager.
-
-After, add this to your `~/.bash_profile`:
-
-`eval "$({bin_name} completion bash --rename {bin_name})"`"##),
-        Shell::Fish => format!(r##"Generate a `tool.fish` completion script:
-
-`{bin_name} completion fish --rename {bin_name} > ~/.config/fish/completions/{bin_name}.fish`"##),
-        Shell::Elvish => r##"This suggestion is missing, if you use this and know how to implement this please file an issue over at https://github.com/chshersh/tool-sync/issues"##.into(),
-        Shell::PowerShell => format!(r##"Open your profile script with:
-
-`mkdir -Path (Split-Path -Parent $profile) -ErrorAction SilentlyContinue`
-`notepad $profile`
-
-Add the line and save the file:
-
-`Invoke-Expression -Command $({bin_name} completion powershell --rename {bin_name} | Out-String)`"##),
-        _ => return Err(RenameError::NewShellFound(shell.to_owned())),
-    };
-
-    eprintln!(
-        "\n\n############################\n{}\n############################",
-        completion_str
-    );
-
-    Ok(())
-}
-
-enum RenameError {
-    NewShellFound(Shell),
 }
 
 impl std::fmt::Display for RenameError {
