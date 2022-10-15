@@ -61,7 +61,14 @@ pub enum Command {
     /// Add the line and save the file:
     ///
     /// `Invoke-Expression -Command $(tool completion powershell | Out-String)`
-    Completion { shell: clap_complete::Shell },
+    Completion {
+        shell: clap_complete::Shell,
+
+        /// If you want to renam the binary this option should be filled with the name you choose
+        /// to rename `tool` to.
+        #[arg(long, value_name = "string")]
+        rename: Option<String>,
+    },
 
     /// Sync all tools specified in configuration file or the only one specified in the command line
     Sync { tool: Option<String> },
