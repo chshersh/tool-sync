@@ -44,12 +44,7 @@ fn generate_completion(shell: clap_complete::Shell, rename: Option<String>) {
         }
         None => {
             let cmd_name: String = cmd.get_name().into();
-            generate(
-                shell,
-                &mut cmd,
-                cmd_name,
-                &mut std::io::stdout(),
-            );
+            generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
         }
     };
 }
@@ -86,7 +81,10 @@ Add the line and save the file:
         _ => return Err(RenameError::NewShellFound(shell.to_owned())),
     };
 
-    eprintln!("\n\n############################\n{}\n############################", completion_str);
+    eprintln!(
+        "\n\n############################\n{}\n############################",
+        completion_str
+    );
 
     Ok(())
 }
