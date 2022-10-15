@@ -63,7 +63,17 @@ jobs:
 
           diff logg tests/bash-completion
           if [[ $? == 1 ]]; then logg test/bash-completion; false; fi
+    - if: matrix.os == 'macos-latest'
+      name: "Integration test: [macos-latest] [check zsh completion]"
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          cargo run -- completion zsh --rename test-name > /dev/null 2> log
 
+          cat log | tail -n +3 > logg
+
+          diff logg tests/zsh-completion
+          if [[ $? == 1 ]]; then logg test/zsh-completion; false; fi
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-ripgrep]"
       env:
