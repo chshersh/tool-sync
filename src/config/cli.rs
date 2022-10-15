@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[command(author="Dmitrii Kovanikov <kovanikov@gmail.com>", version, about="A CLI tool to manage other CLI tools", long_about = None)]
 pub struct Cli {
-    /// Sets a path to a configuration file (default: $HOME/.tool.toml)
+    /// Set a path to a configuration file (default: $HOME/.tool.toml)
     #[arg(short, long, value_name = "FILE")]
     pub config: Option<PathBuf>,
 
