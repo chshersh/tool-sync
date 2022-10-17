@@ -14,6 +14,10 @@
 # [exa]        # https://github.com/ogham/exa
 # [fd]         # https://github.com/sharkdp/fd
 # [github]     # https://github.com/cli/cli
+# [hyperfine]  # https://github.com/sharkdp/hyperfine
+# [just]       # https://github.com/casey/just
+# [k9s]        # https://github.com/derailed/k9s
+# [procs]      # https://github.com/dalance/procs
 # [ripgrep]    # https://github.com/BurntSushi/ripgrep
 # [tool-sync]  # https://github.com/chshersh/tool-sync
 #
