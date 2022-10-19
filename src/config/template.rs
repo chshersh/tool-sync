@@ -1,6 +1,4 @@
 /// This file only holds the template that is used to generate a default .tool.toml.
-use clap_complete::Shell;
-
 use crate::sync::db;
 
 pub fn generate_default_config() {
@@ -45,47 +43,4 @@ fn config_template() -> String {
 #     asset_name.windows = "x86_64-pc-windows-msvc""###,
         version = env!("CARGO_PKG_VERSION"),
     )
-}
-
-// This function can break when clap_complete adds support for a new shell type
-pub fn rename_completion_suggestion(shell: &Shell, bin_name: &str) -> Result<(), RenameError> {
-    let completion_str: String = match shell {
-        Shell::Zsh => format!(r##"Generate a `_{bin_name}` completion script and put it somewhere in your `$fpath`:
-`{bin_name} completion zsh --rename {bin_name} > /usr/local/share/zsh/site-functions/_{bin_name}`
-
-Ensure that the following is present in your `~/.zshrc`:
-
-`autoload -U compinit`
-
-`compinit -i`"##),
-        Shell::Bash => format!(r##"First, ensure that you install `bash-completion` using your package manager.
-
-After, add this to your `~/.bash_profile`:
-
-`eval "$({bin_name} completion bash --rename {bin_name})"`"##),
-        Shell::Fish => format!(r##"Generate a `tool.fish` completion script:
-
-`{bin_name} completion fish --rename {bin_name} > ~/.config/fish/completions/{bin_name}.fish`"##),
-        Shell::Elvish => r##"This suggestion is missing, if you use this and know how to implement this please file an issue over at https://github.com/chshersh/tool-sync/issues"##.into(),
-        Shell::PowerShell => format!(r##"Open your profile script with:
-
-`mkdir -Path (Split-Path -Parent $profile) -ErrorAction SilentlyContinue`
-`notepad $profile`
-
-Add the line and save the file:
-
-`Invoke-Expression -Command $({bin_name} completion powershell --rename {bin_name} | Out-String)`"##),
-        _ => return Err(RenameError::NewShellFound(shell.to_owned())),
-    };
-
-    eprintln!(
-        "\n\n############################\n{}\n############################",
-        completion_str
-    );
-
-    Ok(())
-}
-
-pub enum RenameError {
-    NewShellFound(Shell),
 }

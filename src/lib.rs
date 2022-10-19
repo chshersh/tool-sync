@@ -1,3 +1,4 @@
+mod completion;
 mod config;
 mod infra;
 mod install;
@@ -9,8 +10,8 @@ use clap_complete::generate;
 
 use std::path::PathBuf;
 
+use crate::completion::rename_completion_suggestion;
 use crate::config::cli::{Cli, Command};
-use crate::config::template::{rename_completion_suggestion, RenameError};
 use crate::infra::err;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
@@ -48,14 +49,6 @@ fn generate_completion(shell: clap_complete::Shell, rename: Option<String>) {
             generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
         }
     };
-}
-
-impl std::fmt::Display for RenameError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        match self {
-            RenameError::NewShellFound(shell) => write!(f, "[Rename error]: {}", shell),
-        }
-    }
 }
 
 fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
