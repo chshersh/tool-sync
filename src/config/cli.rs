@@ -64,7 +64,7 @@ pub enum Command {
     Completion {
         shell: clap_complete::Shell,
 
-        /// If you want to renam the binary this option should be filled with the name you choose
+        /// If you want to rename the binary this option should be filled with the name you choose
         /// to rename `tool` to.
         #[arg(long, value_name = "string")]
         rename: Option<String>,
