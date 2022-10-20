@@ -1,0 +1,7 @@
+############################
+First, ensure that you install `bash-completion` using your package manager.
+
+After, add this to your `~/.bash_profile`:
+
+`eval "$(test-name completion bash --rename test-name)"`
+############################

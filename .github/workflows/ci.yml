@@ -52,7 +52,28 @@ jobs:
           ls -l $SYNC_DIR
 
           if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
+    - if: matrix.os == 'ubuntu-latest'
+      name: "Integration test: [ubuntu-latest] [check bash completion]"
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          cargo run -- completion bash --rename test-name > /dev/null 2> log
 
+          cat log | tail -n +5 > logg
+
+          diff logg tests/bash-completion
+          if [[ $? == 1 ]]; then logg test/bash-completion; false; fi
+    - if: matrix.os == 'macos-latest'
+      name: "Integration test: [macos-latest] [check zsh completion]"
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          cargo run -- completion zsh --rename test-name > /dev/null 2> log
+
+          cat log | tail -n +5 > logg
+
+          diff logg tests/zsh-completion
+          if [[ $? == 1 ]]; then logg test/zsh-completion; false; fi
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-ripgrep]"
       env:

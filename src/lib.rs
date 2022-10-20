@@ -1,14 +1,20 @@
+mod completion;
 mod config;
 mod infra;
 mod install;
 mod model;
 mod sync;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::generate;
+
 use std::path::PathBuf;
 
+use crate::completion::rename_completion_suggestion;
 use crate::config::cli::{Cli, Command};
 use crate::infra::err;
+
+const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
 
 pub fn run() {
     let cli = Cli::parse();
@@ -18,6 +24,9 @@ pub fn run() {
     let config_path = resolve_config_path(cli.config);
 
     match cli.command {
+        Command::Completion { shell, rename } => {
+            generate_completion(shell, rename);
+        }
         Command::DefaultConfig { path } => match path {
             true => print_default_path(),
             false => config::template::generate_default_config(),
@@ -27,7 +36,20 @@ pub fn run() {
     }
 }
 
-const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
+fn generate_completion(shell: clap_complete::Shell, rename: Option<String>) {
+    let mut cmd: clap::Command = Cli::command();
+    match rename {
+        Some(cmd_name) => {
+            generate(shell, &mut cmd, &cmd_name, &mut std::io::stdout());
+            rename_completion_suggestion(&shell, &cmd_name)
+                .unwrap_or_else(|e| err::abort_suggest_issue(e));
+        }
+        None => {
+            let cmd_name: String = cmd.get_name().into();
+            generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
+        }
+    };
+}
 
 fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
     match config_path {
