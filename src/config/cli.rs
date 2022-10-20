@@ -9,7 +9,7 @@ pub struct Cli {
     #[arg(short, long, value_name = "FILE")]
     pub config: Option<PathBuf>,
 
-    ///Use with a custom proxy like this: `tool --proxy=http://127.0.0.1:8080 sync`
+    /// Use with a custom proxy like this: `tool --proxy=http://127.0.0.1:8080 sync`
     #[arg(short, long, value_name = "uri")]
     pub proxy: Option<String>,
 
