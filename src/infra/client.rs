@@ -25,7 +25,6 @@ impl Client {
     }
 
     fn asset_url(&self, asset_id: u32) -> String {
-        println!("{:?}", &self.proxy);
         format!(
             "https://api.github.com/repos/{owner}/{repo}/releases/assets/{asset_id}",
             owner = self.owner,
@@ -35,7 +34,6 @@ impl Client {
     }
 
     pub fn fetch_release_info(&self) -> Result<Release, Box<dyn Error>> {
-        println!("{:?}", &self.proxy);
         let release_url = self.release_url();
 
         let req = match &self.proxy {
