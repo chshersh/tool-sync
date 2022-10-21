@@ -128,7 +128,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             owner: "chshersh",
             repo: "tool-sync",
             exe_name: "tool",
-            linux: "x86_64-unknown-linux-gnu.tar.gz",
+            linux: "x86_64-unknown-linux-musl.tar.gz",
             macos: "x86_64-apple-darwin.tar.gz",
             windows: "x86_64-pc-windows-msvc.zip",
             tag: ToolInfoTag::Latest,
