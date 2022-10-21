@@ -52,7 +52,28 @@ jobs:
           ls -l $SYNC_DIR
 
           if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
+    - if: matrix.os == 'ubuntu-latest'
+      name: "Integration test: [ubuntu-latest] [check bash completion]"
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          cargo run -- completion bash --rename test-name > /dev/null 2> log
 
+          cat log | tail -n +5 > logg
+
+          diff logg tests/bash-completion
+          if [[ $? == 1 ]]; then logg test/bash-completion; false; fi
+    - if: matrix.os == 'macos-latest'
+      name: "Integration test: [macos-latest] [check zsh completion]"
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          cargo run -- completion zsh --rename test-name > /dev/null 2> log
+
+          cat log | tail -n +5 > logg
+
+          diff logg tests/zsh-completion
+          if [[ $? == 1 ]]; then logg test/zsh-completion; false; fi
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-ripgrep]"
       env:
@@ -99,6 +120,10 @@ jobs:
           if [[ ! -x $SYNC_DIR/rg    ]]; then echo "error on: rg";    false; fi
           if [[ ! -x $SYNC_DIR/tool  ]]; then echo "error on: tool";  false; fi
           if [[ ! -x $SYNC_DIR/gh  ]]; then echo "error on: gh";  false; fi
+          if [[ ! -x $SYNC_DIR/hyperfine ]]; then echo "error on: hyperfine"; false; fi
+          if [[ ! -x $SYNC_DIR/just      ]]; then echo "error on: just";      false; fi
+          if [[ ! -x $SYNC_DIR/k9s       ]]; then echo "error on: k9s";       false; fi
+          if [[ ! -x $SYNC_DIR/procs     ]]; then echo "error on: procs";     false; fi
 
           # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
           # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
@@ -143,6 +168,19 @@ jobs:
           if (!(Test-Path $env:SYNC_DIR\gh.exe)) {
               throw 'error on gh.exe'
           }
+          if (!(Test-Path $env:SYNC_DIR\hyperfine.exe)) {
+              throw 'error on hyperfine.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\just.exe)) {
+              throw 'error on just.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\k9s.exe)) {
+              throw 'error on k9s.exe'
+          }
+          if (!(Test-Path $env:SYNC_DIR\procs.exe)) {
+              throw 'error on procs.exe'
+          }
+
 
   rustfmt:
     name: rustfmt

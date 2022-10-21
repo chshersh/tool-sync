@@ -63,6 +63,54 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         },
     );
     tools.insert(
+        "hyperfine",
+        StaticToolInfo {
+            owner: "sharkdp",
+            repo: "hyperfine",
+            exe_name: "hyperfine",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
+        "just",
+        StaticToolInfo {
+            owner: "casey",
+            repo: "just",
+            exe_name: "just",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
+        "k9s",
+        StaticToolInfo {
+            owner: "derailed",
+            repo: "k9s",
+            exe_name: "k9s",
+            linux: "Linux_x86_64",
+            macos: "Darwin_x86_64",
+            windows: "Windows_x86_64",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
+        "procs",
+        StaticToolInfo {
+            owner: "dalance",
+            repo: "procs",
+            exe_name: "procs",
+            linux: "x86_64-linux",
+            macos: "x86_64-mac",
+            windows: "x86_64-windows.zip",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
         "ripgrep",
         StaticToolInfo {
             owner: "BurntSushi",
@@ -80,7 +128,7 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             owner: "chshersh",
             repo: "tool-sync",
             exe_name: "tool",
-            linux: "x86_64-unknown-linux-gnu.tar.gz",
+            linux: "x86_64-unknown-linux-musl.tar.gz",
             macos: "x86_64-apple-darwin.tar.gz",
             windows: "x86_64-pc-windows-msvc.zip",
             tag: ToolInfoTag::Latest,

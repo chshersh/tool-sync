@@ -1,0 +1,10 @@
+############################
+Generate a `_test-name` completion script and put it somewhere in your `$fpath`:
+`test-name completion zsh --rename test-name > /usr/local/share/zsh/site-functions/_test-name`
+
+Ensure that the following is present in your `~/.zshrc`:
+
+`autoload -U compinit`
+
+`compinit -i`
+############################

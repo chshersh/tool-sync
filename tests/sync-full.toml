@@ -9,6 +9,10 @@ store_directory = "sync-full"
 [ripgrep]
 [tool-sync]
 [github]
+[hyperfine]
+[just]
+[k9s]
+[procs]
 
 #disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
 # [tokei]

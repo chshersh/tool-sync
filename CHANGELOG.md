@@ -31,6 +31,14 @@ available [on GitHub][2].
   Adds new error message RepoError::NotFound when fetch_release_info
   returns 404
   (by [@crudiedo][crudiedo])
+* [#133](https://github.com/chshersh/tool-sync/issues/133)
+  Added shell completion
+  (by [@MitchellBerend][MitchellBerend])
+* [#147](https://github.com/chshersh/tool-sync/issues/147)
+  Supports casey/just, dalance/procs, derailed/k9s, and
+  sharkdp/hyperfine natively.
+  (by [@hdhoang][hdhoang])
+
 
 ### Fixed
 

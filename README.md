@@ -127,6 +127,31 @@ By default `tool-sync` reads the configuration from from the `$HOME/.tool.toml`
 path. But you can specify a custom location via the
 `--config=/path/to/my/config` flag.
 
+### Autocomplete
+
+`tool-sync` can generate it's own autocomplete scripts for some common shell
+emulators. you can run `tool completion --help` to see the supported shells.
+
+If you decide to rename the `tool` binary a `--rename` flag will help make sure
+the autocompletion will keep working.
+
+
+The following example will assume you have renamed the binary to `random-name`
+and you are using bash. You can run the following command to get completion for
+the current session of your shell.
+
+```shell
+random-name completion bash --rename random-name
+```
+
+If you want to have these autocomplete functions in the next (and the ones after
+that) as well you can add the following to your `~/.bashrc`:
+
+```shell
+eval "$(random-name completion bash --rename random-name)"
+```
+
+
 ### Quick start
 
 `tool-sync` has a command to generate a default configuration with examples and
