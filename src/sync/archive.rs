@@ -16,7 +16,7 @@ pub struct Archive<'a> {
 enum ArchiveType<'a> {
     Exe(&'a str),
     Zip(&'a str),
-    TarGz(&'a str),
+    TarBall(&'a str),
 }
 
 pub enum UnpackError {
@@ -51,7 +51,7 @@ impl<'a> Archive<'a> {
                 archive_path,
                 tmp_dir,
                 exe_name,
-                archive_type: ArchiveType::TarGz(tar_gz_dir),
+                archive_type: ArchiveType::TarBall(tar_gz_dir),
             }),
             None => {
                 let zip_dir = asset_name.strip_suffix(".zip");
@@ -85,7 +85,7 @@ impl<'a> Archive<'a> {
             ArchiveType::Exe(exe_file) => Ok(PathBuf::from(exe_file)),
 
             // unpack .tar.gz archive
-            ArchiveType::TarGz(asset_name) => {
+            ArchiveType::TarBall(asset_name) => {
                 unpack_tar(self.archive_path, self.tmp_dir).map_err(UnpackError::IOError)?;
                 find_path_to_exe(self.archive_path, self.tmp_dir, self.exe_name, asset_name)
             }
