@@ -1,6 +1,7 @@
 use flate2::read::GzDecoder;
 use std::fmt::{Display, Formatter};
 use std::fs::File;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use crate::model::asset_name::mk_exe_name;
@@ -60,6 +61,14 @@ impl<'a> Archive<'a> {
                 archive_type: ArchiveType::TarBall(tar_gz_dir),
             });
         };
+        if let Some(tar_xz_dir) = asset_name.strip_suffix(".tar.xz") {
+            return Some(Archive {
+                archive_path,
+                tmp_dir,
+                exe_name,
+                archive_type: ArchiveType::TarBall(tar_xz_dir),
+            });
+        };
         if let Some(zip_dir) = asset_name.strip_suffix(".zip") {
             return Some(Archive {
                 archive_path,
@@ -97,7 +106,7 @@ impl<'a> Archive<'a> {
 fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path) -> Result<(), std::io::Error> {
     // unpack tar_path to tmp_dir
     let tar_file = File::open(tar_path)?;
-    let tar_decoder = GzDecoder::new(tar_file);
+    let tar_decoder: Box<dyn Read> = Box::new(GzDecoder::new(tar_file));
     let mut archive = tar::Archive::new(tar_decoder);
     archive.unpack(tmp_dir)
 }
