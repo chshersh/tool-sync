@@ -11,6 +11,7 @@ use crate::model::asset_name::mk_exe_name;
 pub struct Archive<'a> {
     archive_path: &'a PathBuf,
     tmp_dir: &'a Path,
+    tool_tag: &'a str,
     exe_name: &'a str,
     archive_type: ArchiveType<'a>,
 }
@@ -44,6 +45,7 @@ impl<'a> Archive<'a> {
     pub fn from(
         archive_path: &'a PathBuf,
         tmp_dir: &'a Path,
+        tool_tag: &'a str,
         exe_name: &'a str,
         asset_name: &'a str,
     ) -> Option<Archive<'a>> {
@@ -51,6 +53,7 @@ impl<'a> Archive<'a> {
             return Some(Archive {
                 archive_path,
                 tmp_dir,
+                tool_tag,
                 exe_name,
                 archive_type: ArchiveType::Exe(asset_name),
             });
@@ -58,6 +61,7 @@ impl<'a> Archive<'a> {
         if let Some(tar_gz_dir) = asset_name.strip_suffix(".tar.gz") {
             return Some(Archive {
                 archive_path,
+                tool_tag,
                 tmp_dir,
                 exe_name,
                 archive_type: ArchiveType::TarBall(tar_gz_dir),
@@ -67,6 +71,7 @@ impl<'a> Archive<'a> {
             return Some(Archive {
                 archive_path,
                 tmp_dir,
+                tool_tag,
                 exe_name,
                 archive_type: ArchiveType::TarBall(tar_xz_dir),
             });
@@ -93,13 +98,25 @@ impl<'a> Archive<'a> {
             // unpack .tar.gz archive
             ArchiveType::TarBall(asset_name) => {
                 unpack_tar(self.archive_path, self.tmp_dir).map_err(UnpackError::IOError)?;
-                find_path_to_exe(self.archive_path, self.tmp_dir, self.exe_name, asset_name)
+                find_path_to_exe(
+                    self.archive_path,
+                    self.tmp_dir,
+                    self.tool_tag,
+                    self.exe_name,
+                    asset_name,
+                )
             }
 
             // unpack .zip archive
             ArchiveType::Zip(asset_name) => {
                 unpack_zip(self.archive_path, self.tmp_dir)?;
-                find_path_to_exe(self.archive_path, self.tmp_dir, self.exe_name, asset_name)
+                find_path_to_exe(
+                    self.archive_path,
+                    self.tmp_dir,
+                    self.tool_tag,
+                    self.exe_name,
+                    asset_name,
+                )
             }
         }
     }
@@ -133,10 +150,11 @@ fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path) -> Result<(), UnpackError> {
 fn find_path_to_exe(
     archive_path: &Path,
     tmp_dir: &Path,
+    sub_directory: &str,
     exe_name: &str,
     asset_name: &str,
 ) -> Result<PathBuf, UnpackError> {
-    let path_candidates = exe_paths(exe_name, asset_name);
+    let path_candidates = exe_paths(sub_directory, exe_name, asset_name);
 
     // find a path
     for path in path_candidates {
@@ -158,13 +176,19 @@ fn find_path_to_exe(
 }
 
 // List of potential paths where an executable can be inside the archive
-fn exe_paths(exe_name: &str, asset_name: &str) -> Vec<PathBuf> {
+fn exe_paths(sub_directory: &str, exe_name: &str, asset_name: &str) -> Vec<PathBuf> {
     let exe_name = mk_exe_name(exe_name);
 
     vec![
         [asset_name, &exe_name].iter().collect(),
         [&exe_name].iter().collect(),
+        [sub_directory, &exe_name].iter().collect(),
+        [asset_name, sub_directory, &exe_name].iter().collect(),
         ["bin", &exe_name].iter().collect(),
         [asset_name, "bin", &exe_name].iter().collect(),
+        [sub_directory, "bin", &exe_name].iter().collect(),
+        [asset_name, sub_directory, "bin", &exe_name]
+            .iter()
+            .collect(),
     ]
 }
