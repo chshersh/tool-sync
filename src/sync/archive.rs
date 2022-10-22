@@ -44,38 +44,33 @@ impl<'a> Archive<'a> {
         exe_name: &'a str,
         asset_name: &'a str,
     ) -> Option<Archive<'a>> {
-        let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
-
-        match tar_gz_dir {
-            Some(tar_gz_dir) => Some(Archive {
+        if let Some(exe_name) = asset_name.strip_suffix(".exe") {
+            return Some(Archive {
+                archive_path,
+                tmp_dir,
+                exe_name,
+                archive_type: ArchiveType::Exe(asset_name),
+            });
+        };
+        if let Some(tar_gz_dir) = asset_name.strip_suffix(".tar.gz") {
+            return Some(Archive {
                 archive_path,
                 tmp_dir,
                 exe_name,
                 archive_type: ArchiveType::TarBall(tar_gz_dir),
-            }),
-            None => {
-                let zip_dir = asset_name.strip_suffix(".zip");
-
-                match zip_dir {
-                    Some(zip_dir) => Some(Archive {
-                        archive_path,
-                        tmp_dir,
-                        exe_name,
-                        archive_type: ArchiveType::Zip(zip_dir),
-                    }),
-                    None => {
-                        let exe_file = asset_name.strip_suffix(".exe");
-
-                        exe_file.map(|_| Archive {
-                            archive_path,
-                            tmp_dir,
-                            exe_name,
-                            archive_type: ArchiveType::Exe(asset_name),
-                        })
-                    }
-                }
-            }
+            });
+        };
+        if let Some(zip_dir) = asset_name.strip_suffix(".zip") {
+            return Some(Archive {
+                archive_path,
+                tmp_dir,
+                tool_tag,
+                exe_name,
+                archive_type: ArchiveType::Zip(zip_dir),
+            });
         }
+
+        None
     }
 
     /// Unpack archive and return path to the executable tool
