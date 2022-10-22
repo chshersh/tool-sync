@@ -13,6 +13,7 @@ store_directory = "sync-full"
 [just]
 [k9s]
 [procs]
+[shellcheck]
 
 #disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
 # [tokei]
