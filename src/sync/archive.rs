@@ -1,7 +1,9 @@
 use flate2::read::GzDecoder;
+use xz2::read::XzDecoder;
+
 use std::fmt::{Display, Formatter};
 use std::fs::File;
-use std::io::Read;
+use std::io::{Error as IoError, ErrorKind, Read};
 use std::path::{Path, PathBuf};
 
 use crate::model::asset_name::mk_exe_name;
@@ -21,7 +23,7 @@ enum ArchiveType<'a> {
 }
 
 pub enum UnpackError {
-    IOError(std::io::Error),
+    IOError(IoError),
     ZipError(zip::result::ZipError),
     ExeNotFound(String),
 }
@@ -103,10 +105,19 @@ impl<'a> Archive<'a> {
     }
 }
 
-fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path) -> Result<(), std::io::Error> {
+fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path) -> Result<(), IoError> {
     // unpack tar_path to tmp_dir
     let tar_file = File::open(tar_path)?;
-    let tar_decoder: Box<dyn Read> = Box::new(GzDecoder::new(tar_file));
+    let tar_decoder: Box<dyn Read> = match tar_path.extension().and_then(|s| s.to_str()) {
+        Some("gz") => Box::new(GzDecoder::new(tar_file)),
+        Some("xz") => Box::new(XzDecoder::new(tar_file)),
+        _ => {
+            return Err(IoError::new(
+                ErrorKind::InvalidData,
+                format!("Unsupported compression {}", tar_path.display()),
+            ))
+        }
+    };
     let mut archive = tar::Archive::new(tar_decoder);
     archive.unpack(tmp_dir)
 }
