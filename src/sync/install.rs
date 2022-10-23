@@ -58,6 +58,7 @@ impl<'a> Installer<'a> {
         }
     }
 
+    #[allow(clippy::print_stdout)]
     fn sync_single_tool(
         &self,
         tool_asset: &ToolAsset,

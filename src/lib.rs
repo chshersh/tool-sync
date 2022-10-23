@@ -72,6 +72,7 @@ fn get_default_config_path() -> PathBuf {
     }
 }
 
+#[allow(clippy::print_stdout)]
 fn print_default_path() {
     println!("{}", get_default_config_path().display());
 }
