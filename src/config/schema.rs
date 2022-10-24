@@ -44,7 +44,6 @@ pub struct ConfigAsset {
     pub proxy: Option<ureq::Proxy>,
 }
 
-
 impl From<ToolInfo> for ConfigAsset {
     fn from(tool_info: ToolInfo) -> Self {
         let tag = match tool_info.tag {
