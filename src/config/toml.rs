@@ -80,7 +80,20 @@ pub fn with_parsed_file<F: FnOnce(Config)>(
 }
 
 fn parse_file(config_path: &PathBuf, proxy: Option<String>) -> Result<Config, TomlError> {
-    let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{}", e)))?;
+    let contents = fs::read_to_string(config_path).map_err(|e| match (&e, e.kind()) {
+        (e, std::io::ErrorKind::NotFound) => TomlError::IO(format!(
+"{}\n\nBefore using 'tool-sync', you need to configure it by specifying the location for downloading
+the tools and listing all the tools you want.
+
+'tool-sync' has a command to generate a default configuration with examples and field description. Simply generate it into a file and edit it:
+
+    tool default-config > ~/.tool.toml  # generate the default config
+    vim ~/.tool.toml                    # open it with an editor of your choice
+
+By default 'tool-sync' reads the configuration from from the $HOME/.tool.toml path. But you can specify
+a custom location via the --config=/path/to/my/config flag.", e)),
+        (e, _) => TomlError::IO(format!("{}", e)),
+    })?;
 
     parse_string(&contents, proxy)
 }
