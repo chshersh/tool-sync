@@ -13,4 +13,3 @@ repos:
         args: ['--all', '--', '--check']
     -   id: cargo-check
     -   id: clippy
-        args: ['--all-features', '--', '-D', 'clippy::print_stdout']
