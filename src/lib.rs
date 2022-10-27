@@ -1,8 +1,16 @@
+#![deny(clippy::print_stdout)]
+
+#[deny(clippy::print_stdout)]
 mod completion;
+#[deny(clippy::print_stdout)]
 mod config;
+#[deny(clippy::print_stdout)]
 mod infra;
+#[deny(clippy::print_stdout)]
 mod install;
+#[deny(clippy::print_stdout)]
 mod model;
+#[deny(clippy::print_stdout)]
 mod sync;
 
 use clap::{CommandFactory, Parser};
@@ -22,6 +30,7 @@ pub fn run() {
     // TODO: this is redundant for the `default-config` command
     // See: https://github.com/chshersh/tool-sync/issues/75
     let config_path = resolve_config_path(cli.config);
+    println!("Should not compile");
 
     match cli.command {
         Command::Completion { shell, rename } => {
