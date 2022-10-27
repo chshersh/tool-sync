@@ -19,6 +19,7 @@
 # [k9s]        # https://github.com/derailed/k9s
 # [procs]      # https://github.com/dalance/procs
 # [ripgrep]    # https://github.com/BurntSushi/ripgrep
+# [shellcheck] # https://github.com/koalaman/shellcheck
 # [tool-sync]  # https://github.com/chshersh/tool-sync
 #
 # You can configure the installation of any tool by specifying corresponding options:

@@ -71,10 +71,12 @@ impl<'a> Installer<'a> {
         };
 
         let download_info = downloader.download(self.tmp_dir.path())?;
+        let tool_tag = format!("{}-{}", &tool_asset.tool_name, &tool_asset.tag);
 
         let archive = Archive::from(
             &download_info.archive_path,
             self.tmp_dir.path(),
+            &tool_tag,
             &tool_asset.exe_name,
             &tool_asset.asset.name,
         );

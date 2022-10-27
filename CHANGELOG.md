@@ -38,6 +38,9 @@ available [on GitHub][2].
   Supports casey/just, dalance/procs, derailed/k9s, and
   sharkdp/hyperfine natively.
   (by [@hdhoang][hdhoang])
+* [#153](https://github.com/chshersh/tool-sync/issues/153)
+  Supports `tar.xz` assets, and koalaman/shellcheck
+  (by [@hdhoang][hdhoang])
 
 
 ### Fixed
