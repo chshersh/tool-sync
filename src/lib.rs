@@ -1,5 +1,3 @@
-
-
 // This deny block can be circumvent by adding the attribute #[allow(clippy::print_stdout)] to your
 // function or method. This block exists here to prevent stray debug prints from making it into the
 // main branch.
