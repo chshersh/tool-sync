@@ -82,7 +82,9 @@ impl<'a> Archive<'a> {
     pub fn unpack(&self) -> Result<PathBuf, UnpackError> {
         match self.archive_type {
             // already .exe file without archive (on Windows): no need to unpack
-            ArchiveType::Exe(exe_file) => Ok(PathBuf::from(exe_file)),
+            ArchiveType::Exe(exe_file) => {
+                Ok([self.tmp_dir, Path::new(exe_file)].into_iter().collect())
+            }
 
             // unpack .tar.gz archive
             ArchiveType::TarGz(asset_name) => {

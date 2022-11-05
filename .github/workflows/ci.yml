@@ -102,6 +102,21 @@ jobs:
               throw 'error on rg.exe'
           }
 
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [sync-marksman]"
+      env:
+          SYNC_DIR: "sync-marksman"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $env:SYNC_DIR
+          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
+
+          ls -l $env:SYNC_DIR
+
+          if (!(Test-Path $env:SYNC_DIR\marksman.exe)) {
+              throw 'error on marksman.exe'
+          }
+
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-full]"
       env:

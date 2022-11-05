@@ -52,6 +52,9 @@ available [on GitHub][2].
   Check prefetched `tool_assets` is not empty before passing
   it to `SyncProgress::new`
   (by [@zixuanzhang-x][zixuanzhang-x])
+* [#138](https://github.com/chshersh/tool-sync/issues/138):
+  Windows executables that aren't in an archive are properly copied
+  (by [@binyomen][binyomen])
 
 
 ## [0.2.0] — 2022-09-20 🔃
@@ -142,6 +145,7 @@ Initial release prepared by [@chshersh][chshersh].
 [mmohammadi9812]: https://github.com/mmohammadi9812
 [zixuanzhang-x]: https://github.com/zixuanzhang-x
 [crudiedo]: https://github.com/crudiedo
+[binyomen]: https://github.com/binyomen
 
 <!-- Header links -->
 
