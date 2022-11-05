@@ -1,0 +1,6 @@
+store_directory = "sync-marksman"
+
+[marksman]
+owner = 'artempyanykh'
+repo = 'marksman'
+asset_name.windows = 'marksman.exe'
