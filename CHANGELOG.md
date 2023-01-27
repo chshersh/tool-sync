@@ -34,7 +34,7 @@ available [on GitHub][2].
 * [#133](https://github.com/chshersh/tool-sync/issues/133)
   Added shell completion
   (by [@MitchellBerend][MitchellBerend])
-* [#147](https://github.com/chshersh/tool-sync/issues/147)
+* [#147](https://github.com/chshersh/tool-sync/issues/147), [#160](https://github.com/chshersh/tool-sync/issues/160)
   Supports casey/just, dalance/procs, derailed/k9s, and
   sharkdp/hyperfine natively.
   (by [@hdhoang][hdhoang])
