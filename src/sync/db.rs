@@ -93,8 +93,8 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             repo: "k9s",
             exe_name: "k9s",
             linux: "Linux_amd64",
-            macos: "Darwin_x86_64",
-            windows: "Windows_x86_64",
+            macos: "Darwin_amd64",
+            windows: "Windows_amd64",
             tag: ToolInfoTag::Latest,
         },
     );
