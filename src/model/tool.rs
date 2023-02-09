@@ -3,6 +3,7 @@ use crate::infra::client::Client;
 use crate::model::asset_name::AssetName;
 use crate::model::release::AssetError;
 use std::fmt::{Display, Formatter};
+use regex::Regex;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Tool {
@@ -75,14 +76,15 @@ impl ToolInfo {
     pub fn select_asset(&self, assets: &[Asset]) -> Result<Asset, AssetError> {
         match self.asset_name.get_name_by_os() {
             None => Err(AssetError::OsSelectorUnknown),
-            Some(asset_name) => {
+            Some(asset_pattern) => {
+                let pattern = Regex::new(&asset_pattern).map_err(AssetError::InvalidPattern)?;
                 let mut filtered_assets = assets
                     .iter()
-                    .filter(|&asset| asset.name.contains(asset_name))
+                    .filter(|&asset| pattern.is_match(&asset.name))
                     .map(|asset| asset.to_owned())
                     .collect::<Vec<Asset>>();
                 match filtered_assets.len() {
-                    0 => Err(AssetError::NotFound(asset_name.clone())),
+                    0 => Err(AssetError::NotFound(asset_pattern.to_string())),
 
                     // This is safe because there is exactly 1 element
                     1 => Ok(filtered_assets.remove(0)),
