@@ -123,6 +123,18 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         },
     );
     tools.insert(
+        "shellcheck",
+        StaticToolInfo {
+            owner: "koalaman",
+            repo: "shellcheck",
+            exe_name: "shellcheck",
+            linux: "linux.x86_64.tar",
+            macos: "darwin.x86_64",
+            windows: "zip",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
         "tool-sync",
         StaticToolInfo {
             owner: "chshersh",
