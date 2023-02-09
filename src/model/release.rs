@@ -1,6 +1,6 @@
+use regex;
 use serde::Deserialize;
 use std::fmt::{Display, Formatter, Write};
-use regex;
 
 use crate::infra::err;
 use crate::model::os::get_current_os;
@@ -18,8 +18,7 @@ pub struct Asset {
     pub size: u64,
 }
 
-//#[derive(Debug, PartialEq, Eq)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum AssetError {
     /// Asset name of this OS is unknown
     OsSelectorUnknown,
@@ -45,7 +44,7 @@ impl Display for AssetError {
                 )
             }
             Self::InvalidPattern(regex_err) => {
-                write!(f, "Invalid asset pattern: {}", regex_err)
+                write!(f, "Invalid asset pattern!\n  {}", regex_err)
             }
             Self::NotFound(asset_name) => {
                 write!(f, "No asset matching name: {}", asset_name)

@@ -2,8 +2,8 @@ use super::release::Asset;
 use crate::infra::client::Client;
 use crate::model::asset_name::AssetName;
 use crate::model::release::AssetError;
-use std::fmt::{Display, Formatter};
 use regex::Regex;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Tool {
@@ -125,6 +125,92 @@ pub struct ToolAsset {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn regex_asset_invalid() {
+        let target_asset_name = "asset-1.0.tar.gz";
+        let asset_name = "asset-(*)\\.tar\\.gz$";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: "asset.tar.gz".to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: target_asset_name.to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: "asset-1.0.tar.gz.checksum".to_string(),
+                size: 7,
+            },
+        ];
+
+        assert!(matches!(
+            tool_info.select_asset(&assets),
+            Err(AssetError::InvalidPattern(regex::Error::Syntax(_)))
+        ));
+    }
+
+    #[test]
+    fn regex_asset_found() {
+        let target_asset_name = "asset-1.0.tar.gz";
+        let asset_name = "asset-.*\\.tar\\.gz$";
+
+        let tool_info = ToolInfo {
+            owner: "owner".to_string(),
+            repo: "repo".to_string(),
+            exe_name: "exe".to_string(),
+            tag: ToolInfoTag::Latest,
+            asset_name: AssetName {
+                linux: Some(asset_name.to_string()),
+                macos: Some(asset_name.to_string()),
+                windows: Some(asset_name.to_string()),
+            },
+        };
+
+        let assets = vec![
+            Asset {
+                id: 1,
+                name: "asset.tar.gz".to_string(),
+                size: 10,
+            },
+            Asset {
+                id: 2,
+                name: target_asset_name.to_string(),
+                size: 50,
+            },
+            Asset {
+                id: 3,
+                name: "asset-1.0.tar.gz.checksum".to_string(),
+                size: 7,
+            },
+        ];
+
+        assert_eq!(
+            tool_info.select_asset(&assets),
+            Ok(Asset {
+                id: 2,
+                name: target_asset_name.to_string(),
+                size: 50
+            })
+        );
+    }
 
     #[test]
     fn asset_found() {
