@@ -10,6 +10,9 @@ available [on GitHub][2].
 
 ### Added
 
+* [PR #161](https://github.com/chshersh/tool-sync/pull/161):
+  Adds support for regex pattern when specifying asset name
+  (by [@LLouice][LLouice])
 * [#92](https://github.com/chshersh/tool-sync/issues/92):
   Adds the `tool sync <tool-name>` command to install only one tool
   from the configuration file

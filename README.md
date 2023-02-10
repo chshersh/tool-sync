@@ -215,11 +215,10 @@ asset_name.linux = "x86_64-unknown-linux-musl"
 # asset_name.windows = "x86_64-pc-windows-msvc"
 ```
 
-> ℹ️ `tool-sync` searches asset name using the _substring search_. That's why
-> you don't need to specify the full asset name in the config, only the minimal
-> part required for identifying the asset. However, `tool-sync` doesn't guarantee
-> you to find the asset you need if multiple assets from the GitHub release match
-> the substring.
+> ℹ️ `tool-sync` searches asset name using the _regular expression_, you can learn the syntax from the ![regex](https://docs.rs/regex/latest/regex/index.html) crate documentation.
+> You should specify a regex pattern that matches the only asset you want. If no asset matches or multiple assets match, the operation will fail!
+
+A regex pattern will help if there are multiple assets with a common substring. For example the GitHub release has assets like "asset-1.0.tar.gz" and "asset-1.0.tar.gz.checksum", you can use pattern like `asset_name-.*\\.tar\\.gz$` to figure it out.
 
 All fields in each tool section are
 

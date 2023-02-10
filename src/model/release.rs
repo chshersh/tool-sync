@@ -1,3 +1,4 @@
+use regex;
 use serde::Deserialize;
 use std::fmt::{Display, Formatter, Write};
 
@@ -17,10 +18,13 @@ pub struct Asset {
     pub size: u64,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum AssetError {
     /// Asset name of this OS is unknown
     OsSelectorUnknown,
+
+    /// Asset pattern is invalid
+    InvalidPattern(regex::Error),
 
     /// Asset name is not in the fetched assets
     NotFound(String),
@@ -38,6 +42,9 @@ impl Display for AssetError {
                     "Unknown asset selector for the current OS. Specify 'asset_name.{}' in the config.",
                     get_current_os()
                 )
+            }
+            Self::InvalidPattern(regex_err) => {
+                write!(f, "Invalid asset pattern!\n  {}", regex_err)
             }
             Self::NotFound(asset_name) => {
                 write!(f, "No asset matching name: {}", asset_name)
