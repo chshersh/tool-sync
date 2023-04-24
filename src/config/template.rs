@@ -1,6 +1,7 @@
 /// This file only holds the template that is used to generate a default .tool.toml.
 use crate::sync::db;
 
+#[allow(clippy::print_stdout)]
 pub fn generate_default_config() {
     println!("{}", config_template());
 }

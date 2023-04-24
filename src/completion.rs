@@ -13,6 +13,8 @@ pub fn rename_completion_suggestion(shell: &Shell, bin_name: &str) -> Result<(),
         _ => return Err(RenameError::NewShellFound(shell.to_owned())),
     };
 
+    println!("This should also not compile");
+
     eprintln!(
         "\n\n############################\n{}\n############################",
         completion_str

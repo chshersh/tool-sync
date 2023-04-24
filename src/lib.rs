@@ -1,8 +1,23 @@
+// This deny block can be circumvent by adding the attribute #[allow(clippy::print_stdout)] to your
+// function or method. This block exists here to prevent stray debug prints from making it into the
+// main branch.
+//
+// See
+//  https://github.com/chshersh/tool-sync/issues/148
+//  https://github.com/chshersh/tool-sync/issues/156
+#![deny(clippy::print_stdout)]
+
+#[deny(clippy::print_stdout)]
 mod completion;
+#[deny(clippy::print_stdout)]
 mod config;
+#[deny(clippy::print_stdout)]
 mod infra;
+#[deny(clippy::print_stdout)]
 mod install;
+#[deny(clippy::print_stdout)]
 mod model;
+#[deny(clippy::print_stdout)]
 mod sync;
 
 use clap::{CommandFactory, Parser};
@@ -22,6 +37,7 @@ pub fn run() {
     // TODO: this is redundant for the `default-config` command
     // See: https://github.com/chshersh/tool-sync/issues/75
     let config_path = resolve_config_path(cli.config);
+    println!("Should not compile");
 
     match cli.command {
         Command::Completion { shell, rename } => {
@@ -72,6 +88,7 @@ fn get_default_config_path() -> PathBuf {
     }
 }
 
+#[allow(clippy::print_stdout)]
 fn print_default_path() {
     println!("{}", get_default_config_path().display());
 }
