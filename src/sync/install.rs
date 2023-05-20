@@ -1,4 +1,6 @@
 use indicatif::ProgressBar;
+use self_replace;
+use std::env;
 use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -88,6 +90,7 @@ impl<'a> Installer<'a> {
                 }
                 Ok(tool_path) => {
                     copy_file(tool_path, self.store_directory, &tool_asset.exe_name)?;
+
                     Ok(())
                 }
             },
@@ -102,10 +105,17 @@ fn copy_file(tool_path: PathBuf, store_directory: &Path, exe_name: &str) -> std:
     install_path.push(store_directory);
     install_path.push(exe_name);
 
-    // Copy file from the downloaded unpacked archive to 'store_directory'
-    fs::copy(tool_path, &install_path)?;
+    if &install_path == &env::current_exe()? {
+        // May have issues with a symbolic links. The assumption is that
+        // the store directory is in the PATH and the executable itself
+        // where this issue should not apply but may be an edge case.
+        self_replace::self_replace(tool_path)?;
+    } else {
+        // Copy file from the downloaded unpacked archive to 'store_directory'
+        fs::copy(tool_path, &install_path)?;
 
-    set_executable_permissions(&install_path);
+        set_executable_permissions(&install_path);
+    }
 
     Ok(())
 }
