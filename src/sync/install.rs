@@ -122,6 +122,7 @@ fn copy_file(
     // as install path b/c.exe if the current working directory is in /d
     // instead of /a. Perhaps expand store directory to absolute or use
     // `BurntSushi/same-file`?
+    eprintln!("KK-{}", &install_path.display());
     if self_path.ends_with(&install_path) {
         // May have issues with a symbolic links. The assumption is that
         // the store directory is in the PATH and the executable itself

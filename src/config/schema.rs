@@ -1,5 +1,6 @@
 use shellexpand;
 use std::collections::BTreeMap;
+use std::env;
 use std::path::PathBuf;
 
 use crate::err;
@@ -70,10 +71,17 @@ impl Config {
     pub fn ensure_store_directory(&self) -> PathBuf {
         let expanded_store_directory = shellexpand::full(&self.store_directory);
 
-        let store_directory = match expanded_store_directory {
+        let mut store_directory = match expanded_store_directory {
             Err(e) => err::abort_with(e),
             Ok(cow_path) => PathBuf::from(cow_path.into_owned()),
         };
+
+        if store_directory.is_relative() {
+            store_directory = env::current_dir()
+                .expect("unable to current executable directory")
+                .join(store_directory)
+                .to_path_buf();
+        }
 
         let has_store_directory = store_directory.as_path().is_dir();
 
