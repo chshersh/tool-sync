@@ -102,6 +102,30 @@ jobs:
               throw 'error on rg.exe'
           }
 
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [sync-self]"
+      env:
+          SYNC_DIR: "sync-self"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $env:SYNC_DIR
+
+          $tool = -join($env:SYNC_DIR, '\tool.exe')
+
+          copy "target\debug\tool.exe" $tool
+
+          $output = &$tool --config="tests\$env:SYNC_DIR.toml" sync
+
+          if ($output -notmatch '1 tool') {
+              throw 'error on tool.exe'
+          }
+
+          $err_output = &$tool --config="tests\$env:SYNC_DIR.toml" sync
+
+          if ($output -notmatch '0 tool') {
+              throw 'error on tool.exe'
+          }
+
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-full]"
       env:

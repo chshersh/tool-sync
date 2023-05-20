@@ -19,6 +19,7 @@ use super::progress::SyncProgress;
 
 pub struct Installer<'a> {
     store_directory: &'a Path,
+    self_exe: PathBuf,
     tmp_dir: TempDir,
     sync_progress: SyncProgress,
 }
@@ -34,6 +35,7 @@ impl<'a> Installer<'a> {
             }
             Ok(tmp_dir) => Installer {
                 store_directory,
+                self_exe: env::current_exe().expect("unable to get current executable path"),
                 tmp_dir,
                 sync_progress,
             },
@@ -89,7 +91,12 @@ impl<'a> Installer<'a> {
                     Err(unpack_err.to_string().into())
                 }
                 Ok(tool_path) => {
-                    copy_file(tool_path, self.store_directory, &tool_asset.exe_name)?;
+                    copy_file(
+                        tool_path,
+                        self.store_directory,
+                        &tool_asset.exe_name,
+                        &self.self_exe,
+                    )?;
 
                     Ok(())
                 }
@@ -98,14 +105,24 @@ impl<'a> Installer<'a> {
     }
 }
 
-fn copy_file(tool_path: PathBuf, store_directory: &Path, exe_name: &str) -> std::io::Result<()> {
+fn copy_file(
+    tool_path: PathBuf,
+    store_directory: &Path,
+    exe_name: &str,
+    self_path: &Path,
+) -> std::io::Result<()> {
     let exe_name = mk_exe_name(exe_name);
 
     let mut install_path = PathBuf::new();
     install_path.push(store_directory);
     install_path.push(exe_name);
 
-    if &install_path == &env::current_exe()? {
+    // DANGER: This check does not really mean two paths resolve to the
+    // same file. For example, the exe path /a/b/c.exe is not the same
+    // as install path b/c.exe if the current working directory is in /d
+    // instead of /a. Perhaps expand store directory to absolute or use
+    // `BurntSushi/same-file`?
+    if self_path.ends_with(&install_path) {
         // May have issues with a symbolic links. The assumption is that
         // the store directory is in the PATH and the executable itself
         // where this issue should not apply but may be an edge case.
