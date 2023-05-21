@@ -102,6 +102,52 @@ jobs:
               throw 'error on rg.exe'
           }
 
+    - if: matrix.os == 'windows-latest'
+      name: "Integration test: [windows] [sync-self]"
+      env:
+          SYNC_DIR: "sync-self"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $env:SYNC_DIR
+
+          $tool = -join($env:SYNC_DIR, '\tool.exe')
+
+          copy "target\debug\tool.exe" $tool
+
+          $output = &$tool --config="tests\$env:SYNC_DIR.toml" sync
+
+          ls -l $env:SYNC_DIR
+
+          if ($output -notmatch '1 tool') {
+              throw 'error on tool.exe'
+          }
+
+          $err_output = &$tool --config="tests\$env:SYNC_DIR.toml" sync
+
+          if ($output -notmatch '0 tools') {
+              throw 'error on tool.exe'
+          }
+
+    - if: matrix.os != 'windows-latest'
+      name: "Integration test: [unix] [sync-self]"
+      env:
+          SYNC_DIR: "sync-self"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          mkdir $SYNC_DIR
+
+          cp "target/debug/tool" "$SYNC_DIR/tool"
+
+          "$SYNC_DIR/tool" --config="tests/$SYNC_DIR.toml" sync > /dev/null 2> out
+          cat out
+          if ! grep -q '1 tool!' out; then echo "error on: tool"; false; fi
+
+          ls -l $SYNC_DIR
+
+          "$SYNC_DIR/tool" --config="tests/$SYNC_DIR.toml" sync > /dev/null 2> out
+          cat out
+          if ! grep -q 'tools!' out; then echo "error on: tool"; false; fi
+
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-full]"
       env:
