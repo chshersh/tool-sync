@@ -117,13 +117,7 @@ fn copy_file(
     install_path.push(store_directory);
     install_path.push(exe_name);
 
-    // DANGER: This check does not really mean two paths resolve to the
-    // same file. For example, the exe path /a/b/c.exe is not the same
-    // as install path b/c.exe if the current working directory is in /d
-    // instead of /a. Perhaps expand store directory to absolute or use
-    // `BurntSushi/same-file`?
-    eprintln!("KK-{}", &install_path.display());
-    if self_path.ends_with(&install_path) {
+    if self_path == &install_path {
         // May have issues with a symbolic links. The assumption is that
         // the store directory is in the PATH and the executable itself
         // where this issue should not apply but may be an edge case.

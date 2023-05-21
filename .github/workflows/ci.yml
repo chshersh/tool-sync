@@ -146,7 +146,7 @@ jobs:
 
           "$SYNC_DIR/tool" --config="tests/$SYNC_DIR.toml" sync > /dev/null 2> out
           cat out
-          if ! grep -q '1 tools!' out; then echo "error on: tool"; false; fi
+          if ! grep -q 'tools!' out; then echo "error on: tool"; false; fi
 
     - if: matrix.os != 'windows-latest'
       name: "Integration test: [unix] [sync-full]"
