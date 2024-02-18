@@ -41,6 +41,15 @@ pub enum ToolInfoTag {
 }
 
 const LATEST_VERSION: &str = "latest";
+const COMPANION_EXTENSIONS: [&str; 7] = [
+    ".asc",
+    ".md5",
+    ".md5sum",
+    ".sha256",
+    ".sha256sum",
+    ".zsync",
+    ".sbom",
+];
 
 impl ToolInfoTag {
     pub fn to_str_version(&self) -> String {
@@ -78,6 +87,11 @@ impl ToolInfo {
             Some(asset_name) => {
                 let mut filtered_assets = assets
                     .iter()
+                    .filter(|&asset| {
+                        !COMPANION_EXTENSIONS
+                            .iter()
+                            .any(|ext| asset.name.ends_with(ext))
+                    })
                     .filter(|&asset| asset.name.contains(asset_name))
                     .map(|asset| asset.to_owned())
                     .collect::<Vec<Asset>>();
@@ -199,6 +213,11 @@ mod tests {
                 id: 3,
                 name: "asset_3".to_string(),
                 size: 77,
+            },
+            Asset {
+                id: 3,
+                name: "asset_3.asc".to_string(),
+                size: 12,
             },
             Asset {
                 id: 3,
