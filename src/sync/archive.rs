@@ -95,7 +95,7 @@ impl<'a> Archive<'a> {
             ArchiveType::AppImage(app_image) => Ok(self.tmp_dir.join(app_image)),
 
             // already .exe file without archive (on Windows): no need to unpack
-            ArchiveType::Exe(exe_file) => Ok(PathBuf::from(exe_file)),
+            ArchiveType::Exe(exe_file) => Ok(self.tmp_dir.join(exe_file)),
 
             // unpack .tar.gz archive
             ArchiveType::TarGz(asset_name) => {
