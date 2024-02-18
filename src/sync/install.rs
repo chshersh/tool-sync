@@ -103,7 +103,15 @@ fn copy_file(tool_path: PathBuf, store_directory: &Path, exe_name: &str) -> std:
     install_path.push(exe_name);
 
     // Copy file from the downloaded unpacked archive to 'store_directory'
-    fs::copy(tool_path, &install_path)?;
+    let res = fs::copy(&tool_path, &install_path);
+    match res {
+        Ok(_) => {}
+        Err(e) if e.kind().to_string() == "executable file busy" => {
+            fs::remove_file(&install_path)?;
+            fs::copy(&tool_path, &install_path)?;
+        }
+        Err(e) => return Err(e),
+    }
 
     set_executable_permissions(&install_path);
 
