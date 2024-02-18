@@ -14,6 +14,7 @@ pub struct Archive<'a> {
 
 /// Archive type that specifies how to unpack asset
 enum ArchiveType<'a> {
+    AppImage(&'a str),
     Exe(&'a str),
     Zip(&'a str),
     TarGz(&'a str),
@@ -44,6 +45,15 @@ impl<'a> Archive<'a> {
         exe_name: &'a str,
         asset_name: &'a str,
     ) -> Option<Archive<'a>> {
+        if asset_name.ends_with(".AppImage") {
+            return Archive {
+                archive_path,
+                tmp_dir,
+                exe_name,
+                archive_type: ArchiveType::AppImage(asset_name),
+            }
+            .into();
+        }
         let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
 
         match tar_gz_dir {
@@ -81,6 +91,9 @@ impl<'a> Archive<'a> {
     /// Unpack archive and return path to the executable tool
     pub fn unpack(&self) -> Result<PathBuf, UnpackError> {
         match self.archive_type {
+            // already .AppImage file: no need to unpack
+            ArchiveType::AppImage(app_image) => Ok(self.tmp_dir.join(app_image)),
+
             // already .exe file without archive (on Windows): no need to unpack
             ArchiveType::Exe(exe_file) => Ok(PathBuf::from(exe_file)),
 
