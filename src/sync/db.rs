@@ -123,6 +123,18 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         },
     );
     tools.insert(
+        "starship",
+        StaticToolInfo {
+            owner: "starship",
+            repo: "starship",
+            exe_name: "starship",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
         "tool-sync",
         StaticToolInfo {
             owner: "chshersh",
