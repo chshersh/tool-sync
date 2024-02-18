@@ -108,7 +108,7 @@ fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path) -> Result<(), std::io::Error> 
 }
 
 fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path) -> Result<(), UnpackError> {
-    let zip_archive_file = File::open(&zip_path).map_err(UnpackError::IOError)?;
+    let zip_archive_file = File::open(zip_path).map_err(UnpackError::IOError)?;
 
     let mut archive = zip::ZipArchive::new(zip_archive_file).map_err(UnpackError::ZipError)?;
 

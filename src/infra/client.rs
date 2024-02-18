@@ -62,7 +62,7 @@ impl Client {
     pub fn get_asset_stream(
         &self,
         asset: &Asset,
-    ) -> Result<Box<dyn Read + Send + Sync>, ureq::Error> {
+    ) -> Result<Box<dyn Read + Send + Sync>, Box<ureq::Error>> {
         let asset_url = self.asset_url(asset.id);
         let req = match &self.proxy {
             Some(proxy) => {
