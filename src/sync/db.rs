@@ -123,6 +123,18 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
         },
     );
     tools.insert(
+        "srgn",
+        StaticToolInfo {
+            owner: "alexpovel",
+            repo: "srgn",
+            exe_name: "srgn",
+            linux: "x86_64-unknown-linux-gnu",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
         "starship",
         StaticToolInfo {
             owner: "starship",
