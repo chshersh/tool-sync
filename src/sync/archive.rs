@@ -54,8 +54,16 @@ impl<'a> Archive<'a> {
             }
             .into();
         }
-        let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
 
+        if asset_name.ends_with(".tgz") {
+            return asset_name.strip_suffix(".tgz").map(|dir| Archive {
+                archive_path,
+                tmp_dir,
+                exe_name,
+                archive_type: ArchiveType::TarGz(dir),
+            });
+        }
+        let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
         match tar_gz_dir {
             Some(tar_gz_dir) => Some(Archive {
                 archive_path,
