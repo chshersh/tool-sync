@@ -41,12 +41,16 @@ pub enum ToolInfoTag {
 }
 
 const LATEST_VERSION: &str = "latest";
-const COMPANION_EXTENSIONS: [&str; 7] = [
+const COMPANION_EXTENSIONS: [&str; 11] = [
     ".asc",
     ".md5",
     ".md5sum",
+    ".sha1",
+    ".sha1sum",
     ".sha256",
     ".sha256sum",
+    ".sha512",
+    ".sha512sum",
     ".zsync",
     ".sbom",
 ];
