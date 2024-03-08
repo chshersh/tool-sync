@@ -170,6 +170,7 @@ fn exe_paths(exe_name: &str, asset_name: &str) -> Vec<PathBuf> {
     vec![
         [asset_name, &exe_name].iter().collect(),
         [&exe_name].iter().collect(),
+        [&exe_name, &exe_name].iter().collect(),
         ["bin", &exe_name].iter().collect(),
         [asset_name, "bin", &exe_name].iter().collect(),
     ]
