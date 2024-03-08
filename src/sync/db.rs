@@ -116,8 +116,32 @@ pub fn build_db() -> BTreeMap<String, ToolInfo> {
             owner: "BurntSushi",
             repo: "ripgrep",
             exe_name: "rg",
-            linux: "unknown-linux-musl",
-            macos: "apple-darwin",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
+        "srgn",
+        StaticToolInfo {
+            owner: "alexpovel",
+            repo: "srgn",
+            exe_name: "srgn",
+            linux: "x86_64-unknown-linux-gnu",
+            macos: "x86_64-apple-darwin",
+            windows: "x86_64-pc-windows-msvc",
+            tag: ToolInfoTag::Latest,
+        },
+    );
+    tools.insert(
+        "starship",
+        StaticToolInfo {
+            owner: "starship",
+            repo: "starship",
+            exe_name: "starship",
+            linux: "x86_64-unknown-linux-musl",
+            macos: "x86_64-apple-darwin",
             windows: "x86_64-pc-windows-msvc",
             tag: ToolInfoTag::Latest,
         },

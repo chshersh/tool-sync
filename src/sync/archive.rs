@@ -14,6 +14,7 @@ pub struct Archive<'a> {
 
 /// Archive type that specifies how to unpack asset
 enum ArchiveType<'a> {
+    AppImage(&'a str),
     Exe(&'a str),
     Zip(&'a str),
     TarGz(&'a str),
@@ -44,8 +45,25 @@ impl<'a> Archive<'a> {
         exe_name: &'a str,
         asset_name: &'a str,
     ) -> Option<Archive<'a>> {
-        let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
+        if asset_name.ends_with(".AppImage") {
+            return Archive {
+                archive_path,
+                tmp_dir,
+                exe_name,
+                archive_type: ArchiveType::AppImage(asset_name),
+            }
+            .into();
+        }
 
+        if asset_name.ends_with(".tgz") {
+            return asset_name.strip_suffix(".tgz").map(|dir| Archive {
+                archive_path,
+                tmp_dir,
+                exe_name,
+                archive_type: ArchiveType::TarGz(dir),
+            });
+        }
+        let tar_gz_dir = asset_name.strip_suffix(".tar.gz");
         match tar_gz_dir {
             Some(tar_gz_dir) => Some(Archive {
                 archive_path,
@@ -81,8 +99,11 @@ impl<'a> Archive<'a> {
     /// Unpack archive and return path to the executable tool
     pub fn unpack(&self) -> Result<PathBuf, UnpackError> {
         match self.archive_type {
+            // already .AppImage file: no need to unpack
+            ArchiveType::AppImage(app_image) => Ok(self.tmp_dir.join(app_image)),
+
             // already .exe file without archive (on Windows): no need to unpack
-            ArchiveType::Exe(exe_file) => Ok(PathBuf::from(exe_file)),
+            ArchiveType::Exe(exe_file) => Ok(self.tmp_dir.join(exe_file)),
 
             // unpack .tar.gz archive
             ArchiveType::TarGz(asset_name) => {
@@ -108,7 +129,7 @@ fn unpack_tar(tar_path: &PathBuf, tmp_dir: &Path) -> Result<(), std::io::Error> 
 }
 
 fn unpack_zip(zip_path: &PathBuf, tmp_dir: &Path) -> Result<(), UnpackError> {
-    let zip_archive_file = File::open(&zip_path).map_err(UnpackError::IOError)?;
+    let zip_archive_file = File::open(zip_path).map_err(UnpackError::IOError)?;
 
     let mut archive = zip::ZipArchive::new(zip_archive_file).map_err(UnpackError::ZipError)?;
 
@@ -149,6 +170,7 @@ fn exe_paths(exe_name: &str, asset_name: &str) -> Vec<PathBuf> {
     vec![
         [asset_name, &exe_name].iter().collect(),
         [&exe_name].iter().collect(),
+        [&exe_name, &exe_name].iter().collect(),
         ["bin", &exe_name].iter().collect(),
         [asset_name, "bin", &exe_name].iter().collect(),
     ]
