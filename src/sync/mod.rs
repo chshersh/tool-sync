@@ -18,22 +18,22 @@ use self::prefetch::prefetch;
 use self::progress::SyncProgress;
 use self::progress::ToolPair;
 
-pub fn sync_from_path(config_path: PathBuf, tool: Option<String>, proxy: Option<String>) {
+pub fn sync_from_path(config_path: PathBuf, tool: Option<&String>, proxy: Option<String>) {
     toml::with_parsed_file(config_path.clone(), proxy, |config| {
         sync_from_config(config, config_path, tool)
     });
 }
 
-pub fn sync_from_config(mut config: Config, config_path: PathBuf, tool: Option<String>) {
+pub fn sync_from_config(mut config: Config, config_path: PathBuf, tool: Option<&String>) {
     if config.tools.is_empty() {
         no_tools_message();
         return;
     }
 
     match tool {
-        Some(tool) => match config.tools.remove(&tool) {
+        Some(tool) => match config.tools.remove(tool) {
             Some(asset) => sync_single_tool(config, tool, asset),
-            None => tool_not_in_config_message(&tool, &config_path),
+            None => tool_not_in_config_message(tool, &config_path),
         },
         None => sync_from_config_no_check(config),
     }
@@ -77,8 +77,8 @@ installing one of the tools natively supported by 'tool-sync'."#,
 const DONE: Emoji<'_, '_> = Emoji("✨ ", "* ");
 const DIRECTORY: Emoji<'_, '_> = Emoji("📁 ", "* ");
 
-pub fn sync_single_tool(mut config: Config, name: String, asset: ConfigAsset) {
-    config.tools = BTreeMap::from([(name, asset)]);
+pub fn sync_single_tool(mut config: Config, name: &str, asset: ConfigAsset) {
+    config.tools = BTreeMap::from([(name.to_string(), asset)]);
     sync_from_config_no_check(config);
 }
 

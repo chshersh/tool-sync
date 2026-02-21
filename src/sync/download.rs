@@ -20,7 +20,7 @@ pub struct DownloadInfo {
     pub archive_path: PathBuf,
 }
 
-impl<'a> Downloader<'a> {
+impl Downloader<'_> {
     fn download_asset(&self, tmp_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
         let mut stream = self.client.get_asset_stream(self.asset)?;
 

@@ -1,6 +1,6 @@
 [package]
 name = "tool-sync"
-version = "0.2.0"
+version = "0.4.0"
 authors = ["Dmitrii Kovanikov <kovanikov@gmail.com>"]
 license = "MPL-2.0"
 description = """
@@ -12,24 +12,36 @@ homepage = "https://github.com/chshersh/tool-sync"
 repository = "https://github.com/chshersh/tool-sync"
 keywords = ["cli", "sync", "download", "tools"]
 categories = ["command-line-utilities"]
-edition = "2021"
+edition = "2024"
 
 [[bin]]
 name = "tool"
 path = "src/main.rs"
 
 [dependencies]
-clap = { version = "4.0.15", features = ["derive"] }
-serde = { version = "1.0", features = ["derive"] }
-ureq = { version = "2.5.0", features = ["json"] }
-zip = { version = "0.6.3", default-features = false, features = ["deflate"] }
+# config
+nanoserde = { version = "0.2.1", default-features = false, features = ["json", "toml", "std"] }
+toml = { version = "0.9", default-features = false, features = ["parse", "serde"] }
 
-clap_complete = "4.0.2"
-console = "0.15.2"
-dirs = "4.0.0"
-flate2 = "1.0"
-indicatif = "0.17.1"
-shellexpand = "2.1.2"
-tar = "0.4.38"
-tempdir = "0.3.7"
-toml = "0.5.9"
+# serde
+facet = { version = "0.43", default-features = false }
+facet-pretty = { version = "0.43", default-features = false }
+facet-json = { version = "0.43", default-features = false, features = [] }
+
+# UX
+facet-args = { version = "0.43", default-features = false, features = ["rich-diagnostics"] }
+
+console = { version = "0.16", default-features = false }
+indicatif = { version = "0.18", default-features = false }
+
+# fetch
+ureq = { version = "3", default-features = false, features = ["gzip", "platform-verifier", "rustls"] }
+
+# extract
+zip = { version = "7", default-features = false, features = ["deflate"] }
+deko = { version = "0", default-features = false, features = ["flate2", "xz"] }
+tar = { version = "0.4", default-features = false }
+
+# search
+shellexpand = { version = "3", default-features = false, features = ["base-0", "tilde"] }
+tempfile = { version = "3", default-features = false }

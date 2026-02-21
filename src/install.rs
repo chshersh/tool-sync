@@ -6,11 +6,6 @@ use crate::infra::err;
 use crate::sync;
 use crate::sync::db::{fmt_tool_names_info, lookup_tool};
 
-/// Install a single tool
-pub fn install(config_path: PathBuf, name: String, proxy: Option<String>) {
-    toml::with_parsed_file(config_path, proxy, |config| install_tool(config, name))
-}
-
 /// Find if the tool is already mentioned in the config
 fn install_tool(config: Config, name: String) {
     if let Some(tool_info) = lookup_tool(&name) {

@@ -2,7 +2,7 @@ use indicatif::ProgressBar;
 use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
-use tempdir::TempDir;
+use tempfile::TempDir;
 
 #[cfg(target_family = "unix")]
 use std::os::unix::fs::PermissionsExt;
@@ -21,14 +21,14 @@ pub struct Installer<'a> {
     sync_progress: SyncProgress,
 }
 
-impl<'a> Installer<'a> {
+impl Installer<'_> {
     /// This functions panics when it can't create a temporary directory
     /// (e.g. not enough disk space?)
-    pub fn mk(store_directory: &Path, sync_progress: SyncProgress) -> Installer {
-        let tmp_dir = TempDir::new("tool-sync");
+    pub fn mk(store_directory: &Path, sync_progress: SyncProgress) -> Installer<'_> {
+        let tmp_dir = TempDir::with_prefix("tool-sync-");
         match tmp_dir {
             Err(e) => {
-                err::abort_suggest_issue(format!("Error creating temporary directory: {}", e));
+                err::abort_suggest_issue(format!("Error creating temporary directory: {e}"));
             }
             Ok(tmp_dir) => Installer {
                 store_directory,
@@ -52,7 +52,7 @@ impl<'a> Installer<'a> {
             }
             Err(e) => {
                 self.sync_progress
-                    .failure(pb_msg, tool_name, tag, format!("[error] {}", e));
+                    .failure(pb_msg, tool_name, tag, format!("[error] {e}"));
                 false
             }
         }
@@ -77,6 +77,7 @@ impl<'a> Installer<'a> {
             self.tmp_dir.path(),
             &tool_asset.exe_name,
             &tool_asset.asset.name,
+            &tool_asset.tag,
         );
 
         match archive {
@@ -103,7 +104,15 @@ fn copy_file(tool_path: PathBuf, store_directory: &Path, exe_name: &str) -> std:
     install_path.push(exe_name);
 
     // Copy file from the downloaded unpacked archive to 'store_directory'
-    fs::copy(tool_path, &install_path)?;
+    let res = fs::copy(&tool_path, &install_path);
+    match res {
+        Ok(_) => {}
+        Err(e) if e.kind().to_string() == "executable file busy" => {
+            fs::remove_file(&install_path)?;
+            fs::copy(&tool_path, &install_path)?;
+        }
+        Err(e) => return Err(e),
+    }
 
     set_executable_permissions(&install_path);
 

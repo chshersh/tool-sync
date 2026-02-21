@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter};
 #[derive(Debug, PartialEq, Eq)]
 pub enum OS {
     Windows,
+    #[allow(clippy::enum_variant_names)]
     MacOS,
     Linux,
 }

@@ -284,8 +284,8 @@ mod tests {
                 repo: "ripgrep".to_string(),
                 exe_name: "abcdefu".to_string(),
                 asset_name: AssetName {
-                    linux: Some("unknown-linux-musl".to_string()),
-                    macos: Some("apple-darwin".to_string()),
+                    linux: Some("x86_64-unknown-linux-musl".to_string()),
+                    macos: Some("x86_64-apple-darwin".to_string()),
                     windows: Some("x86_64-pc-windows-msvc".to_string()),
                 },
                 tag: ToolInfoTag::Latest,

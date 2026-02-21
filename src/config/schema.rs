@@ -58,7 +58,7 @@ impl From<ToolInfo> for ConfigAsset {
             tag,
             asset_name: tool_info.asset_name,
 
-            /// Hardcoded tools don't supply their own proxy automatically
+            // Hardcoded tools don't supply their own proxy automatically
             proxy: None,
         }
     }

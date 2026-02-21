@@ -1,16 +1,15 @@
-use serde::Deserialize;
-use std::fmt::{Display, Formatter, Write};
+use facet_pretty::FacetPretty as _;
+use std::fmt::{Display, Formatter};
 
-use crate::infra::err;
 use crate::model::os::get_current_os;
 
-#[derive(Deserialize, Debug)]
+#[derive(facet::Facet, Debug)]
 pub struct Release {
     pub tag_name: String,
     pub assets: Vec<Asset>,
 }
 
-#[derive(Deserialize, Debug, Clone, Eq, PartialEq)]
+#[derive(facet::Facet, Debug, Clone, Eq, PartialEq)]
 pub struct Asset {
     pub id: u32,
     pub name: String,
@@ -23,7 +22,7 @@ pub enum AssetError {
     OsSelectorUnknown,
 
     /// Asset name is not in the fetched assets
-    NotFound(String),
+    NotFound(String, Vec<String>),
 
     /// Multiple asset names are found
     MultipleFound(Vec<String>),
@@ -39,20 +38,18 @@ impl Display for AssetError {
                     get_current_os()
                 )
             }
-            Self::NotFound(asset_name) => {
-                write!(f, "No asset matching name: {}", asset_name)
+            Self::NotFound(asset_name, available_assets) => {
+                write!(
+                    f,
+                    "No asset matching name: {asset_name} among {}",
+                    available_assets.pretty()
+                )
             }
             Self::MultipleFound(assets) => {
-                let mut formatted: String = String::from("\n");
-                for asset in assets {
-                    if let Err(e) = writeln!(formatted, "\t * {}", asset) {
-                        err::abort_suggest_issue(e)
-                    };
-                }
                 write!(
                     f,
                     "\nMultiple name matches found for this asset:\n{}\nPlease add one of these to the config.",
-                    formatted
+                    assets.pretty()
                 )
             }
         }

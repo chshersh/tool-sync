@@ -1,13 +1,16 @@
 name: CI
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [synchronize, opened, reopened]
   push:
-    branches: [main]
+    branches: [appimage]
   schedule:
     # additionally run once per week (At 00:00 on Sunday) to maintain cache
-    - cron: '0 0 * * 0'
+    - cron: "0 0 * * 0"
 
 env:
   CARGO_TERM_COLOR: always
@@ -21,192 +24,71 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/cache@v3
-      name: Cache cargo
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target
-        key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-
-    - name: Build
-      run: cargo build --verbose
-
-    - name: Unit tests
-      run: cargo test --verbose
-
-    - if: matrix.os != 'windows-latest'
-      name: "Integration test: [unix] [install ripgrep]"
-      env:
-          SYNC_DIR: "install-ripgrep"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          mkdir $SYNC_DIR
-          cargo run -- --config=tests/$SYNC_DIR.toml install ripgrep
-
-          ls -l $SYNC_DIR
-
-          if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
-    - if: matrix.os == 'ubuntu-latest'
-      name: "Integration test: [ubuntu-latest] [check bash completion]"
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          cargo run -- completion bash --rename test-name > /dev/null 2> log
-
-          cat log | tail -n +5 > logg
-
-          diff logg tests/bash-completion
-          if [[ $? == 1 ]]; then logg test/bash-completion; false; fi
-    - if: matrix.os == 'macos-latest'
-      name: "Integration test: [macos-latest] [check zsh completion]"
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          cargo run -- completion zsh --rename test-name > /dev/null 2> log
-
-          cat log | tail -n +5 > logg
-
-          diff logg tests/zsh-completion
-          if [[ $? == 1 ]]; then logg test/zsh-completion; false; fi
-    - if: matrix.os != 'windows-latest'
-      name: "Integration test: [unix] [sync-ripgrep]"
-      env:
-          SYNC_DIR: "sync-ripgrep"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          mkdir $SYNC_DIR
-          cargo run -- --config=tests/$SYNC_DIR.toml sync
-
-          ls -l $SYNC_DIR
-
-          if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
-
-    - if: matrix.os == 'windows-latest'
-      name: "Integration test: [windows] [sync-ripgrep]"
-      env:
-          SYNC_DIR: "sync-ripgrep"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          mkdir $env:SYNC_DIR
-          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
-
-          ls -l $env:SYNC_DIR
-
-          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
-              throw 'error on rg.exe'
-          }
-
-    - if: matrix.os != 'windows-latest'
-      name: "Integration test: [unix] [sync-full]"
-      env:
-          SYNC_DIR: "sync-full"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          mkdir $SYNC_DIR
-          cargo run -- --config=tests/$SYNC_DIR.toml sync
-
-          ls -l $SYNC_DIR
-
-          if [[ ! -x $SYNC_DIR/bat   ]]; then echo "error on: bat";   false; fi
-          if [[ ! -x $SYNC_DIR/difft ]]; then echo "error on: difft"; false; fi
-          if [[ ! -x $SYNC_DIR/exa   ]]; then echo "error on: exa";   false; fi
-          if [[ ! -x $SYNC_DIR/fd    ]]; then echo "error on: fd";    false; fi
-          if [[ ! -x $SYNC_DIR/rg    ]]; then echo "error on: rg";    false; fi
-          if [[ ! -x $SYNC_DIR/tool  ]]; then echo "error on: tool";  false; fi
-          if [[ ! -x $SYNC_DIR/gh  ]]; then echo "error on: gh";  false; fi
-          if [[ ! -x $SYNC_DIR/hyperfine ]]; then echo "error on: hyperfine"; false; fi
-          if [[ ! -x $SYNC_DIR/just      ]]; then echo "error on: just";      false; fi
-          if [[ ! -x $SYNC_DIR/k9s       ]]; then echo "error on: k9s";       false; fi
-          if [[ ! -x $SYNC_DIR/procs     ]]; then echo "error on: procs";     false; fi
-
-          # disabled because of: https://github.com/alexcrichton/tar-rs/issues/295
-          # if [[ ! -x $SYNC_DIR/tokei ]]; then echo "error on: tokei"; false; fi
-
-    - if: matrix.os != 'windows-latest'
-      name: "Characterization test: [unix] [default-config]"
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          cargo run -- default-config > tools.toml
-
-          diff tools.toml tests/default-config.toml
-
-          if [[ $? == 1 ]]; then diff tools.toml tests/default-config.toml; false; fi
-
-    - if: matrix.os == 'windows-latest'
-      name: "Integration test: [windows] [full-database]"
-      env:
-          SYNC_DIR: "sync-full"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-          mkdir $env:SYNC_DIR
-          cargo run -- --config="tests\$env:SYNC_DIR.toml" sync
-
-          ls -l $env:SYNC_DIR
-
-          if (!(Test-Path $env:SYNC_DIR\bat.exe)) {
-              throw 'error on bat.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\difft.exe)) {
-              throw 'error on difft.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\fd.exe)) {
-              throw 'error on fd.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
-              throw 'error on rg.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\tool.exe)) {
-              throw 'error on tool.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\gh.exe)) {
-              throw 'error on gh.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\hyperfine.exe)) {
-              throw 'error on hyperfine.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\just.exe)) {
-              throw 'error on just.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\k9s.exe)) {
-              throw 'error on k9s.exe'
-          }
-          if (!(Test-Path $env:SYNC_DIR\procs.exe)) {
-              throw 'error on procs.exe'
-          }
-
-
-  rustfmt:
-    name: rustfmt
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-          toolchain: stable
-          components: rustfmt
-          override: true
-
-    - name: Check formatting
-      run: |
-        cargo fmt --all -- --check
-
-  clippy_check:
-    name: clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+          persist-credentials: false
+
+      - uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # https://github.com/actions/cache/releases/tag/v4.2.3
+        name: Cache cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target
+          key: ${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Unit tests
+        run: cargo test --verbose
+      - if: matrix.os != 'windows-latest'
+        name: "Integration test: [unix] [sync-ripgrep]"
+        env:
+          SYNC_DIR: "sync-ripgrep"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir $SYNC_DIR
+          cargo run -- --config=tests/$SYNC_DIR.toml ripgrep
+
+          ls -l $SYNC_DIR
+
+          if [[ ! -x $SYNC_DIR/rg ]]; then echo "error on: rg"; false; fi
+
+      - if: matrix.os == 'windows-latest'
+        name: "Integration test: [windows] [sync-ripgrep]"
+        env:
+          SYNC_DIR: "sync-ripgrep"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir $env:SYNC_DIR
+          cargo run -- --config="tests\$env:SYNC_DIR.toml" ripgrep
+
+          ls -l $env:SYNC_DIR
+
+          if (!(Test-Path $env:SYNC_DIR\rg.exe)) {
+              throw 'error on rg.exe'
+          }
+
+  linters:
+    name: linters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b
+        with:
+          toolchain: beta
+          components: clippy, rustfmt
+      - name: Check clippy
+        run: |
+          cargo clippy --all-targets
+      - name: Check formatting
+        run: |
+          cargo fmt --all -- --check

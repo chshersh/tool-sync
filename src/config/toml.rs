@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::PathBuf;
-use toml::{map::Map, Value};
+use toml::{Table, Value, map::Map};
 
 use crate::config::schema::{Config, ConfigAsset};
 use crate::infra::err;
@@ -31,9 +31,9 @@ pub enum DecodeError {
 impl Display for TomlError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            TomlError::IO(e) => write!(f, "[IO Error] {}", e),
-            TomlError::Parse(e) => write!(f, "[Parsing Error] {}", e),
-            TomlError::Decode(e) => write!(f, "[Decode Error] {}", e),
+            TomlError::IO(e) => write!(f, "[IO Error] {e}"),
+            TomlError::Parse(e) => write!(f, "[Parsing Error] {e}"),
+            TomlError::Decode(e) => write!(f, "[Decode Error] {e}"),
         }
     }
 }
@@ -42,7 +42,7 @@ impl Display for DecodeError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             DecodeError::MissingKey { key } => {
-                write!(f, "The key '{}' is missing (a typo or not specified?)", key)
+                write!(f, "The key '{key}' is missing (a typo or not specified?)")
             }
             DecodeError::InvalidType {
                 key,
@@ -50,9 +50,7 @@ impl Display for DecodeError {
                 found,
             } => write!(
                 f,
-                "unexpected value type '{}={}': expected `{}`, found `{}`",
-                key,
-                found,
+                "unexpected value type '{key}={found:?}': expected `{}`, found `{}`",
                 expected.type_str(),
                 found.type_str()
             ),
@@ -80,16 +78,16 @@ pub fn with_parsed_file<F: FnOnce(Config)>(
 }
 
 fn parse_file(config_path: &PathBuf, proxy: Option<String>) -> Result<Config, TomlError> {
-    let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{}", e)))?;
+    let contents = fs::read_to_string(config_path).map_err(|e| TomlError::IO(format!("{e}")))?;
 
     parse_string(&contents, proxy)
 }
 
 fn parse_string(contents: &str, proxy: Option<String>) -> Result<Config, TomlError> {
     contents
-        .parse::<Value>()
+        .parse::<Table>()
         .map_err(TomlError::Parse)
-        .and_then(|toml| decode_config(toml, proxy).map_err(TomlError::Decode))
+        .and_then(|toml| decode_config(Value::Table(toml), proxy).map_err(TomlError::Decode))
 }
 
 fn decode_config(toml: Value, proxy: Option<String>) -> Result<Config, DecodeError> {
@@ -137,24 +135,20 @@ fn decode_config_asset(table: &Map<String, Value>, proxy: &Option<String>) -> Co
     let exe_name = str_by_key(table, "exe_name");
     let asset_name = decode_asset_name(table);
     let tag = str_by_key(table, "tag");
+    let proxy = proxy.as_ref().map(|s| {
+        ureq::Proxy::new(s).unwrap_or_else(|_| {
+            panic!("Could not parse proxy address, please check the syntax: {s}")
+        })
+    });
 
-    let mut config_asset = ConfigAsset {
+    ConfigAsset {
         owner,
         repo,
         exe_name,
         asset_name,
         tag,
-        proxy: None,
-    };
-    if let Some(p) = proxy {
-        config_asset.proxy = Some(ureq::Proxy::new(p.clone()).unwrap_or_else(|_| {
-            panic!(
-                "Could not parse proxy address, please check the syntax: {}",
-                p
-            )
-        }));
-    };
-    config_asset
+        proxy,
+    }
 }
 
 fn decode_asset_name(table: &Map<String, Value>) -> AssetName {
@@ -204,7 +198,7 @@ mod tests {
             Err(error) => {
                 assert_eq!(
                     String::from(
-                        "[Parsing Error] expected an equals, found an identifier at line 1 column 8"
+                        "[Parsing Error] TOML parse error at line 1, column 8\n  |\n1 | broken toml\n  |        ^\nkey with no value, expected `=`\n"
                     ),
                     error.to_string()
                 );
@@ -231,7 +225,9 @@ mod tests {
             found: Value::Integer(32),
         });
         assert_eq!(
-            String::from("[Decode Error] unexpected value type 'store_directory=32': expected `string`, found `integer`"),
+            String::from(
+                "[Decode Error] unexpected value type 'store_directory=Integer(32)': expected `string`, found `integer`"
+            ),
             toml_error.to_string()
         );
     }

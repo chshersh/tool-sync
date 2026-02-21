@@ -1,4 +1,4 @@
-use crate::model::os::{get_current_os, OS};
+use crate::model::os::{OS, get_current_os};
 
 /// Part of the name for each OS to identify proper asset
 #[derive(Debug, PartialEq, Eq)]

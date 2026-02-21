@@ -12,7 +12,8 @@ pub enum Tool {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ToolError {
-    /// Probably a known tool but specified differently. E.g. 'rg' instead of 'ripgrep'
+    /// Probably a known tool but specified differently. E.g. 'rg' instead of
+    /// 'ripgrep'
     Suggestion { perhaps: String },
 
     /// Not enough configuration to install the tool
@@ -23,7 +24,7 @@ impl Display for ToolError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             ToolError::Suggestion { perhaps } => {
-                write!(f, "[suggestion] Perhaps you meant: '{}'?", perhaps)
+                write!(f, "[suggestion] Perhaps you meant: '{perhaps}'?")
             }
             ToolError::Invalid => write!(f, "[error] Not detailed enough configuration"),
         }
@@ -41,12 +42,33 @@ pub enum ToolInfoTag {
 }
 
 const LATEST_VERSION: &str = "latest";
+const COMPANION_EXTENSIONS: [&str; 19] = [
+    ".DIGEST",
+    ".asc",
+    ".b2",
+    ".b3",
+    ".b3sum",
+    ".gpgsig",
+    ".md5",
+    ".md5sum",
+    ".pem",
+    ".sbom",
+    ".sbom.json",
+    ".sha1",
+    ".sha1sum",
+    ".sha256",
+    ".sha256sum",
+    ".sha512",
+    ".sha512sum",
+    ".sig",
+    ".zsync",
+];
 
 impl ToolInfoTag {
     pub fn to_str_version(&self) -> String {
         match self {
             Self::Latest => LATEST_VERSION.to_owned(),
-            Self::Specific(version) => format!("tags/{}", version),
+            Self::Specific(version) => format!("tags/{version}"),
         }
     }
 }
@@ -76,16 +98,23 @@ impl ToolInfo {
         match self.asset_name.get_name_by_os() {
             None => Err(AssetError::OsSelectorUnknown),
             Some(asset_name) => {
-                let mut filtered_assets = assets
-                    .iter()
+                let useful_assets = assets.iter().filter(|&asset| {
+                    !COMPANION_EXTENSIONS
+                        .iter()
+                        .any(|ext| asset.name.ends_with(ext))
+                });
+                let mut filtered_assets = useful_assets
+                    .clone()
                     .filter(|&asset| asset.name.contains(asset_name))
                     .map(|asset| asset.to_owned())
                     .collect::<Vec<Asset>>();
                 match filtered_assets.len() {
-                    0 => Err(AssetError::NotFound(asset_name.clone())),
-
                     // This is safe because there is exactly 1 element
                     1 => Ok(filtered_assets.remove(0)),
+                    0 => Err(AssetError::NotFound(
+                        asset_name.clone(),
+                        useful_assets.map(|a| a.name.clone()).collect(),
+                    )),
                     _ => {
                         let assets: Vec<String> =
                             filtered_assets.into_iter().map(|item| item.name).collect();
@@ -202,6 +231,11 @@ mod tests {
             },
             Asset {
                 id: 3,
+                name: "asset_3.asc".to_string(),
+                size: 12,
+            },
+            Asset {
+                id: 3,
                 name: "not a match".to_string(),
                 size: 77,
             },
@@ -253,7 +287,10 @@ mod tests {
 
         assert_eq!(
             tool_info.select_asset(&assets),
-            Err(AssetError::NotFound(asset_name.to_string()))
+            Err(AssetError::NotFound(
+                asset_name.to_string(),
+                vec!["1".to_string(), "2".to_string(), "3".to_string()]
+            ))
         );
     }
 

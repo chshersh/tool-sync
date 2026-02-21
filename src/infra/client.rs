@@ -35,61 +35,43 @@ impl Client {
 
     pub fn fetch_release_info(&self) -> Result<Release, Box<dyn Error>> {
         let release_url = self.release_url();
-
-        let req = match &self.proxy {
-            Some(proxy) => {
-                let agent = ureq::AgentBuilder::new().proxy(proxy.clone()).build();
-
-                add_auth_header(
-                    agent
-                        .get(&release_url)
-                        .set("Accept", "application/vnd.github+json")
-                        .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-                )
-            }
-            None => add_auth_header(
-                ureq::get(&release_url)
-                    .set("Accept", "application/vnd.github+json")
-                    .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-            ),
-        };
-
-        let release: Release = req.call()?.into_json()?;
-
+        let agent: ureq::Agent = ureq::Agent::config_builder()
+            .proxy(self.proxy.clone())
+            .build()
+            .into();
+        let req = agent
+            .get(release_url)
+            .header("accept", "application/vnd.github+json")
+            .header("user-agent", "chshersh/tool-sync-0.2.0");
+        let req = add_auth_header(req);
+        let json = req.call()?.into_body().read_to_string()?;
+        let release: Release = facet_json::from_str(&json).map_err(|jpewc| todo!("{jpewc}"))?;
         Ok(release)
     }
 
     pub fn get_asset_stream(
         &self,
         asset: &Asset,
-    ) -> Result<Box<dyn Read + Send + Sync>, ureq::Error> {
+    ) -> Result<Box<dyn Read + Send + Sync>, Box<ureq::Error>> {
         let asset_url = self.asset_url(asset.id);
-        let req = match &self.proxy {
-            Some(proxy) => {
-                let agent = ureq::AgentBuilder::new().proxy(proxy.clone()).build();
+        let agent: ureq::Agent = ureq::Agent::config_builder()
+            .proxy(self.proxy.clone())
+            .build()
+            .into();
+        let req = agent
+            .get(asset_url)
+            .header("accept", "application/octet-stream")
+            .header("user-agent", "chshersh/tool-sync-0.2.0");
+        let req = add_auth_header(req);
 
-                add_auth_header(
-                    agent
-                        .get(&asset_url)
-                        .set("Accept", "application/octet-stream")
-                        .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-                )
-            }
-            None => add_auth_header(
-                ureq::get(&asset_url)
-                    .set("Accept", "application/octet-stream")
-                    .set("User-Agent", "chshersh/tool-sync-0.2.0"),
-            ),
-        };
-
-        Ok(req.call()?.into_reader())
+        Ok(Box::new(req.call()?.into_body().into_reader()))
     }
 }
 
-fn add_auth_header(req: ureq::Request) -> ureq::Request {
+fn add_auth_header<B>(req: ureq::RequestBuilder<B>) -> ureq::RequestBuilder<B> {
     match env::var("GITHUB_TOKEN") {
         Err(_) => req,
-        Ok(token) => req.set("Authorization", &format!("token {}", token)),
+        Ok(token) => req.header("authorization", &format!("token {token}")),
     }
 }
 

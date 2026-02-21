@@ -1,54 +1,24 @@
-mod completion;
 mod config;
 mod infra;
-mod install;
 mod model;
 mod sync;
 
-use clap::{CommandFactory, Parser};
-use clap_complete::generate;
-
 use std::path::PathBuf;
 
-use crate::completion::rename_completion_suggestion;
-use crate::config::cli::{Cli, Command};
+use crate::config::cli::Args;
 use crate::infra::err;
 
 const DEFAULT_CONFIG_PATH: &str = ".tool.toml";
 
 pub fn run() {
-    let cli = Cli::parse();
+    let args: Args = facet_args::from_std_args().expect("parsable args");
 
     // TODO: this is redundant for the `default-config` command
     // See: https://github.com/chshersh/tool-sync/issues/75
-    let config_path = resolve_config_path(cli.config);
-
-    match cli.command {
-        Command::Completion { shell, rename } => {
-            generate_completion(shell, rename);
-        }
-        Command::DefaultConfig { path } => match path {
-            true => print_default_path(),
-            false => config::template::generate_default_config(),
-        },
-        Command::Sync { tool } => sync::sync_from_path(config_path, tool, cli.proxy),
-        Command::Install { name } => install::install(config_path, name, cli.proxy),
+    let config_path = resolve_config_path(args.config);
+    for tool in args.tools {
+        sync::sync_from_path(config_path.clone(), Some(&tool), args.proxy.clone())
     }
-}
-
-fn generate_completion(shell: clap_complete::Shell, rename: Option<String>) {
-    let mut cmd: clap::Command = Cli::command();
-    match rename {
-        Some(cmd_name) => {
-            generate(shell, &mut cmd, &cmd_name, &mut std::io::stdout());
-            rename_completion_suggestion(&shell, &cmd_name)
-                .unwrap_or_else(|e| err::abort_suggest_issue(e));
-        }
-        None => {
-            let cmd_name: String = cmd.get_name().into();
-            generate(shell, &mut cmd, cmd_name, &mut std::io::stdout());
-        }
-    };
 }
 
 fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
@@ -57,9 +27,8 @@ fn resolve_config_path(config_path: Option<PathBuf>) -> PathBuf {
         None => get_default_config_path(),
     }
 }
-
 fn get_default_config_path() -> PathBuf {
-    match dirs::home_dir() {
+    match std::env::home_dir() {
         Some(home_path) => {
             let mut path = PathBuf::new();
             path.push(home_path);
@@ -70,8 +39,4 @@ fn get_default_config_path() -> PathBuf {
             err::abort_suggest_issue("Unable to find $HOME directory");
         }
     }
-}
-
-fn print_default_path() {
-    println!("{}", get_default_config_path().display());
 }
